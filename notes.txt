@@ -13,11 +13,13 @@ colors & sizes > changes price ====
 color changes the photo in product page ====
 product stock ====
 refund ====
+discount for products on checkout page ====
 
 language
 photo of transaction
 multiple announcement
 multiple address
-discount for products on checkout page
+
+bug in switching product in product page
 
 Shipping, FAQ, Careers, Privacy Policy XXXX

@@ -71,6 +71,14 @@ export const useCartLogic = () => {
     }
   }
 
+  let productDiscountAmount = 0;
+  cart.forEach((item) => {
+    if (item.originalPrice && item.originalPrice > item.price) {
+      productDiscountAmount +=
+        (item.originalPrice - item.price) * item.quantity;
+    }
+  });
+
   const subtotalAfterDiscount = cartTotal - discountAmount;
   const fsThresholdValue = Number(freeShipping.threshold) || 0;
   const isFreeShippingEligible =
@@ -151,6 +159,7 @@ export const useCartLogic = () => {
       total: finalTotal,
       subtotal: cartTotal,
       discount: discountAmount,
+      productDiscount: productDiscountAmount,
       promoCode: appliedPromo ? appliedPromo.code : null,
       shippingCost,
       address,
@@ -203,6 +212,7 @@ export const useCartLogic = () => {
     selectedRate,
     baseShippingCost,
     discountAmount,
+    productDiscountAmount,
     subtotalAfterDiscount,
     isFreeShippingEligible,
     shippingCost,

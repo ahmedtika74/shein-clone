@@ -70,9 +70,16 @@ export const CartItemList = ({ cart, dispatch }) => {
                   )}
                 </p>
               )}
-              <p className={cn("price text-lg font-bold text-[#e60023] mb-3")}>
-                EGP {item.price.toFixed(2)}
-              </p>
+              <div className={cn("flex items-center gap-2 mb-3")}>
+                <p className={cn("price text-lg font-bold text-[#e60023]")}>
+                  EGP {item.price.toFixed(2)}
+                </p>
+                {item.originalPrice && item.originalPrice > item.price && (
+                  <p className={cn("text-sm text-gray-400 line-through")}>
+                    EGP {item.originalPrice.toFixed(2)}
+                  </p>
+                )}
+              </div>
               <div
                 className={cn(
                   "flex items-center justify-between flex-wrap gap-4 mt-4",

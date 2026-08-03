@@ -17,6 +17,7 @@ export const CheckoutPanel = ({
   handleApplyPromo,
   cartTotal,
   discountAmount,
+  productDiscountAmount,
   freeShipping,
   subtotalAfterDiscount,
   isFreeShippingEligible,
@@ -205,7 +206,7 @@ export const CheckoutPanel = ({
         <div className={cn("flex justify-between mb-3 text-gray-600")}>
           <span>Subtotal</span>
           <span className={cn("font-semibold")}>
-            EGP {cartTotal.toFixed(2)}
+            EGP {(cartTotal + (productDiscountAmount || 0)).toFixed(2)}
           </span>
         </div>
 
@@ -221,6 +222,15 @@ export const CheckoutPanel = ({
             </span>
             <span className={cn("font-semibold")}>
               - EGP {discountAmount.toFixed(2)}
+            </span>
+          </div>
+        )}
+
+        {productDiscountAmount > 0 && (
+          <div className={cn("flex justify-between mb-3 text-green-600")}>
+            <span>Products Discount</span>
+            <span className={cn("font-semibold")}>
+              - EGP {productDiscountAmount.toFixed(2)}
             </span>
           </div>
         )}

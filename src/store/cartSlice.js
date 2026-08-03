@@ -19,12 +19,23 @@ const cartSlice = createSlice({
   reducers: {
     addToCart: {
       reducer(state, action) {
-        const { id, name, price, newPrice, img, color, size, quantity } =
-          action.payload;
+        const {
+          id,
+          name,
+          price,
+          originalPrice,
+          newPrice,
+          img,
+          color,
+          size,
+          quantity,
+        } = action.payload;
 
         const existingIndex = state.items.findIndex(
           (item) =>
-            String(item.id) === String(id) && item.color?.name === color?.name && item.size?.name === size?.name,
+            String(item.id) === String(id) &&
+            item.color?.name === color?.name &&
+            item.size?.name === size?.name,
         );
 
         if (existingIndex > -1) {
@@ -34,6 +45,7 @@ const cartSlice = createSlice({
             id,
             name,
             price,
+            originalPrice,
             newPrice,
             img,
             color,
@@ -44,8 +56,13 @@ const cartSlice = createSlice({
       },
 
       prepare(product, selectedColor = null, selectedSize = null, qty = 1) {
-        const finalColor = selectedColor || (product.colors && product.colors[0]) || { name: "Default" };
-        const finalSize = selectedSize || (product.sizes && product.sizes[0]) || { name: "Free Size", priceAdjustment: 0 };
+        const finalColor = selectedColor ||
+          (product.colors && product.colors[0]) || { name: "Default" };
+        const finalSize = selectedSize ||
+          (product.sizes && product.sizes[0]) || {
+            name: "Free Size",
+            priceAdjustment: 0,
+          };
 
         let basePrice = product.numericPrice;
         if (!basePrice && product.newPrice) {
@@ -56,13 +73,25 @@ const cartSlice = createSlice({
         const sizeAdj = finalSize.priceAdjustment || 0;
         const finalPrice = colorPrice + sizeAdj;
 
+        let originalPrice = null;
+        if (product.oldPrice) {
+          originalPrice =
+            (parseFloat(product.oldPrice.replace(/[^0-9.]/g, "")) || 0) +
+            sizeAdj;
+        }
+
         return {
           payload: {
             id: product.id,
             name: product.name,
             price: finalPrice,
+            originalPrice,
             newPrice: `EGP ${finalPrice}`,
-            img: finalColor.image || product.img || (product.images && product.images[0]) || "",
+            img:
+              finalColor.image ||
+              product.img ||
+              (product.images && product.images[0]) ||
+              "",
             color: finalColor,
             size: finalSize,
             quantity: qty,
@@ -96,14 +125,12 @@ export const { addToCart, changeQty, removeItem, clearCart } =
 // Selectors
 export const selectCartItems = (state) => state.cart.items;
 
-export const selectCartTotal = createSelector(
-  [selectCartItems],
-  (items) => items.reduce((total, item) => total + item.price * item.quantity, 0)
+export const selectCartTotal = createSelector([selectCartItems], (items) =>
+  items.reduce((total, item) => total + item.price * item.quantity, 0),
 );
 
-export const selectCartCount = createSelector(
-  [selectCartItems],
-  (items) => items.reduce((count, item) => count + item.quantity, 0)
+export const selectCartCount = createSelector([selectCartItems], (items) =>
+  items.reduce((count, item) => count + item.quantity, 0),
 );
 
 export const cartReducer = cartSlice.reducer;
