@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+@layer base {
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: 'Inter', Arial, Helvetica, sans-serif;
+    background-color: #ffffff;
+    color: #111111;
+  }
+
+  /* Global focus-visible styles for accessibility */
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #000000;
+    border-radius: 2px;
+  }
+}
+
+/* Custom transitions and scrollbars */
+.transition-smooth {
+  transition: all 0.3s ease-in-out;
+}
+
+.product-card:hover .product-img {
+  transform: scale(1.05);
+}
+
+/* Hide scrollbars for clean carousel/overflow lists */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

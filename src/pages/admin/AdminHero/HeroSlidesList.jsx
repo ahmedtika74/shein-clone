@@ -1,0 +1,50 @@
+import { cn } from "../../../utils/cn";
+import { Card, CardContent, Button } from "../../../components/ui";
+
+export const HeroSlidesList = ({ heroSlides, handleDeleteSlide }) => {
+  return (
+    <div
+      className={cn(
+        "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8",
+      )}
+    >
+      {heroSlides.map((slide, index) => (
+        <Card
+          key={slide.id || `hero-${index}`}
+          className={cn("relative group p-0 overflow-hidden")}
+        >
+          <CardContent className={cn("p-4")}>
+            <img
+              src={slide.img || slide}
+              alt={`Slide ${index + 1}`}
+              className={cn("w-full h-48 object-cover rounded-xl")}
+            />
+            <div className={cn("mt-3")}>
+              <div className={cn("flex justify-between items-center mb-1")}>
+                <span className={cn("text-xs font-bold text-gray-600")}>
+                  Slide #{index + 1}
+                </span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleDeleteSlide(index)}
+                  className={cn("text-red-600")}
+                >
+                  Delete
+                </Button>
+              </div>
+              {(slide.link || slide.link === "") && (
+                <p className={cn("text-[10px] text-gray-500 truncate")}>
+                  Link:{" "}
+                  <span className={cn("text-blue-500")}>
+                    {slide.link || "None"}
+                  </span>
+                </p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+};
