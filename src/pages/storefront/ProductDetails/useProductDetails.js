@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import {
@@ -63,6 +63,17 @@ export const useProductDetails = () => {
     product?.sizes?.[0] || { name: "M", priceAdjustment: 0 },
   );
 
+  useEffect(() => {
+    if (!product) return;
+    const images =
+      product.images && product.images.length > 0
+        ? product.images
+        : [product.img || "/images/top.jpg"];
+    setSelectedImg(images[product.mainIndex || 0] || images[0]);
+    setSelectedColor(product.colors?.[0] || { name: "Default" });
+    setSelectedSize(product.sizes?.[0] || { name: "M", priceAdjustment: 0 });
+  }, [product]);
+
   // Price computation
   const baseNumeric = product?.numericPrice || 0;
   const activePriceNumeric =
@@ -84,7 +95,7 @@ export const useProductDetails = () => {
       (item.color?.name || item.color) === selectedColor?.name &&
       (item.size?.name || item.size) === selectedSize?.name,
   );
-  
+
   const quantityInCart = cartItem ? cartItem.quantity : 0;
   const currentVariantStock = Math.max(0, totalVariantStock - quantityInCart);
 
