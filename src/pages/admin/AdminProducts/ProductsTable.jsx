@@ -81,6 +81,7 @@ export const ProductsTable = ({ products, categories, onEdit, onDelete }) => {
                 <th className={cn("p-4 whitespace-nowrap")}>New Price</th>
                 <th className={cn("p-4 whitespace-nowrap")}>Old Price</th>
                 <th className={cn("p-4 whitespace-nowrap")}>Category</th>
+                <th className={cn("p-4 whitespace-nowrap")}>Total Stock</th>
                 <th className={cn("p-4 whitespace-nowrap")}>Actions</th>
               </tr>
             </thead>
@@ -88,7 +89,7 @@ export const ProductsTable = ({ products, categories, onEdit, onDelete }) => {
               {currentProducts.length === 0 ? (
                 <tr>
                   <td
-                    colSpan="6"
+                    colSpan="7"
                     className={cn("p-8 text-center text-gray-500")}
                   >
                     No products found matching your search.
@@ -99,6 +100,14 @@ export const ProductsTable = ({ products, categories, onEdit, onDelete }) => {
                   const index = products.findIndex((prod) => prod.id === p.id);
                   const mainImg =
                     p.images?.[p.mainIndex || 0] || p.img || "/images/top.jpg";
+
+                  const totalStock = p.variantsStock
+                    ? Object.values(p.variantsStock).reduce(
+                        (acc, curr) => acc + curr,
+                        0,
+                      )
+                    : 0;
+
                   return (
                     <tr key={p.id} className={cn("hover:bg-gray-50")}>
                       <td className={cn("p-4 whitespace-nowrap")}>
@@ -137,6 +146,14 @@ export const ProductsTable = ({ products, categories, onEdit, onDelete }) => {
                         )}
                       >
                         {p.category || "Uncategorized"}
+                      </td>
+                      <td
+                        className={cn(
+                          "p-4 font-bold whitespace-nowrap",
+                          totalStock > 0 ? "text-green-600" : "text-red-500",
+                        )}
+                      >
+                        {totalStock}
                       </td>
                       <td
                         className={cn(

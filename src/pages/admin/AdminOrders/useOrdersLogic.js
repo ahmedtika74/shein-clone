@@ -18,10 +18,18 @@ export const useOrdersLogic = () => {
 
   const ordersPerPage = 10;
 
-  const filteredOrders = [...orders].reverse().filter((o) => {
-    if (filterStatus === "ALL") return true;
-    return (o.status || "Pending").toUpperCase() === filterStatus.toUpperCase();
-  });
+  const filteredOrders = [...orders]
+    .sort((a, b) => {
+      const timeA = a.createdAt ? new Date(a.createdAt).getTime() : a.id;
+      const timeB = b.createdAt ? new Date(b.createdAt).getTime() : b.id;
+      return timeB - timeA;
+    })
+    .filter((o) => {
+      if (filterStatus === "ALL") return true;
+      return (
+        (o.status || "Pending").toUpperCase() === filterStatus.toUpperCase()
+      );
+    });
 
   const totalPages = Math.ceil(filteredOrders.length / ordersPerPage);
   const indexOfLastOrder = currentPage * ordersPerPage;
@@ -40,8 +48,14 @@ export const useOrdersLogic = () => {
     setExpandedOrders((prev) => ({ ...prev, [orderId]: !prev[orderId] }));
   };
 
-  const handleUpdateStatus = (orderId, newStatus) => {
-    dispatch(updateOrderStatusThunk({ orderId, status: newStatus }));
+  const handleUpdateStatus = (orderId, newStatus, reason = null) => {
+    dispatch(
+      updateOrderStatusThunk({
+        orderId,
+        status: newStatus,
+        refusalReason: reason,
+      }),
+    );
   };
 
   const handleDeleteOrder = (orderId) => {

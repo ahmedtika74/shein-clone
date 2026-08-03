@@ -70,12 +70,25 @@ export const useProductDetails = () => {
     (selectedSize?.priceAdjustment || 0);
   const activePriceStr = `EGP ${activePriceNumeric}`;
 
-  const isInCart = cartItems.some(
+  const cName = selectedColor?.name || "Default";
+  const sName = selectedSize?.name || "Free Size";
+  const variantKey = `${cName}-${sName}`;
+  const totalVariantStock =
+    product?.variantsStock?.[variantKey] !== undefined
+      ? product.variantsStock[variantKey]
+      : 0;
+
+  const cartItem = cartItems.find(
     (item) =>
       String(item.id) === String(product?.id) &&
       (item.color?.name || item.color) === selectedColor?.name &&
       (item.size?.name || item.size) === selectedSize?.name,
   );
+  
+  const quantityInCart = cartItem ? cartItem.quantity : 0;
+  const currentVariantStock = Math.max(0, totalVariantStock - quantityInCart);
+
+  const isInCart = !!cartItem;
 
   const handleAdd = () => {
     if (isInCart) {
@@ -165,6 +178,7 @@ export const useProductDetails = () => {
     hasPurchasedProduct,
     user,
     isAdmin,
+    currentVariantStock,
     // Review state & handlers
     reviewRating,
     setReviewRating,

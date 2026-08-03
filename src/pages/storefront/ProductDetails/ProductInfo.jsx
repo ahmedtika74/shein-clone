@@ -13,6 +13,7 @@ export const ProductInfo = ({
   isFav,
   handleAdd,
   dispatch,
+  currentVariantStock,
 }) => {
   return (
     <div
@@ -79,7 +80,9 @@ export const ProductInfo = ({
             >
               {c.hex && (
                 <span
-                  className={cn("w-3 h-3 rounded-full mr-2 border border-gray-300")}
+                  className={cn(
+                    "w-3 h-3 rounded-full mr-2 border border-gray-300",
+                  )}
                   style={{ backgroundColor: c.hex }}
                 ></span>
               )}
@@ -125,17 +128,34 @@ export const ProductInfo = ({
         </div>
       </div>
 
+      <div className={cn("mb-6")}>
+        {currentVariantStock > 0 ? (
+          <p className={cn("text-green-600 font-semibold")}>
+            {currentVariantStock <= 5
+              ? `Only ${currentVariantStock} left in stock!`
+              : "In Stock"}
+          </p>
+        ) : (
+          <p className={cn("text-red-600 font-semibold")}>Out of Stock</p>
+        )}
+      </div>
+
       <button
         onClick={handleAdd}
+        disabled={currentVariantStock <= 0}
         className={cn(
-          `add-cart w-full h-13.75 font-bold text-lg rounded-xl shadow-md transition-all cursor-pointer flex items-center justify-center gap-3 mt-4 ${
-            isInCart
-              ? "bg-green-600 hover:bg-green-700 text-white"
-              : "bg-black hover:bg-gray-900 text-white"
+          `add-cart w-full h-13.75 font-bold text-lg rounded-xl shadow-md transition-all flex items-center justify-center gap-3 mt-4 ${
+            currentVariantStock <= 0
+              ? "bg-gray-400 cursor-not-allowed text-white"
+              : isInCart
+                ? "bg-green-600 hover:bg-green-700 text-white cursor-pointer"
+                : "bg-black hover:bg-gray-900 text-white cursor-pointer"
           }`,
         )}
       >
-        {isInCart ? (
+        {currentVariantStock <= 0 ? (
+          "Out of Stock"
+        ) : isInCart ? (
           <>
             <i className={cn("fa-solid fa-check")}></i> Added to Cart!
           </>

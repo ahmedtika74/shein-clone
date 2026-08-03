@@ -43,6 +43,7 @@ export const initialProducts = [
     rating: 5,
     reviewsCount: 120,
     oldPrice: "EGP 200",
+    variantsStock: {}
   },
   {
     id: 1,
@@ -71,6 +72,7 @@ export const initialProducts = [
     rating: 5,
     reviewsCount: 460,
     oldPrice: "EGP 77",
+    variantsStock: {}
   },
   {
     id: 2,
@@ -99,6 +101,7 @@ export const initialProducts = [
     rating: 4,
     reviewsCount: 194,
     oldPrice: "EGP 131",
+    variantsStock: {}
   },
   {
     id: 3,
@@ -126,6 +129,7 @@ export const initialProducts = [
       "High quality casual midi dress for your everyday needs. Beautifully crafted.",
     rating: 4,
     reviewsCount: 485,
+    variantsStock: {}
   },
   {
     id: 4,
@@ -153,6 +157,7 @@ export const initialProducts = [
       "High quality boho maxi dress for your everyday needs. Beautifully crafted.",
     rating: 4,
     reviewsCount: 363,
+    variantsStock: {}
   },
   {
     id: 5,
@@ -181,6 +186,7 @@ export const initialProducts = [
     rating: 5,
     reviewsCount: 70,
     oldPrice: "EGP 52",
+    variantsStock: {}
   },
   {
     id: 6,
@@ -209,6 +215,7 @@ export const initialProducts = [
     rating: 4,
     reviewsCount: 101,
     oldPrice: "EGP 73",
+    variantsStock: {}
   },
   {
     id: 7,
@@ -236,6 +243,7 @@ export const initialProducts = [
       "High quality silk button-up blouse for your everyday needs. Beautifully crafted.",
     rating: 5,
     reviewsCount: 302,
+    variantsStock: {}
   },
   {
     id: 8,
@@ -263,6 +271,7 @@ export const initialProducts = [
       "High quality oversized graphic top for your everyday needs. Beautifully crafted.",
     rating: 4,
     reviewsCount: 197,
+    variantsStock: {}
   },
   {
     id: 9,
@@ -290,6 +299,7 @@ export const initialProducts = [
       "High quality crop top for your everyday needs. Beautifully crafted.",
     rating: 4,
     reviewsCount: 79,
+    variantsStock: {}
   },
   {
     id: 10,
@@ -317,6 +327,7 @@ export const initialProducts = [
       "High quality knit sweater for your everyday needs. Beautifully crafted.",
     rating: 4,
     reviewsCount: 493,
+    variantsStock: {}
   },
   {
     id: 11,
@@ -345,6 +356,7 @@ export const initialProducts = [
     rating: 4,
     reviewsCount: 123,
     oldPrice: "EGP 91",
+    variantsStock: {}
   },
   {
     id: 12,
@@ -373,6 +385,7 @@ export const initialProducts = [
     rating: 4,
     reviewsCount: 313,
     oldPrice: "EGP 33",
+    variantsStock: {}
   },
   {
     id: 13,
@@ -400,6 +413,7 @@ export const initialProducts = [
       "High quality ripped denim pants for your everyday needs. Beautifully crafted.",
     rating: 5,
     reviewsCount: 153,
+    variantsStock: {}
   },
   {
     id: 14,
@@ -428,6 +442,7 @@ export const initialProducts = [
     rating: 5,
     reviewsCount: 123,
     oldPrice: "EGP 82",
+    variantsStock: {}
   },
   {
     id: 15,
@@ -456,6 +471,7 @@ export const initialProducts = [
     rating: 5,
     reviewsCount: 465,
     oldPrice: "EGP 107",
+    variantsStock: {}
   },
   {
     id: 16,
@@ -484,6 +500,7 @@ export const initialProducts = [
       "High quality white canvas sneakers for your everyday needs. Beautifully crafted.",
     rating: 4,
     reviewsCount: 336,
+    variantsStock: {}
   },
   {
     id: 17,
@@ -512,6 +529,7 @@ export const initialProducts = [
       "High quality leather ankle boots for your everyday needs. Beautifully crafted.",
     rating: 4,
     reviewsCount: 460,
+    variantsStock: {}
   },
   {
     id: 18,
@@ -540,6 +558,7 @@ export const initialProducts = [
       "High quality strappy heels for your everyday needs. Beautifully crafted.",
     rating: 5,
     reviewsCount: 328,
+    variantsStock: {}
   },
   {
     id: 19,
@@ -569,6 +588,7 @@ export const initialProducts = [
     rating: 5,
     reviewsCount: 48,
     oldPrice: "EGP 67",
+    variantsStock: {}
   },
   {
     id: 20,
@@ -597,6 +617,7 @@ export const initialProducts = [
       "High quality running shoes for your everyday needs. Beautifully crafted.",
     rating: 5,
     reviewsCount: 369,
+    variantsStock: {}
   },
   {
     id: 21,
@@ -619,6 +640,7 @@ export const initialProducts = [
       "High quality leather tote bag for your everyday needs. Beautifully crafted.",
     rating: 5,
     reviewsCount: 341,
+    variantsStock: {}
   },
   {
     id: 22,
@@ -641,6 +663,7 @@ export const initialProducts = [
       "High quality crossbody mini bag for your everyday needs. Beautifully crafted.",
     rating: 4,
     reviewsCount: 489,
+    variantsStock: {}
   },
   {
     id: 23,
@@ -664,6 +687,7 @@ export const initialProducts = [
     rating: 4,
     reviewsCount: 407,
     oldPrice: "EGP 112",
+    variantsStock: {}
   },
   {
     id: 24,
@@ -686,6 +710,7 @@ export const initialProducts = [
       "High quality classic shoulder bag for your everyday needs. Beautifully crafted.",
     rating: 5,
     reviewsCount: 49,
+    variantsStock: {}
   },
   {
     id: 25,
@@ -708,6 +733,7 @@ export const initialProducts = [
       "High quality trendy backpack for your everyday needs. Beautifully crafted.",
     rating: 5,
     reviewsCount: 175,
+    variantsStock: {}
   },
   {
     id: 26,
@@ -724,6 +750,7 @@ export const initialProducts = [
       "High quality matte red lipstick for your everyday needs. Beautifully crafted.",
     rating: 5,
     reviewsCount: 112,
+    variantsStock: {}
   },
   {
     id: 27,
@@ -741,6 +768,7 @@ export const initialProducts = [
     rating: 5,
     reviewsCount: 267,
     oldPrice: "EGP 44",
+    variantsStock: {}
   },
   {
     id: 28,
@@ -758,6 +786,7 @@ export const initialProducts = [
     rating: 5,
     reviewsCount: 107,
     oldPrice: "EGP 97",
+    variantsStock: {}
   },
   {
     id: 29,
@@ -775,6 +804,7 @@ export const initialProducts = [
     rating: 5,
     reviewsCount: 169,
     oldPrice: "EGP 100",
+    variantsStock: {}
   },
   {
     id: 30,
@@ -792,6 +822,7 @@ export const initialProducts = [
     rating: 5,
     reviewsCount: 190,
     oldPrice: "EGP 77",
+    variantsStock: {}
   },
 ];
 

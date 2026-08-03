@@ -7,7 +7,13 @@ export const AdminDashboardPage = () => {
   const orders = useSelector(selectOrders);
   const products = useSelector(selectProducts);
 
-  const totalSales = orders.reduce((sum, order) => sum + (order.total || 0), 0);
+  const totalSales = orders.reduce(
+    (sum, order) =>
+      order.status !== "Refunded" && order.status !== "Cancelled"
+        ? sum + (order.total || 0)
+        : sum,
+    0,
+  );
 
   return (
     <div>

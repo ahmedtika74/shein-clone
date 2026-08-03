@@ -1,6 +1,10 @@
+import { useState } from "react";
 import { cn } from "../../../utils/cn";
 import { Pagination } from "../../../components/common/Pagination";
 import { Card, CardContent, Button } from "../../../components/ui";
+import { OrderExpandedDetails } from "./OrderExpandedDetails";
+import { OrderItemsList } from "./OrderItemsList";
+import { RefuseRefundModal } from "./RefuseRefundModal";
 
 export const OrdersTable = ({
   currentOrders,
@@ -13,6 +17,9 @@ export const OrdersTable = ({
   totalPages,
   setCurrentPage,
 }) => {
+  const [refusingOrderId, setRefusingOrderId] = useState(null);
+  const [refusalReason, setRefusalReason] = useState("");
+
   return (
     <div className={cn("space-y-6")}>
       {currentOrders.map((order) => (
@@ -53,9 +60,15 @@ export const OrdersTable = ({
                   </span>
                   <select
                     value={order.status || "Pending"}
-                    onChange={(e) =>
-                      handleUpdateStatus(order.id, e.target.value)
-                    }
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === "Refund Refused") {
+                        setRefusingOrderId(order.id);
+                        setRefusalReason("");
+                      } else {
+                        handleUpdateStatus(order.id, val);
+                      }
+                    }}
                     className={cn(
                       "h-9 px-3 border border-gray-300 rounded-md text-xs font-bold bg-gray-50 outline-none focus:border-black",
                     )}
@@ -65,6 +78,9 @@ export const OrdersTable = ({
                     <option value="Shipped">Shipped</option>
                     <option value="Completed">Completed</option>
                     <option value="Cancelled">Cancelled</option>
+                    <option value="Refund Requested">Refund Requested</option>
+                    <option value="Refunded">Refunded</option>
+                    <option value="Refund Refused">Refund Refused</option>
                   </select>
                 </div>
 
@@ -91,163 +107,10 @@ export const OrdersTable = ({
               </div>
             </div>
 
-            {expandedOrders[order.id] && (
-              <div
-                className={cn(
-                  "mb-4 grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg text-sm border border-gray-100",
-                )}
-              >
-                <div>
-                  <h4
-                    className={cn("font-bold text-gray-900 mb-2 border-b pb-1")}
-                  >
-                    Shipping Details
-                  </h4>
-                  {order.address ? (
-                    <ul className={cn("text-gray-600 space-y-1")}>
-                      <li>
-                        <span className={cn("font-semibold text-gray-800")}>
-                          Gov:
-                        </span>{" "}
-                        {order.address.government}
-                      </li>
-                      <li>
-                        <span className={cn("font-semibold text-gray-800")}>
-                          City:
-                        </span>{" "}
-                        {order.address.city}
-                      </li>
-                      <li>
-                        <span className={cn("font-semibold text-gray-800")}>
-                          Street:
-                        </span>{" "}
-                        {order.address.street}
-                      </li>
-                      <li>
-                        <span className={cn("font-semibold text-gray-800")}>
-                          Phone:
-                        </span>{" "}
-                        {order.address.phone}
-                      </li>
-                    </ul>
-                  ) : (
-                    <p className={cn("text-gray-400 italic")}>
-                      No address provided
-                    </p>
-                  )}
-                </div>
-                <div>
-                  <h4
-                    className={cn("font-bold text-gray-900 mb-2 border-b pb-1")}
-                  >
-                    Payment & Pricing
-                  </h4>
-                  <ul className={cn("text-gray-600 space-y-1")}>
-                    <li>
-                      <span className={cn("font-semibold text-gray-800")}>
-                        Method:
-                      </span>{" "}
-                      {order.paymentMethod || "N/A"}
-                    </li>
-                    {order.transactionNumber && (
-                      <li>
-                        <span className={cn("font-semibold text-gray-800")}>
-                          Transaction code:
-                        </span>{" "}
-                        {order.transactionNumber}
-                      </li>
-                    )}
-                    {order.promoCode && (
-                      <li>
-                        <span className={cn("font-semibold text-gray-800")}>
-                          Promo Code:
-                        </span>{" "}
-                        <span
-                          className={cn(
-                            "bg-green-100 text-green-800 px-1 rounded",
-                          )}
-                        >
-                          {order.promoCode}
-                        </span>
-                      </li>
-                    )}
-                    <li>
-                      <span className={cn("font-semibold text-gray-800")}>
-                        Subtotal:
-                      </span>{" "}
-                      EGP{" "}
-                      {order.subtotal?.toFixed(2) ||
-                        (order.total - (order.shippingCost || 0)).toFixed(2)}
-                    </li>
-                    <li>
-                      <span className={cn("font-semibold text-gray-800")}>
-                        Shipping Cost:
-                      </span>{" "}
-                      EGP {order.shippingCost?.toFixed(2) || "0.00"}
-                    </li>
-                    {order.discount > 0 && (
-                      <li className={cn("text-green-600")}>
-                        <span className={cn("font-semibold")}>Discount:</span> -
-                        EGP {order.discount.toFixed(2)}
-                      </li>
-                    )}
-                  </ul>
-                </div>
-              </div>
-            )}
+            {expandedOrders[order.id] && <OrderExpandedDetails order={order} />}
 
             {/* Order Items Table */}
-            <div className={cn("divide-y divide-gray-100 mb-4")}>
-              {order.items &&
-                order.items.map((item, idx) => (
-                  <div
-                    key={item.id || `orderitem-${idx}`}
-                    className={cn(
-                      "flex items-center justify-between py-2.5 text-sm",
-                    )}
-                  >
-                    <div className={cn("flex items-center gap-3")}>
-                      <img
-                        src={item.img}
-                        alt={item.name}
-                        className={cn(
-                          "w-12 h-12 object-cover rounded-md border",
-                        )}
-                      />
-                      <div>
-                        <p className={cn("font-bold text-gray-800")}>
-                          {item.name}
-                        </p>
-                        <p className={cn("text-xs text-gray-400")}>
-                          Qty: {item.quantity}{" "}
-                          {item.color
-                            ? `| Color: ${typeof item.color === "object" ? item.color.name : item.color}`
-                            : ""}{" "}
-                          {item.size
-                            ? `| Size: ${typeof item.size === "object" ? item.size.name : item.size}`
-                            : ""}
-                        </p>
-                      </div>
-                    </div>
-                    <span className={cn("font-bold text-gray-900")}>
-                      EGP {(item.price * item.quantity).toFixed(2)}
-                    </span>
-                  </div>
-                ))}
-            </div>
-
-            <div
-              className={cn(
-                "flex justify-between items-center pt-3 border-t text-sm font-bold",
-              )}
-            >
-              <span className={cn("text-gray-600")}>
-                Total Items: {order.items?.length || 0}
-              </span>
-              <span className={cn("text-xl text-[#e60023]")}>
-                EGP {order.total?.toFixed(2)}
-              </span>
-            </div>
+            <OrderItemsList order={order} />
           </CardContent>
         </Card>
       ))}
@@ -256,6 +119,14 @@ export const OrdersTable = ({
         currentPage={currentPage}
         totalPages={totalPages}
         onPageChange={setCurrentPage}
+      />
+
+      <RefuseRefundModal
+        refusingOrderId={refusingOrderId}
+        setRefusingOrderId={setRefusingOrderId}
+        refusalReason={refusalReason}
+        setRefusalReason={setRefusalReason}
+        handleUpdateStatus={handleUpdateStatus}
       />
     </div>
   );

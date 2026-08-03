@@ -1,6 +1,7 @@
 import MockAdapter from "axios-mock-adapter";
 import { apiClient } from "./apiClient";
 import { initialProducts, initialCategories } from "../data/initialData";
+import { updateStockOnOrder, handleRefundStatusChange } from "./mockApiHelpers";
 
 const mock = new MockAdapter(apiClient, { delayResponse: 500 });
 
@@ -146,6 +147,12 @@ mock.onPost("/orders").reply((config) => {
   const newOrder = JSON.parse(config.data);
   orders.unshift(newOrder);
   setDB("orders", orders);
+
+  // Update product stock
+  let products = getDB("products", initialProducts);
+  products = updateStockOnOrder(newOrder, products);
+  setDB("products", products);
+
   return [201, newOrder];
 });
 
@@ -154,8 +161,26 @@ mock.onPut(/\/orders\/.+/).reply((config) => {
   const orders = getDB("orders", []);
   const updated = JSON.parse(config.data);
   const index = orders.findIndex((o) => String(o.id) === String(id));
+
   if (index !== -1) {
-    orders[index] = { ...orders[index], ...updated };
+    const oldOrder = orders[index];
+
+    const products = getDB("products", initialProducts);
+    const { updated: processedUpdate, updatedProducts } =
+      handleRefundStatusChange(updated, oldOrder, products);
+
+    if (products !== updatedProducts) {
+      setDB("products", updatedProducts);
+    }
+
+    orders[index] = { ...orders[index], ...processedUpdate };
+    if (orders[index].status === "Refund Refused") {
+      delete orders[index].refundedAt;
+    }
+    if (orders[index].status === "Refunded") {
+      delete orders[index].refusedAt;
+      delete orders[index].refusalReason;
+    }
     setDB("orders", orders);
     return [200, orders[index]];
   }

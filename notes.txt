@@ -11,15 +11,13 @@ suggestions for other products in product page ====
 when add to cart the button stuck on added to cart! when the user click on it, he goes to cart page ====
 colors & sizes > changes price ====
 color changes the photo in product page ====
-
+product stock ====
+refund ====
 
 language
 photo of transaction
 multiple announcement
-product count
-refund
 multiple address
 discount for products on checkout page
-
 
 Shipping, FAQ, Careers, Privacy Policy XXXX

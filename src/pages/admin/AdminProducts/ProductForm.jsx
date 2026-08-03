@@ -2,6 +2,7 @@ import { cn } from "../../../utils/cn";
 import { ColorPicker } from "./ColorPicker";
 import { SizePicker } from "./SizePicker";
 import { ImageUploader } from "./ImageUploader";
+import { VariantsStockPicker } from "./VariantsStockPicker";
 import {
   Card,
   CardContent,
@@ -44,6 +45,8 @@ export const ProductForm = ({
   resetForm,
   handleSave,
   categories,
+  variantsStock,
+  handleVariantStockChange,
 }) => {
   return (
     <Card
@@ -128,6 +131,13 @@ export const ProductForm = ({
               onChange={(e) => setMainIndex(e.target.value)}
               placeholder="0"
               min="0"
+            />
+
+            <VariantsStockPicker
+              selectedColors={selectedColors}
+              selectedSizes={selectedSizes}
+              variantsStock={variantsStock}
+              handleVariantStockChange={handleVariantStockChange}
             />
           </div>
 

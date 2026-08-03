@@ -60,6 +60,7 @@ export const useReportStats = (orders, products) => {
 
       if (filterMonth !== "all" && filterMonth !== oMonth) return;
       if (filterYear !== "all" && filterYear !== oYear) return;
+      if (order.status === "Refunded" || order.status === "Cancelled") return;
 
       let orderRevenue = 0;
       let orderItemsCount = 0;

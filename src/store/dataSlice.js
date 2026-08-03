@@ -92,6 +92,7 @@ export const formatProductData = (
     rating: 0,
     reviewsCount: 0,
     reviews: [],
+    variantsStock: productData.variantsStock || {},
   };
 };
 
@@ -208,9 +209,15 @@ export const createOrderThunk = createAsyncThunk(
 
 export const updateOrderStatusThunk = createAsyncThunk(
   "data/updateOrderStatus",
-  async ({ orderId, status }, { rejectWithValue }) => {
+  async (
+    { orderId, status, refundReason, refusalReason },
+    { rejectWithValue },
+  ) => {
     try {
-      const response = await apiClient.put(`/orders/${orderId}`, { status });
+      const payload = { status };
+      if (refundReason) payload.refundReason = refundReason;
+      if (refusalReason) payload.refusalReason = refusalReason;
+      const response = await apiClient.put(`/orders/${orderId}`, payload);
       return response;
     } catch (error) {
       return rejectWithValue(error.message);

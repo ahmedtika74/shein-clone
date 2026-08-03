@@ -39,6 +39,11 @@ export const ProductCard = ({ product }) => {
         )
       : null;
 
+  const totalStock = product.variantsStock
+    ? Object.values(product.variantsStock).reduce((acc, curr) => acc + curr, 0)
+    : 0;
+  const isOutOfStock = totalStock <= 0;
+
   return (
     <div
       className={cn(
@@ -59,13 +64,22 @@ export const ProductCard = ({ product }) => {
             )}
           />
         </Link>
-        {(discountPercent > 0 || product.offer) && (
+        {(discountPercent > 0 || product.offer) && !isOutOfStock && (
           <span
             className={cn(
               "discount absolute top-3 left-3 bg-[#e60023] text-white text-[12px] font-bold px-3 py-1 rounded-full shadow",
             )}
           >
             {discountPercent > 0 ? `-${discountPercent}%` : product.offer}
+          </span>
+        )}
+        {isOutOfStock && (
+          <span
+            className={cn(
+              "out-of-stock absolute top-3 left-3 bg-black text-white text-[12px] font-bold px-3 py-1 rounded-full shadow",
+            )}
+          >
+            Out of Stock
           </span>
         )}
         <button
@@ -121,11 +135,22 @@ export const ProductCard = ({ product }) => {
         <div className={cn("flex flex-col gap-2 mt-2")}>
           <button
             onClick={handleAddToCart}
+            disabled={isOutOfStock}
             className={cn(
-              `add-btn w-full h-[36px] sm:h-[40px] md:h-[45px] rounded-[10px] text-white font-bold text-[13px] md:text-[15px] cursor-pointer transition-colors duration-300 ${isInCart ? "bg-green-600 hover:bg-green-700" : "bg-[#111] hover:bg-[#e60023]"}`,
+              `add-btn w-full h-[36px] sm:h-[40px] md:h-[45px] rounded-[10px] text-white font-bold text-[13px] md:text-[15px] transition-colors duration-300 ${
+                isOutOfStock
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : isInCart
+                    ? "bg-green-600 hover:bg-green-700 cursor-pointer"
+                    : "bg-[#111] hover:bg-[#e60023] cursor-pointer"
+              }`,
             )}
           >
-            {isInCart ? "Added to Cart! ✓" : "Add To Cart"}
+            {isOutOfStock
+              ? "Out of Stock"
+              : isInCart
+                ? "Added to Cart! ✓"
+                : "Add To Cart"}
           </button>
         </div>
       </div>

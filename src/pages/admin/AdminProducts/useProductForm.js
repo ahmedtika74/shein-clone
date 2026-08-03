@@ -22,6 +22,7 @@ export const useProductForm = (products) => {
   const [imageInputUrl, setImageInputUrl] = useState("");
   const [inputMode, setInputMode] = useState("upload");
   const [showSuccess, setShowSuccess] = useState(false);
+  const [variantsStock, setVariantsStock] = useState({});
 
   const handleFileUpload = (e) => {
     const files = Array.from(e.target.files);
@@ -75,6 +76,7 @@ export const useProductForm = (products) => {
     setCategory(p.category || "");
     setOffer(p.offer || "");
     setImagesBase64(p.images || [p.img || ""]);
+    setVariantsStock(p.variantsStock || {});
   };
 
   const handleAddColor = () => {
@@ -108,6 +110,13 @@ export const useProductForm = (products) => {
     setSelectedSizes(updated);
   };
 
+  const handleVariantStockChange = (variantKey, value) => {
+    setVariantsStock((prev) => ({
+      ...prev,
+      [variantKey]: value,
+    }));
+  };
+
   const resetForm = () => {
     setEditIndex(-1);
     setName("");
@@ -120,6 +129,7 @@ export const useProductForm = (products) => {
     setOffer("");
     setImagesBase64([]);
     setImageInputUrl("");
+    setVariantsStock({});
   };
 
   const handleSave = (e) => {
@@ -151,6 +161,7 @@ export const useProductForm = (products) => {
           : [{ name: "Free Size", priceAdjustment: 0 }],
       category: category || "General",
       offer,
+      variantsStock,
     };
 
     const formattedProduct = formatProductData(
@@ -195,6 +206,8 @@ export const useProductForm = (products) => {
     setInputMode,
     showSuccess,
     setShowSuccess,
+    variantsStock,
+    handleVariantStockChange,
     handleFileUpload,
     handleAddUrl,
     handleEdit,

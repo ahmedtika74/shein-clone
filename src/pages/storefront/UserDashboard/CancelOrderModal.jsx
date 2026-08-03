@@ -1,5 +1,6 @@
 import { cn } from "../../../utils/cn";
 import { updateOrderStatusThunk } from "../../../store/dataSlice";
+import { Modal } from "../../../components/ui/Modal";
 
 export const CancelOrderModal = ({
   cancelOrderId,
@@ -7,16 +8,13 @@ export const CancelOrderModal = ({
   dispatch,
 }) => {
   return (
-    <div
-      className={cn(
-        "fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4",
-      )}
+    <Modal
+      isOpen={!!cancelOrderId}
+      onClose={() => setCancelOrderId(null)}
+      title="Cancel Order"
+      maxWidth="max-w-sm"
     >
-      <div
-        className={cn(
-          "bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full text-center border border-gray-100 animate-fade-in-up",
-        )}
-      >
+      <div className={cn("text-center")}>
         <div
           className={cn(
             "w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-5",
@@ -24,9 +22,6 @@ export const CancelOrderModal = ({
         >
           <i className={cn("fa-solid fa-triangle-exclamation text-3xl")}></i>
         </div>
-        <h3 className={cn("text-2xl font-bold text-gray-900 mb-2")}>
-          Cancel Order?
-        </h3>
         <p className={cn("text-gray-500 mb-8")}>
           Are you sure you want to cancel this order? This action cannot be
           undone.
@@ -58,6 +53,6 @@ export const CancelOrderModal = ({
           </button>
         </div>
       </div>
-    </div>
+    </Modal>
   );
 };

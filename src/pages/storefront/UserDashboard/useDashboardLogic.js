@@ -16,6 +16,7 @@ export const useDashboardLogic = () => {
 
   const [activeTab, setActiveTab] = useState("orders");
   const [cancelOrderId, setCancelOrderId] = useState(null);
+  const [refundOrderId, setRefundOrderId] = useState(null);
   const [filterStatus, setFilterStatus] = useState("ALL");
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -79,6 +80,8 @@ export const useDashboardLogic = () => {
     setActiveTab,
     cancelOrderId,
     setCancelOrderId,
+    refundOrderId,
+    setRefundOrderId,
     filterStatus,
     setFilterStatus: handleFilterChange,
     filteredOrders: paginatedOrders,

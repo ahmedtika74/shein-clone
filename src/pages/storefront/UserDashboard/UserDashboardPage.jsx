@@ -7,6 +7,7 @@ import { DashboardSidebar } from "./DashboardSidebar";
 import { OrdersTab } from "./OrdersTab";
 import { ProfileTab } from "./ProfileTab";
 import { CancelOrderModal } from "./CancelOrderModal";
+import { RefundRequestModal } from "./RefundRequestModal";
 
 export const UserDashboardPage = () => {
   const navigate = useNavigate();
@@ -58,7 +59,11 @@ export const UserDashboardPage = () => {
       <main className={cn("content flex-1 p-6 md:p-10")}>
         <div className={cn("flex justify-between items-center gap-4 mb-8")}>
           <div className="min-w-0">
-            <h1 className={cn("text-2xl md:text-3xl font-bold text-gray-900 capitalize truncate")}>
+            <h1
+              className={cn(
+                "text-2xl md:text-3xl font-bold text-gray-900 capitalize truncate",
+              )}
+            >
               Welcome, {logic.user?.name || "Customer"}!
             </h1>
             <p className={cn("text-gray-500 text-sm mt-1 truncate")}>
@@ -112,6 +117,7 @@ export const UserDashboardPage = () => {
       </main>
 
       {logic.cancelOrderId && <CancelOrderModal {...logic} />}
+      {logic.refundOrderId && <RefundRequestModal {...logic} />}
     </div>
   );
 };

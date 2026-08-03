@@ -30,6 +30,9 @@ export const OrderFilters = ({
           <option value="Shipped">Shipped</option>
           <option value="Completed">Completed</option>
           <option value="Cancelled">Cancelled</option>
+          <option value="Refund Requested">Refund Requested</option>
+          <option value="Refunded">Refunded</option>
+          <option value="Refund Refused">Refund Refused</option>
         </select>
       </div>
     </div>
