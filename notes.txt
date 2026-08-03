@@ -19,5 +19,7 @@ multiple announcement
 product count
 refund
 multiple address
+discount for products on checkout page
+
 
 Shipping, FAQ, Careers, Privacy Policy XXXX
