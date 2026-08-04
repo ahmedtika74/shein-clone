@@ -31,7 +31,7 @@ export const StatsGrid = ({ stats }) => {
   return (
     <div
       className={cn(
-        "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8",
+        "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8",
       )}
     >
       <StatCard
@@ -74,6 +74,20 @@ export const StatsGrid = ({ stats }) => {
         value={stats.ordersWithDiscount}
         icon="fa-users"
         colorClass="bg-teal-50 text-teal-600"
+      />
+
+      <StatCard
+        title="Total Sales"
+        value={`EGP ${(stats.totalSales || 0).toFixed(2)}`}
+        icon="fa-cash-register"
+        colorClass="bg-indigo-50 text-indigo-600"
+      />
+
+      <StatCard
+        title="Total Shipping"
+        value={`EGP ${(stats.totalShipping || 0).toFixed(2)}`}
+        icon="fa-truck-fast"
+        colorClass="bg-yellow-50 text-yellow-600"
       />
     </div>
   );

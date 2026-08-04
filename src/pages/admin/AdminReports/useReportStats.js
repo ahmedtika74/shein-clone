@@ -33,6 +33,8 @@ export const useReportStats = (orders, products) => {
 
   const stats = useMemo(() => {
     let totalRevenue = 0;
+    let totalSales = 0;
+    let totalShipping = 0;
     let totalOrders = 0;
     let totalItemsSold = 0;
     let totalDiscounts = 0;
@@ -106,6 +108,8 @@ export const useReportStats = (orders, products) => {
         totalRevenue += finalRevenueToAdd;
         totalOrders += 1;
         totalItemsSold += orderItemsCount;
+        totalSales += order.total || 0;
+        totalShipping += order.shippingCost || 0;
 
         if (order.discount && order.discount > 0) {
           totalDiscounts += order.discount;
@@ -140,6 +144,8 @@ export const useReportStats = (orders, products) => {
 
     return {
       totalRevenue,
+      totalSales,
+      totalShipping,
       totalOrders,
       totalItemsSold,
       averageOrderValue,
