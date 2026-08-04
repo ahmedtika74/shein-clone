@@ -32,7 +32,7 @@ export const OrdersTable = ({
           <CardContent className={cn("p-6")}>
             <div
               className={cn(
-                "flex justify-between items-center mb-4 pb-3 border-b flex-wrap gap-4",
+                "flex flex-col md:flex-row md:justify-between md:items-center mb-4 pb-3 border-b gap-4",
               )}
             >
               <div>
@@ -53,7 +53,7 @@ export const OrdersTable = ({
                 </p>
               </div>
 
-              <div className={cn("flex items-center gap-4")}>
+              <div className={cn("flex flex-wrap items-center gap-2 sm:gap-4")}>
                 <div className={cn("flex items-center gap-2")}>
                   <span className={cn("text-xs font-bold text-gray-500")}>
                     Status:

@@ -7,7 +7,9 @@ export const OrderFilters = ({
 }) => {
   return (
     <div
-      className={cn("flex justify-between items-center mb-8 flex-wrap gap-4")}
+      className={cn(
+        "flex flex-col md:flex-row md:justify-between md:items-center mb-8 gap-4",
+      )}
     >
       <h1 className={cn("text-3xl font-bold text-gray-900")}>
         Manage Customer Orders
