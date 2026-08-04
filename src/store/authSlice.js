@@ -4,7 +4,25 @@ import { apiClient } from "../services/apiClient";
 const loadFromStorage = (key, fallback) => {
   try {
     const saved = localStorage.getItem(key);
-    return saved ? JSON.parse(saved) : fallback;
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed && typeof parsed === "object") {
+        if (parsed.address && !parsed.addresses) {
+          parsed.addresses = [
+            {
+              id: Date.now().toString(),
+              label: "Home",
+              isDefault: true,
+              ...parsed.address,
+            },
+          ];
+        } else if (!parsed.addresses) {
+          parsed.addresses = [];
+        }
+      }
+      return parsed;
+    }
+    return fallback;
   } catch {
     return fallback;
   }
@@ -81,6 +99,82 @@ const authSlice = createSlice({
         if (state.registeredUser) {
           state.registeredUser = { ...state.registeredUser, ...action.payload };
         }
+        localStorage.setItem("currentUser", JSON.stringify(state.user));
+        if (state.registeredUser)
+          localStorage.setItem("user", JSON.stringify(state.registeredUser));
+      }
+    },
+    addAddress(state, action) {
+      if (state.user) {
+        if (!state.user.addresses) state.user.addresses = [];
+        if (state.user.addresses.length >= 3) return; // Max 3 addresses
+
+        const newAddress = {
+          id: Date.now().toString(),
+          isDefault: state.user.addresses.length === 0,
+          ...action.payload,
+        };
+        state.user.addresses.push(newAddress);
+
+        if (state.registeredUser) {
+          state.registeredUser.addresses = state.user.addresses;
+        }
+        localStorage.setItem("currentUser", JSON.stringify(state.user));
+        if (state.registeredUser)
+          localStorage.setItem("user", JSON.stringify(state.registeredUser));
+      }
+    },
+    editAddress(state, action) {
+      if (state.user && state.user.addresses) {
+        const { id, ...updates } = action.payload;
+        const index = state.user.addresses.findIndex((a) => a.id === id);
+        if (index !== -1) {
+          state.user.addresses[index] = {
+            ...state.user.addresses[index],
+            ...updates,
+          };
+          if (state.registeredUser) {
+            state.registeredUser.addresses = state.user.addresses;
+          }
+          localStorage.setItem("currentUser", JSON.stringify(state.user));
+          if (state.registeredUser)
+            localStorage.setItem("user", JSON.stringify(state.registeredUser));
+        }
+      }
+    },
+    deleteAddress(state, action) {
+      if (state.user && state.user.addresses) {
+        const id = action.payload;
+        const index = state.user.addresses.findIndex((a) => a.id === id);
+        if (index !== -1) {
+          const wasDefault = state.user.addresses[index].isDefault;
+          state.user.addresses.splice(index, 1);
+
+          if (wasDefault && state.user.addresses.length > 0) {
+            state.user.addresses[0].isDefault = true;
+          }
+
+          if (state.registeredUser) {
+            state.registeredUser.addresses = state.user.addresses;
+          }
+          localStorage.setItem("currentUser", JSON.stringify(state.user));
+          if (state.registeredUser)
+            localStorage.setItem("user", JSON.stringify(state.registeredUser));
+        }
+      }
+    },
+    setDefaultAddress(state, action) {
+      if (state.user && state.user.addresses) {
+        const id = action.payload;
+        state.user.addresses.forEach((a) => {
+          a.isDefault = a.id === id;
+        });
+        if (state.registeredUser) {
+          state.registeredUser.addresses = state.user.addresses;
+        }
+        localStorage.setItem("currentUser", JSON.stringify(state.user));
+        if (state.registeredUser)
+          localStorage.setItem("user", JSON.stringify(state.registeredUser));
       }
     },
   },
@@ -93,7 +187,20 @@ const authSlice = createSlice({
       })
       .addCase(loginUserThunk.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.user = action.payload.user;
+        const user = action.payload.user;
+        if (user && user.address && !user.addresses) {
+          user.addresses = [
+            {
+              id: Date.now().toString(),
+              label: "Home",
+              isDefault: true,
+              ...user.address,
+            },
+          ];
+        } else if (user && !user.addresses) {
+          user.addresses = [];
+        }
+        state.user = user;
         state.isLoggedIn = true;
         state._lastResult = { success: true, message: action.payload.message };
       })
@@ -109,8 +216,21 @@ const authSlice = createSlice({
       })
       .addCase(registerUserThunk.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.registeredUser = action.payload.user;
-        state.user = action.payload.user;
+        const user = action.payload.user;
+        if (user && user.address && !user.addresses) {
+          user.addresses = [
+            {
+              id: Date.now().toString(),
+              label: "Home",
+              isDefault: true,
+              ...user.address,
+            },
+          ];
+        } else if (user && !user.addresses) {
+          user.addresses = [];
+        }
+        state.registeredUser = user;
+        state.user = user;
         state.isLoggedIn = true;
         state._lastResult = { success: true, message: action.payload.message };
       })
@@ -136,8 +256,16 @@ const authSlice = createSlice({
   },
 });
 
-export const { logoutUser, logoutAdmin, clearAuthResult, updateProfile } =
-  authSlice.actions;
+export const {
+  logoutUser,
+  logoutAdmin,
+  clearAuthResult,
+  updateProfile,
+  addAddress,
+  editAddress,
+  deleteAddress,
+  setDefaultAddress,
+} = authSlice.actions;
 
 // Selectors
 export const selectUser = (state) => state.auth.user;

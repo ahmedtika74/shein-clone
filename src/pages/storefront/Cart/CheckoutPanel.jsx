@@ -1,8 +1,18 @@
 import { cn } from "../../../utils/cn";
+import { AddressFormModal } from "../../../components/common/AddressFormModal";
+import { Button } from "../../../components/ui/Button";
+import { addAddress } from "../../../store/authSlice";
 
 export const CheckoutPanel = ({
-  address,
-  setAddress,
+  dispatch,
+  userAddresses,
+  selectedAddressId,
+  setSelectedAddressId,
+  guestAddress,
+  setGuestAddress,
+  showAddressModal,
+  setShowAddressModal,
+  user,
   shippingRates,
   paymentMethods,
   selectedPaymentMethod,
@@ -40,51 +50,121 @@ export const CheckoutPanel = ({
         <h2 className={cn("text-xl font-bold mb-4 border-b pb-3")}>
           Shipping Address
         </h2>
-        <div className={cn("space-y-4")}>
-          <select
-            value={address.government}
-            onChange={(e) =>
-              setAddress({ ...address, government: e.target.value })
-            }
-            className={cn(
-              "w-full p-3 border border-gray-300 rounded-[10px] focus:outline-none focus:border-black",
-            )}
-          >
-            <option value="">Select Government</option>
-            {shippingRates.map((rate) => (
-              <option key={rate.id} value={rate.government}>
-                {rate.government}
-              </option>
+        {user ? (
+          <div className={cn("space-y-3")}>
+            {userAddresses.map((addr) => (
+              <label
+                key={addr.id}
+                className={cn(
+                  "flex items-start gap-3 p-3 border rounded-lg cursor-pointer transition-colors",
+                  selectedAddressId === addr.id
+                    ? "border-black bg-gray-50 shadow-sm"
+                    : "border-gray-200 hover:border-gray-300",
+                )}
+              >
+                <input
+                  type="radio"
+                  name="shippingAddress"
+                  checked={selectedAddressId === addr.id}
+                  onChange={() => setSelectedAddressId(addr.id)}
+                  className={cn("mt-1 accent-black")}
+                />
+                <div className={cn("flex-1 text-sm")}>
+                  <div className={cn("font-bold text-gray-900")}>
+                    {addr.label}
+                    {addr.isDefault && (
+                      <span
+                        className={cn(
+                          "ml-2 text-[10px] bg-black text-white px-2 py-0.5 rounded-full",
+                        )}
+                      >
+                        Default
+                      </span>
+                    )}
+                  </div>
+                  <div className={cn("text-gray-600 mt-1")}>
+                    {addr.street}, {addr.city}
+                  </div>
+                  <div className={cn("text-gray-600")}>{addr.government}</div>
+                  <div className={cn("text-gray-600 mt-1")}>
+                    <i className={cn("fa-solid fa-phone text-xs mr-1")}></i>{" "}
+                    {addr.phone}
+                  </div>
+                </div>
+              </label>
             ))}
-          </select>
-          <input
-            type="text"
-            placeholder="City"
-            value={address.city}
-            onChange={(e) => setAddress({ ...address, city: e.target.value })}
-            className={cn(
-              "w-full p-3 border border-gray-300 rounded-[10px] focus:outline-none focus:border-black",
+
+            {userAddresses.length < 3 && (
+              <Button
+                onClick={() => setShowAddressModal(true)}
+                variant="secondary"
+                className={cn("w-full py-2.5 border-dashed border-2 mt-2")}
+              >
+                + Add New Address
+              </Button>
             )}
-          />
-          <input
-            type="text"
-            placeholder="Street Address"
-            value={address.street}
-            onChange={(e) => setAddress({ ...address, street: e.target.value })}
-            className={cn(
-              "w-full p-3 border border-gray-300 rounded-[10px] focus:outline-none focus:border-black",
-            )}
-          />
-          <input
-            type="text"
-            placeholder="Phone Number"
-            value={address.phone}
-            onChange={(e) => setAddress({ ...address, phone: e.target.value })}
-            className={cn(
-              "w-full p-3 border border-gray-300 rounded-[10px] focus:outline-none focus:border-black",
-            )}
-          />
-        </div>
+
+            <AddressFormModal
+              isOpen={showAddressModal}
+              onClose={() => setShowAddressModal(false)}
+              onSave={(newAddr) => dispatch(addAddress(newAddr))}
+              shippingRates={shippingRates}
+              initialAddress={null}
+            />
+          </div>
+        ) : (
+          <div className={cn("space-y-4")}>
+            <select
+              value={guestAddress.government}
+              onChange={(e) =>
+                setGuestAddress({ ...guestAddress, government: e.target.value })
+              }
+              className={cn(
+                "w-full p-3 border border-gray-300 rounded-[10px] focus:outline-none focus:border-black",
+              )}
+            >
+              <option value="">Select Government</option>
+              {shippingRates.map((rate) => (
+                <option key={rate.id} value={rate.government}>
+                  {rate.government}
+                </option>
+              ))}
+            </select>
+            <input
+              type="text"
+              placeholder="City"
+              value={guestAddress.city}
+              onChange={(e) =>
+                setGuestAddress({ ...guestAddress, city: e.target.value })
+              }
+              className={cn(
+                "w-full p-3 border border-gray-300 rounded-[10px] focus:outline-none focus:border-black",
+              )}
+            />
+            <input
+              type="text"
+              placeholder="Street Address"
+              value={guestAddress.street}
+              onChange={(e) =>
+                setGuestAddress({ ...guestAddress, street: e.target.value })
+              }
+              className={cn(
+                "w-full p-3 border border-gray-300 rounded-[10px] focus:outline-none focus:border-black",
+              )}
+            />
+            <input
+              type="text"
+              placeholder="Phone Number"
+              value={guestAddress.phone}
+              onChange={(e) =>
+                setGuestAddress({ ...guestAddress, phone: e.target.value })
+              }
+              className={cn(
+                "w-full p-3 border border-gray-300 rounded-[10px] focus:outline-none focus:border-black",
+              )}
+            />
+          </div>
+        )}
 
         <h2 className={cn("text-xl font-bold mb-4 border-b pb-3 mt-8")}>
           Payment Method

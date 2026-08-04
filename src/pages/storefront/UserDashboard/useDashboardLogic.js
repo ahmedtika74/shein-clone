@@ -4,6 +4,10 @@ import {
   selectUser,
   selectIsLoggedIn,
   updateProfile,
+  addAddress,
+  editAddress,
+  deleteAddress,
+  setDefaultAddress,
 } from "../../../store/authSlice";
 import { selectOrders, selectShippingRates } from "../../../store/dataSlice";
 
@@ -48,15 +52,10 @@ export const useDashboardLogic = () => {
 
   const [profileName, setProfileName] = useState(user?.name || "");
   const [profileEmail, setProfileEmail] = useState(user?.email || "");
-  const [address, setAddress] = useState(
-    user?.address || {
-      street: "",
-      city: "",
-      government: "",
-      phone: "",
-    },
-  );
   const [saveMessage, setSaveMessage] = useState("");
+
+  const [showAddressModal, setShowAddressModal] = useState(false);
+  const [editingAddress, setEditingAddress] = useState(null);
 
   const handleUpdateProfile = (e) => {
     e.preventDefault();
@@ -64,11 +63,36 @@ export const useDashboardLogic = () => {
       updateProfile({
         name: profileName,
         email: profileEmail,
-        address,
       }),
     );
     setSaveMessage("Profile updated successfully!");
     setTimeout(() => setSaveMessage(""), 3000);
+  };
+
+  const onSaveAddress = (address) => {
+    if (editingAddress) {
+      dispatch(editAddress(address));
+    } else {
+      dispatch(addAddress(address));
+    }
+  };
+
+  const handleEditAddressClick = (addr) => {
+    setEditingAddress(addr);
+    setShowAddressModal(true);
+  };
+
+  const handleAddNewAddressClick = () => {
+    setEditingAddress(null);
+    setShowAddressModal(true);
+  };
+
+  const handleDeleteAddress = (id) => {
+    dispatch(deleteAddress(id));
+  };
+
+  const handleSetDefault = (id) => {
+    dispatch(setDefaultAddress(id));
   };
 
   return {
@@ -92,9 +116,15 @@ export const useDashboardLogic = () => {
     setProfileName,
     profileEmail,
     setProfileEmail,
-    address,
-    setAddress,
     saveMessage,
     handleUpdateProfile,
+    showAddressModal,
+    setShowAddressModal,
+    editingAddress,
+    onSaveAddress,
+    handleEditAddressClick,
+    handleAddNewAddressClick,
+    handleDeleteAddress,
+    handleSetDefault,
   };
 };

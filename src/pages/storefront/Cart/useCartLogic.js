@@ -14,7 +14,7 @@ import {
   selectFreeShipping,
   selectSiteSettings,
 } from "../../../store/dataSlice";
-import { selectUser, updateProfile } from "../../../store/authSlice";
+import { selectUser } from "../../../store/authSlice";
 
 export const useCartLogic = () => {
   const dispatch = useDispatch();
@@ -35,14 +35,25 @@ export const useCartLogic = () => {
   const [checkoutError, setCheckoutError] = useState("");
   const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
 
-  const [address, setAddress] = useState(
-    user?.address || {
-      street: "",
-      city: "",
-      government: "",
-      phone: "",
-    },
+  const userAddresses = user?.addresses || [];
+  const defaultAddress =
+    userAddresses.find((a) => a.isDefault) || userAddresses[0] || null;
+
+  const [selectedAddressId, setSelectedAddressId] = useState(
+    defaultAddress?.id || null,
   );
+  const [guestAddress, setGuestAddress] = useState({
+    street: "",
+    city: "",
+    government: "",
+    phone: "",
+  });
+  const [showAddressModal, setShowAddressModal] = useState(false);
+
+  const selectedAddress = user
+    ? userAddresses.find((a) => a.id === selectedAddressId) || null
+    : guestAddress;
+  const address = selectedAddress || guestAddress;
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("");
   const [transactionNumber, setTransactionNumber] = useState("");
 
@@ -129,12 +140,13 @@ export const useCartLogic = () => {
       return;
     }
     if (
+      !address ||
       !address.street ||
       !address.city ||
       !address.government ||
       !address.phone
     ) {
-      setCheckoutError("Please fill in all address fields.");
+      setCheckoutError("Please provide a valid shipping address.");
       return;
     }
     if (!selectedPaymentMethod) {
@@ -174,9 +186,6 @@ export const useCartLogic = () => {
     dispatch(createOrderThunk(newOrder))
       .unwrap()
       .then(() => {
-        if (user) {
-          dispatch(updateProfile({ address }));
-        }
         dispatch(clearCart());
         setCheckoutMessage("Order placed successfully!");
       })
@@ -199,7 +208,14 @@ export const useCartLogic = () => {
     checkoutMessage,
     checkoutError,
     address,
-    setAddress,
+    userAddresses,
+    selectedAddressId,
+    setSelectedAddressId,
+    guestAddress,
+    setGuestAddress,
+    showAddressModal,
+    setShowAddressModal,
+    user,
     selectedPaymentMethod,
     setSelectedPaymentMethod,
     transactionNumber,
