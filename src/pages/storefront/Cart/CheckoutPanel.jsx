@@ -1,6 +1,6 @@
 import { cn } from "../../../utils/cn";
 import { AddressFormModal } from "../../../components/common/AddressFormModal";
-import { Button } from "../../../components/ui/Button";
+import { Button, Input } from "../../../components/ui";
 import { addAddress } from "../../../store/authSlice";
 
 export const CheckoutPanel = ({
@@ -19,6 +19,8 @@ export const CheckoutPanel = ({
   setSelectedPaymentMethod,
   transactionNumber,
   setTransactionNumber,
+  transactionScreenshot,
+  setTransactionScreenshot,
   promoInput,
   setPromoInput,
   appliedPromo,
@@ -207,16 +209,69 @@ export const CheckoutPanel = ({
                   {(method.name.toLowerCase().includes("instapay") ||
                     method.name.toLowerCase().includes("vodafone")) &&
                     selectedPaymentMethod === method.name && (
-                      <div className={cn("mt-3")}>
-                        <input
-                          type="text"
+                      <div className={cn("mt-3 space-y-2")}>
+                        <Input
                           placeholder="Transaction Number"
                           value={transactionNumber}
                           onChange={(e) => setTransactionNumber(e.target.value)}
-                          className={cn(
-                            "w-full p-2 border border-gray-300 rounded-lg outline-none focus:border-black text-sm",
-                          )}
                         />
+                        <div className={cn("flex items-center gap-2")}>
+                          <span
+                            className={cn("text-xs text-gray-500 font-bold")}
+                          >
+                            OR
+                          </span>
+                        </div>
+                        <div className={cn("flex items-center gap-3")}>
+                          <label
+                            className={cn(
+                              "cursor-pointer bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs px-3 py-2 rounded-lg font-bold transition-colors border border-gray-200 inline-block",
+                            )}
+                          >
+                            <i className="fa-solid fa-image mr-1"></i> Upload
+                            Screenshot
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) => {
+                                const file = e.target.files[0];
+                                if (file) {
+                                  const reader = new FileReader();
+                                  reader.onloadend = () => {
+                                    setTransactionScreenshot(reader.result);
+                                  };
+                                  reader.readAsDataURL(file);
+                                }
+                              }}
+                            />
+                          </label>
+                          {transactionScreenshot && (
+                            <div className={cn("flex items-center gap-2")}>
+                              <span
+                                className={cn(
+                                  "text-xs text-green-600 font-bold flex items-center gap-1",
+                                )}
+                              >
+                                <i className="fa-solid fa-check-circle"></i>{" "}
+                                Uploaded
+                              </span>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  setTransactionScreenshot("");
+                                }}
+                                className={cn(
+                                  "text-red-500 hover:text-red-600 hover:bg-red-50 px-2 py-1",
+                                )}
+                              >
+                                Remove
+                              </Button>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     )}
                 </div>

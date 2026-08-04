@@ -56,6 +56,7 @@ export const useCartLogic = () => {
   const address = selectedAddress || guestAddress;
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("");
   const [transactionNumber, setTransactionNumber] = useState("");
+  const [transactionScreenshot, setTransactionScreenshot] = useState("");
 
   const [promoInput, setPromoInput] = useState("");
   const [appliedPromo, setAppliedPromo] = useState(null);
@@ -157,9 +158,13 @@ export const useCartLogic = () => {
     const isDigitalWallet =
       selectedPaymentMethod.toLowerCase().includes("instapay") ||
       selectedPaymentMethod.toLowerCase().includes("vodafone");
-    if (isDigitalWallet && !transactionNumber.trim()) {
+    if (
+      isDigitalWallet &&
+      !transactionNumber.trim() &&
+      !transactionScreenshot
+    ) {
       setCheckoutError(
-        `Please enter the transaction number for ${selectedPaymentMethod}.`,
+        `Please enter the transaction number or upload a screenshot for ${selectedPaymentMethod}.`,
       );
       return;
     }
@@ -177,6 +182,7 @@ export const useCartLogic = () => {
       address,
       paymentMethod: selectedPaymentMethod,
       transactionNumber: isDigitalWallet ? transactionNumber.trim() : null,
+      transactionScreenshot: isDigitalWallet ? transactionScreenshot : null,
       status: "Pending",
       date: new Date().toLocaleDateString(),
       createdAt: new Date().toISOString(),
@@ -220,6 +226,8 @@ export const useCartLogic = () => {
     setSelectedPaymentMethod,
     transactionNumber,
     setTransactionNumber,
+    transactionScreenshot,
+    setTransactionScreenshot,
     promoInput,
     setPromoInput,
     appliedPromo,

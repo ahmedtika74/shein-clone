@@ -1,6 +1,10 @@
 import { cn } from "../../../utils/cn";
+import { useState } from "react";
+import { Button, Modal } from "../../../components/ui";
 
 export const OrderExpandedDetails = ({ order }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   return (
     <div
       className={cn(
@@ -49,6 +53,36 @@ export const OrderExpandedDetails = ({ order }) => {
                 Transaction code:
               </span>{" "}
               {order.transactionNumber}
+            </li>
+          )}
+          {order.transactionScreenshot && (
+            <li className="mt-2">
+              <span className={cn("font-semibold text-gray-800")}>
+                Screenshot:
+              </span>
+              <div className="mt-2">
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => setIsModalOpen(true)}
+                >
+                  <i className="fa-solid fa-image mr-2"></i> View Screenshot
+                </Button>
+                <Modal
+                  isOpen={isModalOpen}
+                  onClose={() => setIsModalOpen(false)}
+                  title="Transaction Screenshot"
+                  maxWidth="max-w-md"
+                >
+                  <img
+                    src={order.transactionScreenshot}
+                    alt="Transaction"
+                    className={cn(
+                      "w-full h-auto rounded-lg object-contain bg-white",
+                    )}
+                  />
+                </Modal>
+              </div>
             </li>
           )}
           {order.promoCode && (
