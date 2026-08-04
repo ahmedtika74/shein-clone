@@ -1,6 +1,7 @@
 import { cn } from "../../../utils/cn";
 import { Pagination } from "../../../components/common/Pagination";
 import { UserOrderCard } from "./UserOrderCard";
+import { ScrollToTop } from "../../../components/ScrollToTop";
 
 export const OrdersTab = ({
   filteredOrders,
@@ -14,6 +15,7 @@ export const OrdersTab = ({
 }) => {
   return (
     <div>
+      <ScrollToTop />
       <div className={cn("flex justify-between items-center mb-6")}>
         <h2 className={cn("text-xl font-bold text-gray-800")}>Recent Orders</h2>
         <div className={cn("flex items-center gap-2")}>

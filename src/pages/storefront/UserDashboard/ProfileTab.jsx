@@ -1,127 +1,196 @@
 import { cn } from "../../../utils/cn";
+import { AddressFormModal } from "../../../components/common/AddressFormModal";
+import { Button } from "../../../components/ui/Button";
+import { ScrollToTop } from "../../../components/ScrollToTop";
 
 export const ProfileTab = ({
+  user,
   profileName,
   setProfileName,
   profileEmail,
   setProfileEmail,
-  address,
-  setAddress,
   shippingRates,
   saveMessage,
   handleUpdateProfile,
+  showAddressModal,
+  setShowAddressModal,
+  editingAddress,
+  onSaveAddress,
+  handleEditAddressClick,
+  handleAddNewAddressClick,
+  handleDeleteAddress,
+  handleSetDefault,
 }) => {
+  const addresses = user?.addresses || [];
+
   return (
-    <div
-      className={cn(
-        "bg-white p-8 rounded-2xl shadow-xs border border-gray-200 max-w-2xl",
-      )}
-    >
-      <h2 className={cn("text-xl font-bold mb-6 text-gray-900 border-b pb-3")}>
-        Personal Information
-      </h2>
-      <form onSubmit={handleUpdateProfile} className={cn("space-y-4 text-sm")}>
-        <div>
-          <label className={cn("block text-gray-500 font-medium text-xs mb-1")}>
-            Full Name
-          </label>
-          <input
-            type="text"
-            value={profileName}
-            onChange={(e) => setProfileName(e.target.value)}
-            className={cn(
-              "w-full bg-white border border-gray-300 rounded-lg p-3 outline-none text-gray-800 font-medium focus:border-black",
-            )}
-            required
-          />
-        </div>
-
-        <div>
-          <label className={cn("block text-gray-500 font-medium text-xs mb-1")}>
-            Email Address
-          </label>
-          <input
-            type="email"
-            value={profileEmail}
-            onChange={(e) => setProfileEmail(e.target.value)}
-            className={cn(
-              "w-full bg-white border border-gray-300 rounded-lg p-3 outline-none text-gray-800 font-medium focus:border-black",
-            )}
-            required
-          />
-        </div>
-
-        <div>
-          <h3 className={cn("text-gray-900 font-bold mb-3 mt-6")}>
-            Default Shipping Address
-          </h3>
-          <div className={cn("space-y-3")}>
-            <select
-              value={address.government}
-              onChange={(e) =>
-                setAddress({ ...address, government: e.target.value })
-              }
-              className={cn(
-                "w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-black",
-              )}
+    <>
+      <ScrollToTop />
+      <div
+        className={cn(
+          "bg-white p-8 rounded-2xl shadow-xs border border-gray-200 max-w-2xl",
+        )}
+      >
+        <h2
+          className={cn("text-xl font-bold mb-6 text-gray-900 border-b pb-3")}
+        >
+          Personal Information
+        </h2>
+        <form
+          onSubmit={handleUpdateProfile}
+          className={cn("space-y-4 text-sm")}
+        >
+          <div>
+            <label
+              className={cn("block text-gray-500 font-medium text-xs mb-1")}
             >
-              <option value="">Select Government</option>
-              {shippingRates.map((rate) => (
-                <option key={rate.id} value={rate.government}>
-                  {rate.government}
-                </option>
-              ))}
-            </select>
+              Full Name
+            </label>
             <input
               type="text"
-              placeholder="City"
-              value={address.city}
-              onChange={(e) => setAddress({ ...address, city: e.target.value })}
+              value={profileName}
+              onChange={(e) => setProfileName(e.target.value)}
               className={cn(
-                "w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-black",
+                "w-full bg-white border border-gray-300 rounded-lg p-3 outline-none text-gray-800 font-medium focus:border-black",
               )}
-            />
-            <input
-              type="text"
-              placeholder="Street Address"
-              value={address.street}
-              onChange={(e) =>
-                setAddress({ ...address, street: e.target.value })
-              }
-              className={cn(
-                "w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-black",
-              )}
-            />
-            <input
-              type="text"
-              placeholder="Phone Number"
-              value={address.phone}
-              onChange={(e) =>
-                setAddress({ ...address, phone: e.target.value })
-              }
-              className={cn(
-                "w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-black",
-              )}
+              required
             />
           </div>
-        </div>
 
-        <div className={cn("pt-4 flex items-center gap-4")}>
-          <button
-            type="submit"
-            className={cn(
-              "bg-black text-white px-6 py-3 rounded-lg font-bold hover:bg-gray-800 transition-colors",
+          <div>
+            <label
+              className={cn("block text-gray-500 font-medium text-xs mb-1")}
+            >
+              Email Address
+            </label>
+            <input
+              type="email"
+              value={profileEmail}
+              onChange={(e) => setProfileEmail(e.target.value)}
+              className={cn(
+                "w-full bg-white border border-gray-300 rounded-lg p-3 outline-none text-gray-800 font-medium focus:border-black",
+              )}
+              required
+            />
+          </div>
+
+          <div className={cn("pt-4 flex items-center gap-4")}>
+            <button
+              type="submit"
+              className={cn(
+                "bg-black text-white px-6 py-3 rounded-lg font-bold hover:bg-gray-800 transition-colors",
+              )}
+            >
+              Save Changes
+            </button>
+            {saveMessage && (
+              <span className={cn("text-green-600 font-bold text-sm")}>
+                <i className={cn("fa-solid fa-check mr-1")}></i> {saveMessage}
+              </span>
             )}
-          >
-            Save Changes
-          </button>
-          {saveMessage && (
-            <span className={cn("text-green-600 font-bold text-sm")}>
-              <i className={cn("fa-solid fa-check mr-1")}></i> {saveMessage}
-            </span>
+          </div>
+        </form>
+
+        <h3
+          className={cn(
+            "text-xl font-bold mb-6 text-gray-900 border-b pb-3 mt-10",
+          )}
+        >
+          Shipping Addresses
+        </h3>
+
+        <div className={cn("space-y-4")}>
+          {addresses.map((addr) => (
+            <div
+              key={addr.id}
+              className={cn(
+                "border rounded-xl p-4 flex flex-col gap-3",
+                addr.isDefault ? "border-black shadow-sm" : "border-gray-200",
+              )}
+            >
+              <div className={cn("flex justify-between items-start")}>
+                <div>
+                  <div className={cn("flex items-center gap-2 mb-1")}>
+                    <span className={cn("font-bold text-gray-900")}>
+                      {addr.label}
+                    </span>
+                    {addr.isDefault && (
+                      <span
+                        className={cn(
+                          "text-[10px] bg-black text-white px-2 py-0.5 rounded-full font-bold",
+                        )}
+                      >
+                        Default
+                      </span>
+                    )}
+                  </div>
+                  <p className={cn("text-sm text-gray-600")}>
+                    {addr.street}, {addr.city}
+                  </p>
+                  <p className={cn("text-sm text-gray-600")}>
+                    {addr.government}
+                  </p>
+                  <p className={cn("text-sm text-gray-600 mt-1")}>
+                    <i className={cn("fa-solid fa-phone text-xs mr-1")}></i>{" "}
+                    {addr.phone}
+                  </p>
+                </div>
+                <div className={cn("flex flex-col gap-2")}>
+                  <button
+                    onClick={() => handleEditAddressClick(addr)}
+                    className={cn(
+                      "text-sm text-blue-600 font-bold hover:underline text-right",
+                    )}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDeleteAddress(addr.id)}
+                    className={cn(
+                      "text-sm text-red-600 font-bold hover:underline text-right",
+                    )}
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+              {!addr.isDefault && (
+                <button
+                  onClick={() => handleSetDefault(addr.id)}
+                  className={cn(
+                    "text-sm text-gray-600 hover:text-black font-bold text-left",
+                  )}
+                >
+                  Set as Default
+                </button>
+              )}
+            </div>
+          ))}
+
+          {addresses.length < 3 && (
+            <Button
+              onClick={handleAddNewAddressClick}
+              variant="secondary"
+              className={cn("w-full py-3 border-dashed border-2")}
+            >
+              + Add New Address
+            </Button>
+          )}
+          {addresses.length >= 3 && (
+            <p className={cn("text-sm text-orange-600 font-medium mt-2")}>
+              You have reached the maximum of 3 addresses.
+            </p>
           )}
         </div>
-      </form>
-    </div>
+      </div>
+
+      <AddressFormModal
+        isOpen={showAddressModal}
+        onClose={() => setShowAddressModal(false)}
+        onSave={onSaveAddress}
+        shippingRates={shippingRates}
+        initialAddress={editingAddress}
+      />
+    </>
   );
 };
