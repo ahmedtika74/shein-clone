@@ -299,10 +299,13 @@ const initialState = {
     { id: 2, government: "Alexandria", price: 60 },
     { id: 3, government: "Giza", price: 50 },
   ]),
-  announcement: loadFromStorage("announcement", {
-    text: "Free Shipping On Orders Over 500 EGP",
-    isActive: true,
-  }),
+  announcements: loadFromStorage("announcements", [
+    {
+      id: 1,
+      text: "Free Shipping On Orders Over 500 EGP",
+      isActive: true,
+    },
+  ]),
   freeShipping: loadFromStorage("freeShipping", {
     enabled: true,
     threshold: 500,
@@ -451,9 +454,25 @@ const dataSlice = createSlice({
       );
     },
 
-    // ─── Announcement ────────────────────────────────────────
+    // ─── Announcements ────────────────────────────────────────
+    addAnnouncement(state, action) {
+      state.announcements.unshift(action.payload);
+    },
     updateAnnouncement(state, action) {
-      state.announcement = { ...state.announcement, ...action.payload };
+      const index = state.announcements.findIndex(
+        (a) => String(a.id) === String(action.payload.id),
+      );
+      if (index !== -1) {
+        state.announcements[index] = {
+          ...state.announcements[index],
+          ...action.payload,
+        };
+      }
+    },
+    removeAnnouncement(state, action) {
+      state.announcements = state.announcements.filter(
+        (a) => String(a.id) !== String(action.payload),
+      );
     },
 
     // ─── Free Shipping ───────────────────────────────────────
@@ -589,7 +608,9 @@ export const {
   addShippingRate,
   updateShippingRate,
   removeShippingRate,
+  addAnnouncement,
   updateAnnouncement,
+  removeAnnouncement,
   updateFreeShipping,
   updateSiteSettings,
 } = dataSlice.actions;
@@ -604,7 +625,7 @@ export const selectOrders = (state) => state.data.orders || [];
 export const selectOffers = (state) => state.data.offers || [];
 export const selectPaymentMethods = (state) => state.data.paymentMethods || [];
 export const selectShippingRates = (state) => state.data.shippingRates || [];
-export const selectAnnouncement = (state) => state.data.announcement || {};
+export const selectAnnouncements = (state) => state.data.announcements || [];
 export const selectFreeShipping = (state) =>
   state.data.freeShipping || { enabled: false, threshold: 0 };
 export const selectSiteSettings = (state) => state.data.siteSettings || {};

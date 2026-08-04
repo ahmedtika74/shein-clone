@@ -50,13 +50,25 @@ const localStorageMiddleware = (store) => (next) => (action) => {
       if (type.toLowerCase().includes("product") || type.includes("Review")) {
         localStorage.setItem("products", JSON.stringify(state.data.products));
       } else if (type.includes("Categor")) {
-        localStorage.setItem("categories", JSON.stringify(state.data.categories));
+        localStorage.setItem(
+          "categories",
+          JSON.stringify(state.data.categories),
+        );
       } else if (type.includes("Hero")) {
-        localStorage.setItem("heroSlides", JSON.stringify(state.data.heroSlides));
+        localStorage.setItem(
+          "heroSlides",
+          JSON.stringify(state.data.heroSlides),
+        );
       } else if (type.includes("LeftSideCard")) {
-        localStorage.setItem("leftSideCards", JSON.stringify(state.data.leftSideCards));
+        localStorage.setItem(
+          "leftSideCards",
+          JSON.stringify(state.data.leftSideCards),
+        );
       } else if (type.includes("RightSideCard")) {
-        localStorage.setItem("rightSideCards", JSON.stringify(state.data.rightSideCards));
+        localStorage.setItem(
+          "rightSideCards",
+          JSON.stringify(state.data.rightSideCards),
+        );
       } else if (type.includes("Order")) {
         localStorage.setItem("orders", JSON.stringify(state.data.orders));
       } else if (type.includes("Color")) {
@@ -82,8 +94,8 @@ const localStorageMiddleware = (store) => (next) => (action) => {
         );
       } else if (type.includes("Announcement")) {
         localStorage.setItem(
-          "announcement",
-          JSON.stringify(state.data.announcement),
+          "announcements",
+          JSON.stringify(state.data.announcements),
         );
       } else if (type.includes("SiteSettings")) {
         localStorage.setItem(

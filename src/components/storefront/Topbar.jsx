@@ -1,11 +1,15 @@
 import { cn } from "../../utils/cn";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSelector } from "react-redux";
-import { selectAnnouncement } from "../../store/dataSlice";
+import { selectAnnouncements } from "../../store/dataSlice";
 
 export const Topbar = () => {
-  const announcement = useSelector(selectAnnouncement);
+  const announcements = useSelector(selectAnnouncements);
   const [isDismissed, setIsDismissed] = useState(true);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isAnimating, setIsAnimating] = useState(false);
+
+  const activeAnnouncements = announcements.filter((a) => a.isActive);
 
   useEffect(() => {
     const dismissed = sessionStorage.getItem("announcementDismissed");
@@ -14,22 +18,65 @@ export const Topbar = () => {
     }
   }, []);
 
+  const goToNext = useCallback(() => {
+    if (activeAnnouncements.length <= 1) return;
+    setIsAnimating(true);
+    setTimeout(() => {
+      setCurrentIndex((prev) => (prev + 1) % activeAnnouncements.length);
+      setIsAnimating(false);
+    }, 400);
+  }, [activeAnnouncements.length]);
+
+  useEffect(() => {
+    if (activeAnnouncements.length <= 1) return;
+    const interval = setInterval(goToNext, 4000);
+    return () => clearInterval(interval);
+  }, [activeAnnouncements.length, goToNext]);
+
   const handleDismiss = () => {
     setIsDismissed(true);
     sessionStorage.setItem("announcementDismissed", "true");
   };
 
-  if (!announcement?.isActive || isDismissed) {
+  if (activeAnnouncements.length === 0 || isDismissed) {
     return null;
   }
+
+  const current = activeAnnouncements[currentIndex] || activeAnnouncements[0];
 
   return (
     <div
       className={cn(
-        "relative bg-gradient-to-r from-gray-900 via-black to-gray-900 text-white text-center text-[10px] sm:text-xs md:text-sm font-semibold h-10 flex items-center justify-center uppercase tracking-wider md:tracking-[0.2em] shadow-sm px-8 md:px-12",
+        "relative bg-gradient-to-r from-gray-900 via-black to-gray-900 text-white text-center text-[10px] sm:text-xs md:text-sm font-semibold h-10 flex items-center justify-center uppercase tracking-wider md:tracking-[0.2em] shadow-sm px-8 md:px-12 overflow-hidden",
       )}
     >
-      <p className={cn("truncate max-w-full")}>{announcement.text}</p>
+      <p
+        className={cn(
+          "truncate max-w-full transition-all duration-400",
+          isAnimating ? "opacity-0 translate-y-3" : "opacity-100 translate-y-0",
+        )}
+      >
+        {current.text}
+      </p>
+
+      {activeAnnouncements.length > 1 && (
+        <div
+          className={cn(
+            "absolute left-1/2 -translate-x-1/2 bottom-0.5 flex gap-1",
+          )}
+        >
+          {activeAnnouncements.map((_, idx) => (
+            <span
+              key={idx}
+              className={cn(
+                "w-1 h-1 rounded-full transition-all duration-300",
+                idx === currentIndex ? "bg-white w-2.5" : "bg-white/40",
+              )}
+            />
+          ))}
+        </div>
+      )}
+
       <button
         onClick={handleDismiss}
         className={cn(
