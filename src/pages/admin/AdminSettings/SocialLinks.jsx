@@ -1,13 +1,15 @@
 import { cn } from "../../../utils/cn";
 import { Input } from "../../../components/ui";
+import { useTranslation } from "react-i18next";
 
 export const SocialLinks = ({ settings, handleSocialChange }) => {
+  const { t } = useTranslation("admin");
   return (
     <div className={cn("pt-4 border-t border-gray-100")}>
-      <h2 className={cn("text-lg font-bold mb-4")}>Social Links</h2>
+      <h2 className={cn("text-lg font-bold mb-4")}>{t("socialLinks")}</h2>
       <div className={cn("space-y-4")}>
         <Input
-          label="Facebook URL"
+          label={t("facebookUrl")}
           type="url"
           name="facebook"
           value={settings.socialLinks?.facebook || ""}
@@ -15,7 +17,7 @@ export const SocialLinks = ({ settings, handleSocialChange }) => {
           placeholder="https://facebook.com/yourpage"
         />
         <Input
-          label="Instagram URL"
+          label={t("instagramUrl")}
           type="url"
           name="instagram"
           value={settings.socialLinks?.instagram || ""}
@@ -23,7 +25,7 @@ export const SocialLinks = ({ settings, handleSocialChange }) => {
           placeholder="https://instagram.com/yourprofile"
         />
         <Input
-          label="TikTok URL"
+          label={t("tiktokUrl")}
           type="url"
           name="tiktok"
           value={settings.socialLinks?.tiktok || ""}
@@ -31,7 +33,7 @@ export const SocialLinks = ({ settings, handleSocialChange }) => {
           placeholder="https://tiktok.com/@yourprofile"
         />
         <Input
-          label="YouTube URL"
+          label={t("youtubeUrl")}
           type="url"
           name="youtube"
           value={settings.socialLinks?.youtube || ""}

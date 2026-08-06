@@ -1,34 +1,41 @@
 import { cn } from "../../utils/cn";
+import { useTranslation } from "react-i18next";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logoutAdmin } from "../../store/authSlice";
 import { selectSiteSettings } from "../../store/dataSlice";
+import { LanguageSwitcher } from "../common/LanguageSwitcher";
 
 export const AdminSidebar = ({ isOpen, onClose }) => {
+  const { t } = useTranslation(["admin", "common"]);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const siteSettings = useSelector(selectSiteSettings);
 
   const menuItems = [
-    { label: "Dashboard", path: "/admin/dashboard", icon: "fa-chart-line" },
-    { label: "Reports", path: "/admin/reports", icon: "fa-chart-pie" },
-    { label: "Products", path: "/admin/products", icon: "fa-box" },
-    { label: "Categories", path: "/admin/categories", icon: "fa-list" },
-    { label: "Hero Banners", path: "/admin/hero", icon: "fa-house" },
-    { label: "Announcement", path: "/admin/announcement", icon: "fa-bullhorn" },
-    { label: "Offers", path: "/admin/offers", icon: "fa-tags" },
+    { label: t("dashboard"), path: "/admin/dashboard", icon: "fa-chart-line" },
+    { label: t("reports"), path: "/admin/reports", icon: "fa-chart-pie" },
+    { label: t("products"), path: "/admin/products", icon: "fa-box" },
+    { label: t("categories"), path: "/admin/categories", icon: "fa-list" },
+    { label: t("heroBanners"), path: "/admin/hero", icon: "fa-house" },
     {
-      label: "Payment Methods",
+      label: t("announcement"),
+      path: "/admin/announcement",
+      icon: "fa-bullhorn",
+    },
+    { label: t("offers"), path: "/admin/offers", icon: "fa-tags" },
+    {
+      label: t("paymentMethods"),
       path: "/admin/payment-methods",
       icon: "fa-credit-card",
     },
     {
-      label: "Shipping Rates",
+      label: t("shippingRates"),
       path: "/admin/shipping-rates",
       icon: "fa-truck",
     },
-    { label: "Orders", path: "/admin/orders", icon: "fa-cart-shopping" },
-    { label: "Site Settings", path: "/admin/settings", icon: "fa-gear" },
+    { label: t("orders"), path: "/admin/orders", icon: "fa-cart-shopping" },
+    { label: t("siteSettings"), path: "/admin/settings", icon: "fa-gear" },
   ];
 
   const handleLogout = () => {
@@ -40,8 +47,10 @@ export const AdminSidebar = ({ isOpen, onClose }) => {
     <aside
       className={cn(
         "sidebar w-[250px] bg-[#111] text-white p-6 h-screen overflow-y-auto flex flex-col justify-between flex-shrink-0 z-50",
-        "fixed md:sticky top-0 left-0 transition-transform duration-300 ease-in-out",
-        isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0",
+        "fixed md:sticky top-0 start-0 transition-transform duration-300 ease-in-out",
+        isOpen
+          ? "translate-x-0"
+          : "-translate-x-full rtl:translate-x-full md:translate-x-0 rtl:md:translate-x-0",
       )}
     >
       <div>
@@ -80,7 +89,7 @@ export const AdminSidebar = ({ isOpen, onClose }) => {
               >
                 <i
                   className={cn(
-                    `fa-solid ${item.icon} w-[25px] text-center mr-3`,
+                    `fa-solid ${item.icon} w-[25px] text-center me-3`,
                   )}
                 ></i>
                 {item.label}
@@ -89,7 +98,8 @@ export const AdminSidebar = ({ isOpen, onClose }) => {
           ))}
         </ul>
       </div>
-      <div className={cn("pt-6 border-t border-gray-800")}>
+      <div className="mt-8 pt-6 border-t border-gray-800 flex flex-col gap-2">
+        <LanguageSwitcher variant="admin" />
         <button
           onClick={handleLogout}
           className={cn(
@@ -98,10 +108,10 @@ export const AdminSidebar = ({ isOpen, onClose }) => {
         >
           <i
             className={cn(
-              "fa-solid fa-right-from-bracket w-[25px] text-center mr-3",
+              "fa-solid fa-right-from-bracket w-[25px] text-center me-3",
             )}
           ></i>
-          Logout
+          {t("logout")}
         </button>
       </div>
     </aside>

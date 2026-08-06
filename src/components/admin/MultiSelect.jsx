@@ -57,7 +57,7 @@ export const MultiSelect = ({ options, selected, onChange, placeholder }) => {
             <button
               type="button"
               onClick={(e) => removeOption(e, item)}
-              className={cn("text-gray-500 hover:text-red-500 font-bold ml-1")}
+              className={cn("text-gray-500 hover:text-red-500 font-bold ms-1")}
             >
               &times;
             </button>

@@ -1,4 +1,5 @@
 import { cn } from "../../../utils/cn";
+import { useTranslation } from "react-i18next";
 
 export const SizePicker = ({
   selectedSizes,
@@ -6,6 +7,7 @@ export const SizePicker = ({
   handleRemoveSize,
   handleSizeChange,
 }) => {
+  const { t } = useTranslation(["admin"]);
   return (
     <div
       className={cn(
@@ -14,7 +16,7 @@ export const SizePicker = ({
     >
       <div className={cn("flex justify-between items-center")}>
         <label className={cn("font-bold text-sm text-gray-800")}>
-          Product Sizes
+          {t("productSizes")}
         </label>
         <button
           type="button"
@@ -23,7 +25,7 @@ export const SizePicker = ({
             "text-xs bg-black text-white px-3 py-1.5 rounded-md hover:bg-gray-800",
           )}
         >
-          + Add Size
+          {t("addSize")}
         </button>
       </div>
       {selectedSizes.map((size, idx) => (
@@ -35,7 +37,7 @@ export const SizePicker = ({
         >
           <input
             type="text"
-            placeholder="Size (e.g. M, 38)"
+            placeholder={t("sizeName")}
             value={size.name || ""}
             onChange={(e) => handleSizeChange(idx, "name", e.target.value)}
             className={cn(
@@ -44,7 +46,7 @@ export const SizePicker = ({
           />
           <input
             type="number"
-            placeholder="Price Adj (e.g. 10)"
+            placeholder={t("priceAdj")}
             value={size.priceAdjustment || ""}
             onChange={(e) =>
               handleSizeChange(idx, "priceAdjustment", e.target.value)
@@ -60,13 +62,13 @@ export const SizePicker = ({
               "text-red-500 hover:text-red-700 font-bold text-sm px-2",
             )}
           >
-            Remove
+            {t("remove")}
           </button>
         </div>
       ))}
       {selectedSizes.length === 0 && (
         <p className={cn("text-sm text-gray-500")}>
-          No sizes added. Defaulting to Free Size.
+          {t("noSizesAdded")}
         </p>
       )}
     </div>

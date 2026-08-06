@@ -5,17 +5,19 @@ import { useReportStats } from "./useReportStats";
 import { ReportsFilterBar } from "./ReportsFilterBar";
 import { StatsGrid } from "./StatsGrid";
 import { RevenueCharts } from "./RevenueCharts";
+import { useTranslation } from "react-i18next";
 
 export const AdminReportsPage = () => {
   const orders = useSelector(selectOrders);
   const products = useSelector(selectProducts);
+  const { t } = useTranslation(["admin", "common"]);
 
   const reportState = useReportStats(orders, products);
 
   return (
     <div>
       <h1 className={cn("text-3xl font-bold text-gray-900 mb-8")}>
-        Full Reports
+        {t("fullReports")}
       </h1>
 
       <ReportsFilterBar {...reportState} />

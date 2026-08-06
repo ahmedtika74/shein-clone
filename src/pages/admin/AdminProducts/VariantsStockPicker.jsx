@@ -1,5 +1,6 @@
 import { cn } from "../../../utils/cn";
 import { Input } from "../../../components/ui";
+import { useTranslation } from "react-i18next";
 
 export const VariantsStockPicker = ({
   selectedColors,
@@ -7,6 +8,7 @@ export const VariantsStockPicker = ({
   variantsStock,
   handleVariantStockChange,
 }) => {
+  const { t } = useTranslation(["admin"]);
   if (
     !selectedColors ||
     !selectedSizes ||
@@ -19,32 +21,35 @@ export const VariantsStockPicker = ({
   return (
     <div className={cn("col-span-1 md:col-span-4 mt-4")}>
       <h3 className={cn("font-bold text-lg text-gray-800 mb-4")}>
-        Variants Stock
+        {t("variantsStock")}
       </h3>
       <div className={cn("overflow-x-auto border border-gray-200 rounded-lg")}>
-        <table className={cn("min-w-full text-left bg-white")}>
+        <table className={cn("min-w-full text-start bg-white")}>
           <thead className={cn("bg-gray-50 border-b border-gray-200")}>
             <tr>
               <th
                 className={cn("px-4 py-3 text-sm font-semibold text-gray-700")}
               >
-                Variant (Color - Size)
+                {t("variantColorSize")}
               </th>
               <th
                 className={cn(
                   "px-4 py-3 text-sm font-semibold text-gray-700 w-48",
                 )}
               >
-                Stock Quantity
+                {t("stockQuantity")}
               </th>
             </tr>
           </thead>
           <tbody className={cn("divide-y divide-gray-100")}>
             {selectedColors.map((color) => {
-              const cName = color.name || "Default";
+              const cNameKey = color.nameEn || color.name || t("default");
+              const cNameDisplay = color.nameEn
+                ? color.nameEn
+                : color.name || t("default");
               return selectedSizes.map((size) => {
-                const sName = size.name || "Free Size";
-                const variantKey = `${cName}-${sName}`;
+                const sName = size.name || t("freeSize");
+                const variantKey = `${cNameKey}-${sName}`;
                 return (
                   <tr
                     key={variantKey}
@@ -64,7 +69,7 @@ export const VariantsStockPicker = ({
                         ></span>
                       )}
                       <span>
-                        {cName} - {sName}
+                        {cNameDisplay} - {sName}
                       </span>
                     </td>
                     <td className={cn("px-4 py-3")}>

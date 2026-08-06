@@ -1,13 +1,19 @@
 import { cn } from "../../../utils/cn";
 import { Button, Input, Card, CardContent } from "../../../components/ui";
+import { useTranslation } from "react-i18next";
+import { getLocalizedString } from "../../../utils/localization";
 
 export const PaymentMethodsList = ({
   paymentMethods,
   editingId,
-  editName,
-  setEditName,
-  editDetails,
-  setEditDetails,
+  editNameEn,
+  setEditNameEn,
+  editNameAr,
+  setEditNameAr,
+  editDetailsEn,
+  setEditDetailsEn,
+  editDetailsAr,
+  setEditDetailsAr,
   editImg,
   setEditImg,
   editImageInputUrl,
@@ -21,6 +27,7 @@ export const PaymentMethodsList = ({
   handleCancelEdit,
   handleDelete,
 }) => {
+  const { t, i18n } = useTranslation("admin");
   return (
     <div className={cn("space-y-4")}>
       {paymentMethods.map((method) => (
@@ -30,16 +37,32 @@ export const PaymentMethodsList = ({
               <div className={cn("flex-1 w-full flex flex-col gap-3")}>
                 <div className={cn("flex flex-col sm:flex-row gap-3")}>
                   <Input
-                    value={editName}
-                    onChange={(e) => setEditName(e.target.value)}
+                    value={editNameEn}
+                    onChange={(e) => setEditNameEn(e.target.value)}
                     className={cn("flex-1")}
+                    placeholder="EN Name"
                     required
                   />
                   <Input
-                    value={editDetails}
-                    onChange={(e) => setEditDetails(e.target.value)}
+                    value={editNameAr}
+                    onChange={(e) => setEditNameAr(e.target.value)}
                     className={cn("flex-1")}
-                    placeholder="Details"
+                    placeholder="AR Name"
+                    required
+                  />
+                </div>
+                <div className={cn("flex flex-col sm:flex-row gap-3")}>
+                  <Input
+                    value={editDetailsEn}
+                    onChange={(e) => setEditDetailsEn(e.target.value)}
+                    className={cn("flex-1")}
+                    placeholder={`${t("detailsPlaceholder")} (EN)`}
+                  />
+                  <Input
+                    value={editDetailsAr}
+                    onChange={(e) => setEditDetailsAr(e.target.value)}
+                    className={cn("flex-1")}
+                    placeholder={`${t("detailsPlaceholder")} (AR)`}
                   />
                 </div>
 
@@ -57,7 +80,7 @@ export const PaymentMethodsList = ({
                         type="button"
                         onClick={() => setEditImg("")}
                         className={cn(
-                          "absolute -top-1 -right-1 bg-red-500 text-white w-4 h-4 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center text-[8px] cursor-pointer",
+                          "absolute -top-1 -end-1 bg-red-500 text-white w-4 h-4 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center text-[8px] cursor-pointer",
                         )}
                       >
                         <i className={cn("fa-solid fa-times")}></i>
@@ -78,7 +101,7 @@ export const PaymentMethodsList = ({
                               : "text-gray-500 hover:text-gray-700",
                           )}
                         >
-                          File
+                          {t("file")}
                         </button>
                         <button
                           type="button"
@@ -90,7 +113,7 @@ export const PaymentMethodsList = ({
                               : "text-gray-500 hover:text-gray-700",
                           )}
                         >
-                          URL
+                          {t("url", { defaultValue: "URL" })}
                         </button>
                       </div>
 
@@ -109,7 +132,7 @@ export const PaymentMethodsList = ({
                               "inline-flex items-center justify-center bg-gray-800 text-white px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer hover:bg-gray-700 transition-colors whitespace-nowrap h-[32px]",
                             )}
                           >
-                            Choose File
+                            {t("chooseFile", { defaultValue: "Choose File" })}
                           </label>
                         </div>
                       ) : (
@@ -119,7 +142,9 @@ export const PaymentMethodsList = ({
                             onChange={(e) =>
                               setEditImageInputUrl(e.target.value)
                             }
-                            placeholder="Image URL..."
+                            placeholder={t("imageUrlPlaceholder", {
+                              defaultValue: "Image URL...",
+                            })}
                             className={cn("flex-1 min-w-0 !p-1.5 !text-xs")}
                           />
                           <Button
@@ -135,17 +160,19 @@ export const PaymentMethodsList = ({
                               "px-3 py-1.5 text-xs bg-gray-800 hover:bg-gray-700 h-[32px]",
                             )}
                           >
-                            Add
+                            {t("addNew", { defaultValue: "Add" })}
                           </Button>
                         </div>
                       )}
                     </div>
                   )}
 
-                  <div className={cn("flex items-center gap-2 ml-auto")}>
-                    <Button onClick={handleSaveEdit}>Save</Button>
+                  <div className={cn("flex items-center gap-2 ms-auto")}>
+                    <Button onClick={handleSaveEdit}>
+                      {t("save", { defaultValue: "Save" })}
+                    </Button>
                     <Button variant="secondary" onClick={handleCancelEdit}>
-                      Cancel
+                      {t("cancel", { defaultValue: "Cancel" })}
                     </Button>
                   </div>
                 </div>
@@ -164,11 +191,13 @@ export const PaymentMethodsList = ({
                   )}
                   <div>
                     <span className={cn("font-semibold text-gray-800 block")}>
-                      {method.name}
+                      {getLocalizedString(method, "name", i18n.language)}
                     </span>
-                    {method.details && (
+                    {(method.detailsEn ||
+                      method.detailsAr ||
+                      method.details) && (
                       <span className={cn("text-sm text-gray-500 mt-1 block")}>
-                        {method.details}
+                        {getLocalizedString(method, "details", i18n.language)}
                       </span>
                     )}
                   </div>
@@ -181,7 +210,7 @@ export const PaymentMethodsList = ({
                     className={cn(
                       "text-blue-600 hover:text-blue-800 hover:bg-blue-50",
                     )}
-                    title="Edit Method"
+                    title={t("editMethodTitle")}
                   >
                     <i className={cn("fa-solid fa-pen")}></i>
                   </Button>
@@ -192,7 +221,7 @@ export const PaymentMethodsList = ({
                     className={cn(
                       "text-red-600 hover:text-red-800 hover:bg-red-50",
                     )}
-                    title="Delete Method"
+                    title={t("deleteMethodTitle")}
                   >
                     <i className={cn("fa-solid fa-trash")}></i>
                   </Button>
@@ -204,7 +233,7 @@ export const PaymentMethodsList = ({
       ))}
       {paymentMethods.length === 0 && (
         <p className={cn("text-gray-500 text-center py-4")}>
-          No payment methods found.
+          {t("noPaymentMethodsFound")}
         </p>
       )}
     </div>

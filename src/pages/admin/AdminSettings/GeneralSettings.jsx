@@ -1,21 +1,23 @@
 import { cn } from "../../../utils/cn";
 import { Input } from "../../../components/ui";
+import { useTranslation } from "react-i18next";
 
 export const GeneralSettings = ({ settings, handleChange }) => {
+  const { t } = useTranslation("admin");
   return (
     <>
       <Input
-        label="Site Name"
+        label={t("siteName")}
         name="siteName"
         value={settings.siteName}
         onChange={handleChange}
-        placeholder="e.g. SHEIN"
+        placeholder={t("egSiteName")}
         required
       />
 
       <div>
         <label className={cn("block text-sm font-medium text-gray-700 mb-2")}>
-          Display Mode
+          {t("displayMode")}
         </label>
         <div className={cn("flex items-center gap-6")}>
           <label className={cn("flex items-center gap-2 cursor-pointer")}>
@@ -27,7 +29,9 @@ export const GeneralSettings = ({ settings, handleChange }) => {
               onChange={handleChange}
               className={cn("accent-[#e60023] w-4 h-4")}
             />
-            <span className={cn("text-sm text-gray-700")}>Image Logo</span>
+            <span className={cn("text-sm text-gray-700")}>
+              {t("imageLogo")}
+            </span>
           </label>
           <label className={cn("flex items-center gap-2 cursor-pointer")}>
             <input
@@ -39,7 +43,7 @@ export const GeneralSettings = ({ settings, handleChange }) => {
               className={cn("accent-[#e60023] w-4 h-4")}
             />
             <span className={cn("text-sm text-gray-700")}>
-              Text (Site Name)
+              {t("textSiteName")}
             </span>
           </label>
         </div>

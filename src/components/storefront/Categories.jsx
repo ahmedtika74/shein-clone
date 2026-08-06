@@ -2,8 +2,11 @@ import { cn } from "../../utils/cn";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { selectCategories } from "../../store/dataSlice";
+import { useTranslation } from "react-i18next";
+import { getLocalizedString } from "../../utils/localization";
 
 export const Categories = () => {
+  const { t, i18n } = useTranslation("storefront");
   const categories = useSelector(selectCategories);
 
   return (
@@ -13,7 +16,7 @@ export const Categories = () => {
           "text-center text-2xl md:text-[32px] font-bold mb-8.75 tracking-tight",
         )}
       >
-        Trending Categories
+        {t("trendingCategories", { defaultValue: "Trending Categories" })}
       </h2>
       <div
         className={cn(
@@ -23,7 +26,7 @@ export const Categories = () => {
         {categories.map((cat) => (
           <Link
             key={cat.id}
-            to={`/?category=${encodeURIComponent(cat.name)}`}
+            to={`/?category=${encodeURIComponent(cat.name || cat.nameEn)}`}
             className={cn(
               "category flex flex-col items-center cursor-pointer group text-center",
             )}
@@ -35,7 +38,7 @@ export const Categories = () => {
             >
               <img
                 src={cat.img}
-                alt={cat.name}
+                alt={getLocalizedString(cat, "name", i18n.language)}
                 className={cn(
                   "w-full h-full object-cover transition-transform duration-400 group-hover:scale-108",
                 )}
@@ -46,7 +49,7 @@ export const Categories = () => {
                 "mt-2 md:mt-3 text-[11px] sm:text-sm md:text-[18px] font-bold text-gray-900 group-hover:text-red-600 transition-colors leading-tight",
               )}
             >
-              {cat.name}
+              {getLocalizedString(cat, "name", i18n.language)}
             </p>
           </Link>
         ))}

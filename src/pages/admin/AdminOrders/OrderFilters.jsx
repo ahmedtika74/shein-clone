@@ -1,10 +1,12 @@
 import { cn } from "../../../utils/cn";
+import { useTranslation } from "react-i18next";
 
 export const OrderFilters = ({
   filterStatus,
   handleFilterChange,
   totalOrders,
 }) => {
+  const { t } = useTranslation("admin");
   return (
     <div
       className={cn(
@@ -12,12 +14,12 @@ export const OrderFilters = ({
       )}
     >
       <h1 className={cn("text-3xl font-bold text-gray-900")}>
-        Manage Customer Orders
+        {t("manageCustomerOrders")}
       </h1>
 
       <div className={cn("flex items-center gap-2")}>
         <span className={cn("text-xs font-bold text-gray-500 uppercase")}>
-          Filter Status:
+          {t("filterStatusLabel")}
         </span>
         <select
           value={filterStatus}
@@ -26,15 +28,17 @@ export const OrderFilters = ({
             "h-10 px-4 border border-gray-300 rounded-lg text-sm bg-white outline-none focus:border-[#e60023]",
           )}
         >
-          <option value="ALL">All Orders ({totalOrders})</option>
-          <option value="Pending">Pending</option>
-          <option value="Processing">Processing</option>
-          <option value="Shipped">Shipped</option>
-          <option value="Completed">Completed</option>
-          <option value="Cancelled">Cancelled</option>
-          <option value="Refund Requested">Refund Requested</option>
-          <option value="Refunded">Refunded</option>
-          <option value="Refund Refused">Refund Refused</option>
+          <option value="ALL">{t("allOrders", { count: totalOrders })}</option>
+          <option value="Pending">
+            {t("pending", { defaultValue: "Pending" })}
+          </option>
+          <option value="Processing">{t("processing")}</option>
+          <option value="Shipped">{t("shipped")}</option>
+          <option value="Completed">{t("completed")}</option>
+          <option value="Cancelled">{t("cancelled")}</option>
+          <option value="Refund Requested">{t("refundRequested")}</option>
+          <option value="Refunded">{t("refunded")}</option>
+          <option value="Refund Refused">{t("refundRefused")}</option>
         </select>
       </div>
     </div>

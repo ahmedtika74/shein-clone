@@ -11,7 +11,8 @@ export const useOffersLogic = () => {
   const dispatch = useDispatch();
   const offers = useSelector(selectOffers);
   const [editingId, setEditingId] = useState(null);
-  const [title, setTitle] = useState("");
+  const [titleEn, setTitleEn] = useState("");
+  const [titleAr, setTitleAr] = useState("");
   const [discountValue, setDiscountValue] = useState("");
   const [discountType, setDiscountType] = useState("%");
   const [code, setCode] = useState("");
@@ -19,13 +20,16 @@ export const useOffersLogic = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!title || !discountValue) return;
+    if (!titleEn || !titleAr || !discountValue) return;
 
-    const discount = `${discountValue}${discountType === "%" ? "% OFF" : " EGP OFF"}`;
+    const discountEn = `${discountValue}${discountType === "%" ? "% OFF" : " EGP OFF"}`;
+    const discountAr = `${discountValue}${discountType === "%" ? "% خصم" : " جنيه خصم"}`;
 
     const offerData = {
-      title,
-      discount,
+      titleEn,
+      titleAr,
+      discountEn,
+      discountAr,
       discountValue: Number(discountValue),
       discountType,
       code,
@@ -43,8 +47,11 @@ export const useOffersLogic = () => {
 
   const handleEdit = (offer) => {
     setEditingId(offer.id);
-    setTitle(offer.title);
-    setDiscountValue(offer.discountValue || parseInt(offer.discount) || "");
+    setTitleEn(offer.titleEn || offer.title || "");
+    setTitleAr(offer.titleAr || offer.title || "");
+    setDiscountValue(
+      offer.discountValue || parseInt(offer.discountEn || offer.discount) || "",
+    );
     setDiscountType(
       offer.discountType || (offer.discount?.includes("EGP") ? "EGP" : "%"),
     );
@@ -54,7 +61,8 @@ export const useOffersLogic = () => {
 
   const resetForm = () => {
     setEditingId(null);
-    setTitle("");
+    setTitleEn("");
+    setTitleAr("");
     setDiscountValue("");
     setDiscountType("%");
     setCode("");
@@ -68,8 +76,10 @@ export const useOffersLogic = () => {
   return {
     offers,
     editingId,
-    title,
-    setTitle,
+    titleEn,
+    setTitleEn,
+    titleAr,
+    setTitleAr,
     discountValue,
     setDiscountValue,
     discountType,

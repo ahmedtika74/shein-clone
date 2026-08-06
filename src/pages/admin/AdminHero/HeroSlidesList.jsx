@@ -1,7 +1,9 @@
 import { cn } from "../../../utils/cn";
 import { Card, CardContent, Button } from "../../../components/ui";
+import { useTranslation } from "react-i18next";
 
 export const HeroSlidesList = ({ heroSlides, handleDeleteSlide }) => {
+  const { t } = useTranslation("admin");
   return (
     <div
       className={cn(
@@ -22,7 +24,8 @@ export const HeroSlidesList = ({ heroSlides, handleDeleteSlide }) => {
             <div className={cn("mt-3")}>
               <div className={cn("flex justify-between items-center mb-1")}>
                 <span className={cn("text-xs font-bold text-gray-600")}>
-                  Slide #{index + 1}
+                  {t("slideHash")}
+                  {index + 1}
                 </span>
                 <Button
                   variant="ghost"
@@ -30,14 +33,14 @@ export const HeroSlidesList = ({ heroSlides, handleDeleteSlide }) => {
                   onClick={() => handleDeleteSlide(index)}
                   className={cn("text-red-600")}
                 >
-                  Delete
+                  {t("delete")}
                 </Button>
               </div>
               {(slide.link || slide.link === "") && (
                 <p className={cn("text-[10px] text-gray-500 truncate")}>
-                  Link:{" "}
+                  {t("linkLabel")}{" "}
                   <span className={cn("text-blue-500")}>
-                    {slide.link || "None"}
+                    {slide.link || t("none")}
                   </span>
                 </p>
               )}

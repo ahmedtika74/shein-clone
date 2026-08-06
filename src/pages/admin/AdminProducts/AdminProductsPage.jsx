@@ -9,14 +9,43 @@ import {
 import { useProductForm } from "./useProductForm";
 import { ProductsTable } from "./ProductsTable";
 import { ProductForm } from "./ProductForm";
+import { useTranslation } from "react-i18next";
+import { Modal } from "../../../components/ui/Modal";
+import { useState } from "react";
 
 export const AdminProductsPage = () => {
+  const { t } = useTranslation(["admin", "common"]);
   const dispatch = useDispatch();
   const products = useSelector(selectProducts);
   const categories = useSelector(selectCategories);
   const status = useSelector((state) => state.data.status);
 
-  const form = useProductForm(products);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [productToDelete, setProductToDelete] = useState(null);
+
+  const form = useProductForm(products, () => setIsModalOpen(false));
+
+  const handleEdit = (product) => {
+    const idx = products.findIndex((p) => String(p.id) === String(product.id));
+    if (idx !== -1) {
+      form.handleEdit(idx);
+      setIsModalOpen(true);
+    }
+  };
+
+  const handleDelete = (product) => {
+    setProductToDelete(product);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (productToDelete) {
+      dispatch(deleteProductThunk(productToDelete.id));
+      setIsDeleteModalOpen(false);
+      setProductToDelete(null);
+    }
+  };
 
   return (
     <div>
@@ -26,20 +55,18 @@ export const AdminProductsPage = () => {
         )}
       >
         <h1 className={cn("text-3xl font-bold text-gray-900")}>
-          Manage Products
+          {t("manageProducts")}
         </h1>
         <button
           onClick={() => {
             form.resetForm();
-            document
-              .querySelector(".form-container")
-              ?.scrollIntoView({ behavior: "smooth" });
+            setIsModalOpen(true);
           }}
           className={cn(
             "bg-black text-white px-5 py-2.5 rounded-lg text-sm font-bold hover:bg-[#e60023] transition-colors",
           )}
         >
-          + Add New Product
+          {t("addNewProduct")}
         </button>
       </div>
 
@@ -50,10 +77,8 @@ export const AdminProductsPage = () => {
           )}
           role="alert"
         >
-          <strong className={cn("font-bold")}>Success! </strong>
-          <span className={cn("block sm:inline")}>
-            Product saved successfully.
-          </span>
+          <strong className={cn("font-bold")}>{t("success")}</strong>
+          <span className={cn("block sm:inline")}>{t("productSaved")}</span>
         </div>
       )}
 
@@ -66,11 +91,62 @@ export const AdminProductsPage = () => {
       <ProductsTable
         products={products}
         categories={categories}
-        onEdit={form.handleEdit}
-        onDelete={(index) => dispatch(deleteProductThunk(products[index].id))}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
       />
 
-      <ProductForm {...form} categories={categories} />
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          form.resetForm();
+        }}
+        title={form.editIndex === -1 ? t("addProduct") : t("editProduct")}
+        maxWidth="max-w-4xl"
+      >
+        <div className="max-h-[80vh] overflow-y-auto px-1">
+          <ProductForm
+            {...form}
+            categories={categories}
+            onClose={() => setIsModalOpen(false)}
+          />
+        </div>
+      </Modal>
+
+      <Modal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setProductToDelete(null);
+        }}
+        title={t("confirmDelete", { defaultValue: "Confirm Delete" })}
+        maxWidth="max-w-md"
+      >
+        <div className="flex flex-col gap-6">
+          <p className="text-gray-600 text-sm">
+            {t("deleteConfirmProduct", {
+              defaultValue: "Are you sure you want to delete this product?",
+            })}
+          </p>
+          <div className="flex justify-end gap-3">
+            <button
+              onClick={() => {
+                setIsDeleteModalOpen(false);
+                setProductToDelete(null);
+              }}
+              className="px-4 py-2 text-sm font-bold text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+            >
+              {t("cancel", { defaultValue: "Cancel" })}
+            </button>
+            <button
+              onClick={confirmDelete}
+              className="px-4 py-2 text-sm font-bold text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors"
+            >
+              {t("delete", { defaultValue: "Delete" })}
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };

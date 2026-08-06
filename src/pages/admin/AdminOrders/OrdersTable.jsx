@@ -5,6 +5,7 @@ import { Card, CardContent, Button } from "../../../components/ui";
 import { OrderExpandedDetails } from "./OrderExpandedDetails";
 import { OrderItemsList } from "./OrderItemsList";
 import { RefuseRefundModal } from "./RefuseRefundModal";
+import { useTranslation } from "react-i18next";
 
 export const OrdersTable = ({
   currentOrders,
@@ -17,6 +18,7 @@ export const OrdersTable = ({
   totalPages,
   setCurrentPage,
 }) => {
+  const { t } = useTranslation("admin");
   const [refusingOrderId, setRefusingOrderId] = useState(null);
   const [refusalReason, setRefusalReason] = useState("");
 
@@ -37,10 +39,11 @@ export const OrdersTable = ({
             >
               <div>
                 <h3 className={cn("text-lg font-bold text-gray-900")}>
-                  Order #{order.id}
+                  {t("orderNumber")}
+                  {order.id}
                 </h3>
                 <p className={cn("text-xs text-gray-400")}>
-                  Placed on:{" "}
+                  {t("placedOn")}{" "}
                   {order.createdAt
                     ? new Date(order.createdAt).toLocaleString(undefined, {
                         year: "numeric",
@@ -56,7 +59,7 @@ export const OrdersTable = ({
               <div className={cn("flex flex-wrap items-center gap-2 sm:gap-4")}>
                 <div className={cn("flex items-center gap-2")}>
                   <span className={cn("text-xs font-bold text-gray-500")}>
-                    Status:
+                    {t("statusLabel")}
                   </span>
                   <select
                     value={order.status || "Pending"}
@@ -73,14 +76,18 @@ export const OrdersTable = ({
                       "h-9 px-3 border border-gray-300 rounded-md text-xs font-bold bg-gray-50 outline-none focus:border-black",
                     )}
                   >
-                    <option value="Pending">Pending</option>
-                    <option value="Processing">Processing</option>
-                    <option value="Shipped">Shipped</option>
-                    <option value="Completed">Completed</option>
-                    <option value="Cancelled">Cancelled</option>
-                    <option value="Refund Requested">Refund Requested</option>
-                    <option value="Refunded">Refunded</option>
-                    <option value="Refund Refused">Refund Refused</option>
+                    <option value="Pending">
+                      {t("pending", { defaultValue: "Pending" })}
+                    </option>
+                    <option value="Processing">{t("processing")}</option>
+                    <option value="Shipped">{t("shipped")}</option>
+                    <option value="Completed">{t("completed")}</option>
+                    <option value="Cancelled">{t("cancelled")}</option>
+                    <option value="Refund Requested">
+                      {t("refundRequested")}
+                    </option>
+                    <option value="Refunded">{t("refunded")}</option>
+                    <option value="Refund Refused">{t("refundRefused")}</option>
                   </select>
                 </div>
 
@@ -89,7 +96,9 @@ export const OrdersTable = ({
                   size="sm"
                   onClick={() => toggleExpand(order.id)}
                 >
-                  {expandedOrders[order.id] ? "Hide Details" : "View Details"}
+                  {expandedOrders[order.id]
+                    ? t("hideDetails")
+                    : t("viewDetails")}
                 </Button>
 
                 <Button
@@ -100,7 +109,7 @@ export const OrdersTable = ({
                   className={cn(
                     "w-8 h-8 rounded-full bg-red-100 hover:bg-red-600 text-red-600 hover:text-white disabled:opacity-50",
                   )}
-                  title="Delete Order"
+                  title={t("deleteOrder")}
                 >
                   <i className={cn("fa-solid fa-trash text-xs")}></i>
                 </Button>

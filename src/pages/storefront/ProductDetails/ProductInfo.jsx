@@ -1,5 +1,8 @@
 import { cn } from "../../../utils/cn";
+import { useTranslation } from "react-i18next";
 import { toggleWishlist } from "../../../store/wishlistSlice";
+import { formatPrice } from "../../../utils/formatPrice";
+import { getLocalizedString } from "../../../utils/localization";
 
 export const ProductInfo = ({
   product,
@@ -15,23 +18,24 @@ export const ProductInfo = ({
   dispatch,
   currentVariantStock,
 }) => {
+  const { t, i18n } = useTranslation(["storefront", "common"]);
   return (
     <div
       className={cn("details-info w-full md:w-1/2 flex flex-col justify-start")}
     >
       <h1 className={cn("text-2xl md:text-3xl font-bold text-gray-900 mb-3")}>
-        {product.name}
+        {getLocalizedString(product, "name", i18n.language)}
       </h1>
 
       <div className={cn("price flex items-center gap-4 mb-6")}>
         <span
           className={cn("new-price text-2xl md:text-3xl font-bold text-black")}
         >
-          {activePriceStr}
+          {formatPrice(activePriceStr, t)}
         </span>
         {product.oldPrice && (
           <span className={cn("old-price text-gray-400 line-through text-lg")}>
-            {product.oldPrice}
+            {formatPrice(product.oldPrice, t)}
           </span>
         )}
         {product.offer && (
@@ -45,7 +49,7 @@ export const ProductInfo = ({
         )}
       </div>
       <p className={cn("desc text-gray-600 leading-relaxed mb-6")}>
-        {product.description ||
+        {getLocalizedString(product, "description", i18n.language) ||
           "Women's fashion item. High quality and comfortable design."}
       </p>
 
@@ -64,15 +68,17 @@ export const ProductInfo = ({
             : [{ name: "Black" }, { name: "White" }, { name: "Pink" }]
           ).map((c, i) => (
             <button
-              key={c.name || `color-${i}`}
+              key={c.nameEn || c.name || `color-${i}`}
               onClick={() => {
                 setSelectedColor(c);
                 if (c.image) setSelectedImg(c.image);
               }}
-              title={c.name}
+              title={getLocalizedString(c, "name", i18n.language)}
               className={cn(
                 `option flex items-center justify-center px-4 py-2 rounded-md border text-sm font-medium transition-all ${
-                  selectedColor?.name === c.name
+                  (selectedColor?.nameEn &&
+                    selectedColor.nameEn === c.nameEn) ||
+                  (selectedColor?.name && selectedColor.name === c.name)
                     ? "bg-black text-white border-black shadow-sm ring-2 ring-black ring-offset-1"
                     : "bg-white text-gray-800 border-gray-300 hover:border-black"
                 }`,
@@ -81,12 +87,12 @@ export const ProductInfo = ({
               {c.hex && (
                 <span
                   className={cn(
-                    "w-3 h-3 rounded-full mr-2 border border-gray-300",
+                    "w-3 h-3 rounded-full me-2 border border-gray-300",
                   )}
                   style={{ backgroundColor: c.hex }}
                 ></span>
               )}
-              {c.name}
+              {getLocalizedString(c, "name", i18n.language)}
             </button>
           ))}
         </div>
@@ -132,11 +138,11 @@ export const ProductInfo = ({
         {currentVariantStock > 0 ? (
           <p className={cn("text-green-600 font-semibold")}>
             {currentVariantStock <= 5
-              ? `Only ${currentVariantStock} left in stock!`
+              ? t("onlyLeftInStock", { count: currentVariantStock })
               : "In Stock"}
           </p>
         ) : (
-          <p className={cn("text-red-600 font-semibold")}>Out of Stock</p>
+          <p className={cn("text-red-600 font-semibold")}>{t("outOfStock")}</p>
         )}
       </div>
 
@@ -154,14 +160,16 @@ export const ProductInfo = ({
         )}
       >
         {currentVariantStock <= 0 ? (
-          "Out of Stock"
+          t("outOfStock")
         ) : isInCart ? (
           <>
-            <i className={cn("fa-solid fa-check")}></i> Added to Cart!
+            <i className={cn("fa-solid fa-check")}></i>
+            {t("addedToCart")}
           </>
         ) : (
           <>
-            <i className={cn("fa-solid fa-cart-shopping")}></i> Add To Cart
+            <i className={cn("fa-solid fa-cart-shopping")}></i>
+            {t("addToCart")}
           </>
         )}
       </button>
@@ -180,7 +188,7 @@ export const ProductInfo = ({
             `${isFav ? "fa-solid text-red-600" : "fa-regular"} fa-heart text-lg`,
           )}
         ></i>
-        <span>{isFav ? "Remove from Wishlist" : "Add to Wishlist"}</span>
+        <span>{isFav ? t("removeFromWishlist") : t("addToWishlist")}</span>
       </button>
     </div>
   );

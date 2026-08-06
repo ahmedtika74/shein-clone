@@ -1,15 +1,19 @@
 import { cn } from "../../utils/cn";
+import { useTranslation } from "react-i18next";
 import { useSettingsLogic } from "./AdminSettings/useSettingsLogic";
 import { GeneralSettings } from "./AdminSettings/GeneralSettings";
 import { LogoUploader } from "./AdminSettings/LogoUploader";
 import { SocialLinks } from "./AdminSettings/SocialLinks";
 
 export const AdminSettingsPage = () => {
+  const { t } = useTranslation("admin");
   const logic = useSettingsLogic();
 
   return (
     <div className={cn("p-6 max-w-4xl mx-auto")}>
-      <h1 className={cn("text-2xl font-bold mb-6 EGP")}>Site Settings</h1>
+      <h1 className={cn("text-2xl font-bold mb-6 EGP")}>
+        {t("siteSettings", { defaultValue: "Site Settings" })}
+      </h1>
 
       <div
         className={cn(
@@ -29,7 +33,7 @@ export const AdminSettingsPage = () => {
                 "bg-[#e60023] text-white px-6 py-3 rounded-lg font-bold hover:bg-red-700 transition-colors cursor-pointer",
               )}
             >
-              Save Settings
+              {t("saveSettings")}
             </button>
             {logic.saveMessage && (
               <span

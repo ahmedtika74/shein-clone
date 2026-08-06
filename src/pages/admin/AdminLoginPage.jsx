@@ -79,7 +79,7 @@ export const AdminLoginPage = () => {
           <div className={cn("relative")}>
             <i
               className={cn(
-                "fa-regular fa-user text-gray-400 absolute left-4 top-[38px] z-10",
+                "fa-regular fa-user text-gray-400 absolute start-4 top-[38px] z-10",
               )}
             ></i>
             <Input
@@ -88,14 +88,14 @@ export const AdminLoginPage = () => {
               placeholder="Enter Username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className={cn("pl-11 h-12")}
+              className={cn("ps-11 h-12")}
             />
           </div>
 
           <div className={cn("relative")}>
             <i
               className={cn(
-                "fa-solid fa-lock text-gray-400 absolute left-4 top-[38px] z-10",
+                "fa-solid fa-lock text-gray-400 absolute start-4 top-[38px] z-10",
               )}
             ></i>
             <Input
@@ -104,7 +104,7 @@ export const AdminLoginPage = () => {
               placeholder="Enter Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className={cn("pl-11 h-12")}
+              className={cn("ps-11 h-12")}
             />
           </div>
 

@@ -1,5 +1,5 @@
 import { cn } from "../../../utils/cn";
-
+import { useTranslation } from "react-i18next";
 const StatCard = ({ title, value, icon, colorClass }) => (
   <div
     className={cn(
@@ -28,6 +28,7 @@ const StatCard = ({ title, value, icon, colorClass }) => (
 );
 
 export const StatsGrid = ({ stats }) => {
+  const { t } = useTranslation(["admin", "common"]);
   return (
     <div
       className={cn(
@@ -35,57 +36,57 @@ export const StatsGrid = ({ stats }) => {
       )}
     >
       <StatCard
-        title="Total Revenue"
-        value={`EGP ${stats.totalRevenue.toFixed(2)}`}
+        title={t("totalRevenue")}
+        value={`${t("egp", { ns: "common" })} ${stats.totalRevenue.toFixed(2)}`}
         icon="fa-money-bill-wave"
         colorClass="bg-green-50 text-green-600"
       />
 
       <StatCard
-        title="Total Orders"
+        title={t("totalOrders")}
         value={stats.totalOrders}
         icon="fa-bag-shopping"
         colorClass="bg-blue-50 text-blue-600"
       />
 
       <StatCard
-        title="Items Sold"
+        title={t("itemsSold")}
         value={stats.totalItemsSold}
         icon="fa-tags"
         colorClass="bg-purple-50 text-purple-600"
       />
 
       <StatCard
-        title="Avg Order Value"
-        value={`EGP ${stats.averageOrderValue.toFixed(2)}`}
+        title={t("avgOrderValue")}
+        value={`${t("egp", { ns: "common" })} ${stats.averageOrderValue.toFixed(2)}`}
         icon="fa-chart-line"
         colorClass="bg-orange-50 text-orange-600"
       />
 
       <StatCard
-        title="Total Discounts Given"
-        value={`EGP ${stats.totalDiscounts.toFixed(2)}`}
+        title={t("totalDiscounts")}
+        value={`${t("egp", { ns: "common" })} ${stats.totalDiscounts.toFixed(2)}`}
         icon="fa-ticket"
         colorClass="bg-red-50 text-red-500"
       />
 
       <StatCard
-        title="Promo Code Usages"
+        title={t("promoUsages")}
         value={stats.ordersWithDiscount}
         icon="fa-users"
         colorClass="bg-teal-50 text-teal-600"
       />
 
       <StatCard
-        title="Total Sales"
-        value={`EGP ${(stats.totalSales || 0).toFixed(2)}`}
+        title={t("totalSales")}
+        value={`${t("egp", { ns: "common" })} ${(stats.totalSales || 0).toFixed(2)}`}
         icon="fa-cash-register"
         colorClass="bg-indigo-50 text-indigo-600"
       />
 
       <StatCard
-        title="Total Shipping"
-        value={`EGP ${(stats.totalShipping || 0).toFixed(2)}`}
+        title={t("totalShipping")}
+        value={`${t("egp", { ns: "common" })} ${(stats.totalShipping || 0).toFixed(2)}`}
         icon="fa-truck-fast"
         colorClass="bg-yellow-50 text-yellow-600"
       />

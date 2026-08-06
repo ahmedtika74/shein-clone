@@ -1,4 +1,6 @@
 import { cn } from "../../utils/cn";
+import { formatPrice } from "../../utils/formatPrice";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import {
@@ -8,8 +10,10 @@ import {
 import { addToCart, selectCartItems } from "../../store/cartSlice";
 import { SEO } from "../../components/common/SEO";
 import { Button } from "../../components/ui";
+import { getLocalizedString } from "../../utils/localization";
 
 export const WishlistPage = () => {
+  const { t, i18n } = useTranslation(["storefront", "common"]);
   const dispatch = useDispatch();
   const wishlist = useSelector(selectWishlistItems);
   const cartItems = useSelector(selectCartItems);
@@ -18,7 +22,7 @@ export const WishlistPage = () => {
     <div className={cn("wishlist-container w-[90%] max-w-275 mx-auto py-10")}>
       <SEO title="My Wishlist" noindex={true} />
       <h1 className={cn("text-3xl font-bold mb-8 text-gray-900")}>
-        My Wishlist ({wishlist.length})
+        {t("myWishlist")} ({wishlist.length})
       </h1>
 
       {wishlist.length === 0 ? (
@@ -31,10 +35,10 @@ export const WishlistPage = () => {
             className={cn("fa-regular fa-heart text-6xl text-gray-300 mb-4")}
           ></i>
           <h2 className={cn("text-2xl font-bold text-gray-800")}>
-            Your Wishlist is Empty
+            {t("emptyWishlist")}
           </h2>
           <p className={cn("text-gray-500 mt-2 mb-6")}>
-            Explore products and save your favorites here.
+            {t("emptyWishlistMessage")}
           </p>
           <Link
             to="/"
@@ -42,7 +46,7 @@ export const WishlistPage = () => {
               "inline-block bg-black text-white px-8 py-3 rounded-full font-bold hover:bg-gray-800 transition-colors",
             )}
           >
-            Discover Products
+            {t("discoverProducts")}
           </Link>
         </div>
       ) : (
@@ -67,7 +71,7 @@ export const WishlistPage = () => {
                 >
                   <img
                     src={item.img || (item.images && item.images[0])}
-                    alt={item.name}
+                    alt={getLocalizedString(item, "name", i18n.language)}
                     className={cn("w-35 h-42.5 object-cover rounded-md")}
                   />
                 </Link>
@@ -77,7 +81,7 @@ export const WishlistPage = () => {
                     className={cn("hover:underline")}
                   >
                     <h3 className={cn("text-xl font-bold text-gray-900 mb-1")}>
-                      {item.name}
+                      {getLocalizedString(item, "name", i18n.language)}
                     </h3>
                   </Link>
                   <p
@@ -85,7 +89,8 @@ export const WishlistPage = () => {
                       "price text-lg font-bold text-[#e60023] mb-3",
                     )}
                   >
-                    {item.newPrice || `EGP ${item.numericPrice || item.price}`}
+                    {formatPrice(item.newPrice, t) ||
+                      `${t("egp")} ${item.numericPrice || item.price}`}
                   </p>
                   <div
                     className={cn(
@@ -101,15 +106,15 @@ export const WishlistPage = () => {
                     >
                       {isInCart ? (
                         <>
-                          <i className={cn("fa-solid fa-check mr-2")}></i> Added
-                          to Cart!
+                          <i className={cn("fa-solid fa-check me-2")}></i>{" "}
+                          {t("addedToCart")}
                         </>
                       ) : (
                         <>
                           <i
-                            className={cn("fa-solid fa-cart-shopping mr-2")}
+                            className={cn("fa-solid fa-cart-shopping me-2")}
                           ></i>{" "}
-                          Add To Cart
+                          {t("addToCart")}
                         </>
                       )}
                     </Button>
@@ -119,7 +124,7 @@ export const WishlistPage = () => {
                         "text-gray-500 hover:text-red-500 transition-colors text-sm font-semibold underline cursor-pointer",
                       )}
                     >
-                      Remove item
+                      {t("removeItem")}
                     </button>
                   </div>
                 </div>

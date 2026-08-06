@@ -1,5 +1,6 @@
 import { cn } from "../../../utils/cn";
 import { Button, Input } from "../../../components/ui";
+import { useTranslation } from "react-i18next";
 
 export const LogoUploader = ({
   settings,
@@ -11,6 +12,7 @@ export const LogoUploader = ({
   setImageInputUrl,
   handleAddUrl,
 }) => {
+  const { t } = useTranslation("admin");
   if (settings.type === "text") {
     return (
       <div
@@ -18,7 +20,7 @@ export const LogoUploader = ({
           "mt-4 p-4 border border-gray-100 rounded-lg bg-gray-50 inline-block",
         )}
       >
-        <p className={cn("text-xs text-gray-500 mb-2")}>Preview:</p>
+        <p className={cn("text-xs text-gray-500 mb-2")}>{t("previewLabel")}</p>
         <span
           className={cn(
             "text-2xl md:text-3xl font-black tracking-tighter uppercase",
@@ -33,7 +35,7 @@ export const LogoUploader = ({
   return (
     <div>
       <label className={cn("block text-sm font-medium text-gray-700 mb-2")}>
-        Logo Image
+        {t("logoImage")}
       </label>
 
       <div className={cn("flex flex-col gap-4")}>
@@ -47,7 +49,7 @@ export const LogoUploader = ({
             >
               <img
                 src={settings.logoUrl}
-                alt="Logo Preview"
+                alt={t("logoPreview")}
                 className={cn("h-12 object-contain")}
                 onError={(e) => {
                   e.target.src =
@@ -59,7 +61,7 @@ export const LogoUploader = ({
               type="button"
               onClick={() => setSettings((prev) => ({ ...prev, logoUrl: "" }))}
               className={cn(
-                "absolute -top-2 -right-2 bg-red-500 text-white w-6 h-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-xs shadow-md cursor-pointer",
+                "absolute -top-2 -end-2 bg-red-500 text-white w-6 h-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-xs shadow-md cursor-pointer",
               )}
             >
               <i className={cn("fa-solid fa-times")}></i>
@@ -81,7 +83,7 @@ export const LogoUploader = ({
                     : "text-gray-500 hover:text-gray-700",
                 )}
               >
-                Upload File
+                {t("uploadFile", { defaultValue: "Upload File" })}
               </button>
               <button
                 type="button"
@@ -93,7 +95,7 @@ export const LogoUploader = ({
                     : "text-gray-500 hover:text-gray-700",
                 )}
               >
-                Image URL
+                {t("imageModeUrl", { defaultValue: "Image URL" })}
               </button>
             </div>
 
@@ -112,8 +114,8 @@ export const LogoUploader = ({
                     "inline-flex items-center justify-center bg-black text-white px-4 py-2 rounded-lg text-sm font-bold cursor-pointer hover:bg-gray-800 transition-colors whitespace-nowrap h-[42px]",
                   )}
                 >
-                  <i className={cn("fa-solid fa-upload mr-2")}></i>
-                  Choose File...
+                  <i className={cn("fa-solid fa-upload me-2")}></i>
+                  {t("chooseFile", { defaultValue: "Choose File..." })}
                 </label>
               </div>
             ) : (
@@ -121,7 +123,9 @@ export const LogoUploader = ({
                 <Input
                   value={imageInputUrl}
                   onChange={(e) => setImageInputUrl(e.target.value)}
-                  placeholder="Image URL..."
+                  placeholder={t("imageUrlPlaceholder", {
+                    defaultValue: "Image URL...",
+                  })}
                   className={cn("flex-1 min-w-0")}
                 />
                 <Button
@@ -129,7 +133,7 @@ export const LogoUploader = ({
                   onClick={handleAddUrl}
                   className={cn("h-[46px]")}
                 >
-                  Add URL
+                  {t("addUrl", { defaultValue: "Add URL" })}
                 </Button>
               </div>
             )}

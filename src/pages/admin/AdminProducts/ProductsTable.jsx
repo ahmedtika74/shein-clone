@@ -1,16 +1,20 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { cn } from "../../../utils/cn";
 import { Pagination } from "../../../components/common/Pagination";
 import { Input, Button } from "../../../components/ui";
+import { getLocalizedString } from "../../../utils/localization";
 
 export const ProductsTable = ({ products, categories, onEdit, onDelete }) => {
+  const { t, i18n } = useTranslation(["admin", "common"]);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterCategory, setFilterCategory] = useState("ALL");
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 10;
 
   const filteredProducts = products.filter((p) => {
-    const matchesSearch = p.name
+    const localizedName = getLocalizedString(p, "name", i18n.language) || "";
+    const matchesSearch = localizedName
       .toLowerCase()
       .includes(searchQuery.toLowerCase());
     const matchesCategory =
@@ -34,18 +38,18 @@ export const ProductsTable = ({ products, categories, onEdit, onDelete }) => {
         <div className={cn("flex-1 relative")}>
           <i
             className={cn(
-              "fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 z-10",
+              "fa-solid fa-search absolute start-3 top-1/2 -translate-y-1/2 text-gray-400 z-10",
             )}
           ></i>
           <Input
             type="text"
-            placeholder="Search products by name..."
+            placeholder={t("searchProducts")}
             value={searchQuery}
             onChange={(e) => {
               setSearchQuery(e.target.value);
               setCurrentPage(1);
             }}
-            className={cn("pl-10 h-10 w-full")}
+            className={cn("ps-10 h-10 w-full")}
           />
         </div>
         <select
@@ -58,7 +62,7 @@ export const ProductsTable = ({ products, categories, onEdit, onDelete }) => {
             "w-full sm:w-64 h-10 px-4 border border-gray-300 rounded-lg text-sm focus:border-black outline-none bg-white",
           )}
         >
-          <option value="ALL">All Categories</option>
+          <option value="ALL">{t("allCategories")}</option>
           {categories.map((c) => (
             <option key={c.id} value={c.name}>
               {c.name}
@@ -73,16 +77,30 @@ export const ProductsTable = ({ products, categories, onEdit, onDelete }) => {
         )}
       >
         <div className={cn("overflow-x-auto")}>
-          <table className={cn("w-full text-left border-collapse")}>
+          <table className={cn("w-full text-start border-collapse")}>
             <thead>
               <tr className={cn("bg-[#111] text-white text-sm font-bold")}>
-                <th className={cn("p-4 whitespace-nowrap")}>Image</th>
-                <th className={cn("p-4 whitespace-nowrap")}>Name</th>
-                <th className={cn("p-4 whitespace-nowrap")}>New Price</th>
-                <th className={cn("p-4 whitespace-nowrap")}>Old Price</th>
-                <th className={cn("p-4 whitespace-nowrap")}>Category</th>
-                <th className={cn("p-4 whitespace-nowrap")}>Total Stock</th>
-                <th className={cn("p-4 whitespace-nowrap")}>Actions</th>
+                <th className={cn("p-4 whitespace-nowrap text-start")}>
+                  {t("image")}
+                </th>
+                <th className={cn("p-4 whitespace-nowrap text-start")}>
+                  {t("name")}
+                </th>
+                <th className={cn("p-4 whitespace-nowrap text-start")}>
+                  {t("newPrice")}
+                </th>
+                <th className={cn("p-4 whitespace-nowrap text-start")}>
+                  {t("oldPrice")}
+                </th>
+                <th className={cn("p-4 whitespace-nowrap text-start")}>
+                  {t("category")}
+                </th>
+                <th className={cn("p-4 whitespace-nowrap text-start")}>
+                  {t("totalStock")}
+                </th>
+                <th className={cn("p-4 whitespace-nowrap text-start")}>
+                  {t("actions")}
+                </th>
               </tr>
             </thead>
             <tbody className={cn("divide-y divide-gray-100 text-sm")}>
@@ -92,12 +110,11 @@ export const ProductsTable = ({ products, categories, onEdit, onDelete }) => {
                     colSpan="7"
                     className={cn("p-8 text-center text-gray-500")}
                   >
-                    No products found matching your search.
+                    {t("noProductsMatching")}
                   </td>
                 </tr>
               ) : (
                 currentProducts.map((p) => {
-                  const index = products.findIndex((prod) => prod.id === p.id);
                   const mainImg =
                     p.images?.[p.mainIndex || 0] || p.img || "/images/top.jpg";
 
@@ -113,7 +130,7 @@ export const ProductsTable = ({ products, categories, onEdit, onDelete }) => {
                       <td className={cn("p-4 whitespace-nowrap")}>
                         <img
                           src={mainImg}
-                          alt={p.name}
+                          alt={getLocalizedString(p, "name", i18n.language)}
                           className={cn(
                             "w-17.5 h-17.5 object-cover rounded-xl border",
                           )}
@@ -124,7 +141,7 @@ export const ProductsTable = ({ products, categories, onEdit, onDelete }) => {
                           "p-4 font-bold text-gray-900 whitespace-nowrap",
                         )}
                       >
-                        {p.name}
+                        {getLocalizedString(p, "name", i18n.language)}
                       </td>
                       <td
                         className={cn(
@@ -164,7 +181,7 @@ export const ProductsTable = ({ products, categories, onEdit, onDelete }) => {
                           <Button
                             variant="primary"
                             size="icon"
-                            onClick={() => onEdit(index)}
+                            onClick={() => onEdit(p)}
                             className={cn(
                               "w-10 h-10 rounded-full bg-[#111] hover:bg-[#e60023]",
                             )}
@@ -175,7 +192,7 @@ export const ProductsTable = ({ products, categories, onEdit, onDelete }) => {
                           <Button
                             variant="primary"
                             size="icon"
-                            onClick={() => onDelete(index)}
+                            onClick={() => onDelete(p)}
                             className={cn(
                               "w-10 h-10 rounded-full bg-[#111] hover:bg-red-700",
                             )}

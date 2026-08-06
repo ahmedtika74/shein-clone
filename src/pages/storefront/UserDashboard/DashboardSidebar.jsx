@@ -1,4 +1,5 @@
 import { cn } from "../../../utils/cn";
+import { useTranslation } from "react-i18next";
 import { logoutUser } from "../../../store/authSlice";
 
 export const DashboardSidebar = ({
@@ -7,6 +8,7 @@ export const DashboardSidebar = ({
   dispatch,
   navigate,
 }) => {
+  const { t } = useTranslation(["storefront", "common"]);
   return (
     <aside
       className={cn(
@@ -17,7 +19,7 @@ export const DashboardSidebar = ({
         <h2
           className={cn("text-center text-2xl font-bold mb-10 tracking-tight")}
         >
-          <i className={cn("fa-regular fa-user mr-2")}></i> Account
+          <i className={cn("fa-regular fa-user me-2")}></i> {t("myProfile")}
         </h2>
 
         <ul className={cn("space-y-2")}>
@@ -31,7 +33,8 @@ export const DashboardSidebar = ({
               }`,
             )}
           >
-            <i className={cn("fa-solid fa-box")}></i> My Orders
+            <i className={cn("fa-solid fa-box")}></i>
+            {t("myOrders")}
           </li>
 
           <li
@@ -44,7 +47,7 @@ export const DashboardSidebar = ({
               }`,
             )}
           >
-            <i className={cn("fa-solid fa-id-card")}></i> Profile Info
+            <i className={cn("fa-solid fa-id-card")}></i> {t("personalInfo")}
           </li>
         </ul>
       </div>
@@ -61,10 +64,10 @@ export const DashboardSidebar = ({
         >
           <i
             className={cn(
-              "fa-solid fa-right-from-bracket w-[25px] text-center mr-3",
+              "fa-solid fa-end-from-bracket w-[25px] text-center me-3",
             )}
           ></i>
-          Logout
+          {t("logout")}
         </button>
       </div>
     </aside>

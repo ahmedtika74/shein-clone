@@ -1,4 +1,5 @@
 import { cn } from "../../../utils/cn";
+import { useTranslation } from "react-i18next";
 
 export const ReportsFilterBar = ({
   filterYear,
@@ -15,6 +16,7 @@ export const ReportsFilterBar = ({
   filteredProductsForSearch,
   selectedProduct,
 }) => {
+  const { t } = useTranslation(["admin"]);
   return (
     <div
       className={cn(
@@ -27,7 +29,7 @@ export const ReportsFilterBar = ({
             "block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2",
           )}
         >
-          Filter by Year
+          {t("filterByYear")}
         </label>
         <select
           value={filterYear}
@@ -36,7 +38,7 @@ export const ReportsFilterBar = ({
             "w-full p-2.5 border border-gray-200 rounded-lg text-sm font-semibold text-gray-800 outline-none focus:border-black bg-gray-50 hover:bg-gray-100 transition-colors",
           )}
         >
-          <option value="all">All Years</option>
+          <option value="all">{t("allYears")}</option>
           <option value="2024">2024</option>
           <option value="2025">2025</option>
           <option value="2026">2026</option>
@@ -49,7 +51,7 @@ export const ReportsFilterBar = ({
             "block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2",
           )}
         >
-          Filter by Month
+          {t("filterByMonth")}
         </label>
         <select
           value={filterMonth}
@@ -58,19 +60,19 @@ export const ReportsFilterBar = ({
             "w-full p-2.5 border border-gray-200 rounded-lg text-sm font-semibold text-gray-800 outline-none focus:border-black bg-gray-50 hover:bg-gray-100 transition-colors",
           )}
         >
-          <option value="all">All Months</option>
-          <option value="0">January</option>
-          <option value="1">February</option>
-          <option value="2">March</option>
-          <option value="3">April</option>
-          <option value="4">May</option>
-          <option value="5">June</option>
-          <option value="6">July</option>
-          <option value="7">August</option>
-          <option value="8">September</option>
-          <option value="9">October</option>
-          <option value="10">November</option>
-          <option value="11">December</option>
+          <option value="all">{t("allMonths")}</option>
+          <option value="0">{t("january")}</option>
+          <option value="1">{t("february")}</option>
+          <option value="2">{t("march")}</option>
+          <option value="3">{t("april")}</option>
+          <option value="4">{t("may")}</option>
+          <option value="5">{t("june")}</option>
+          <option value="6">{t("july")}</option>
+          <option value="7">{t("august")}</option>
+          <option value="8">{t("september")}</option>
+          <option value="9">{t("october")}</option>
+          <option value="10">{t("november")}</option>
+          <option value="11">{t("december")}</option>
         </select>
       </div>
       <div className={cn("flex-[2]")} ref={dropdownRef}>
@@ -79,7 +81,7 @@ export const ReportsFilterBar = ({
             "block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2",
           )}
         >
-          Filter by Product
+          {t("filterByProduct")}
         </label>
         <div className={cn("relative")}>
           <div
@@ -89,10 +91,10 @@ export const ReportsFilterBar = ({
               isProductDropdownOpen && "border-black",
             )}
           >
-            <span className={cn("truncate mr-2")}>
+            <span className={cn("truncate me-2")}>
               {filterProductId === "all"
-                ? "All Products"
-                : selectedProduct?.name || "Unknown Product"}
+                ? t("allProducts")
+                : selectedProduct?.name || t("unknownProduct")}
             </span>
             <i
               className={cn("fa-solid fa-chevron-down text-gray-400 text-xs")}
@@ -113,17 +115,17 @@ export const ReportsFilterBar = ({
                 <div className={cn("relative")}>
                   <i
                     className={cn(
-                      "fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs",
+                      "fa-solid fa-search absolute start-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs",
                     )}
                   ></i>
                   <input
                     type="text"
-                    placeholder="Search product..."
+                    placeholder={t("searchProduct")}
                     value={productSearch}
                     onChange={(e) => setProductSearch(e.target.value)}
                     onClick={(e) => e.stopPropagation()}
                     className={cn(
-                      "w-full pl-8 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-sm outline-none focus:border-black transition-colors",
+                      "w-full ps-8 pe-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-sm outline-none focus:border-black transition-colors",
                     )}
                   />
                 </div>
@@ -142,7 +144,7 @@ export const ReportsFilterBar = ({
                       : "text-gray-700 font-medium",
                   )}
                 >
-                  All Products
+                  {t("allProducts")}
                 </div>
                 {filteredProductsForSearch.length === 0 ? (
                   <div
@@ -150,7 +152,7 @@ export const ReportsFilterBar = ({
                       "px-4 py-3 text-sm text-gray-500 text-center",
                     )}
                   >
-                    No products found.
+                    {t("noProductsFound")}
                   </div>
                 ) : (
                   filteredProductsForSearch.map((p) => (

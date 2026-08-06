@@ -2,8 +2,11 @@ import { cn } from "../../utils/cn";
 import { useState, useEffect, useCallback } from "react";
 import { useSelector } from "react-redux";
 import { selectAnnouncements } from "../../store/dataSlice";
+import { useTranslation } from "react-i18next";
+import { getLocalizedString } from "../../utils/localization";
 
 export const Topbar = () => {
+  const { i18n } = useTranslation();
   const announcements = useSelector(selectAnnouncements);
   const [isDismissed, setIsDismissed] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -56,13 +59,13 @@ export const Topbar = () => {
           isAnimating ? "opacity-0 translate-y-3" : "opacity-100 translate-y-0",
         )}
       >
-        {current.text}
+        {getLocalizedString(current, "text", i18n.language)}
       </p>
 
       {activeAnnouncements.length > 1 && (
         <div
           className={cn(
-            "absolute left-1/2 -translate-x-1/2 bottom-0.5 flex gap-1",
+            "absolute start-1/2 -translate-x-1/2 bottom-0.5 flex gap-1",
           )}
         >
           {activeAnnouncements.map((_, idx) => (
@@ -80,7 +83,7 @@ export const Topbar = () => {
       <button
         onClick={handleDismiss}
         className={cn(
-          "absolute right-2 md:right-4 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center rounded-full hover:bg-white/20 transition-colors cursor-pointer",
+          "absolute end-2 md:end-4 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center rounded-full hover:bg-white/20 transition-colors cursor-pointer",
         )}
         aria-label="Close announcement"
       >

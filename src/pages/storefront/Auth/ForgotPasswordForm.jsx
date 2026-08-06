@@ -1,5 +1,6 @@
 import { cn } from "../../../utils/cn";
 import { Input, Button } from "../../../components/ui";
+import { useTranslation } from "react-i18next";
 
 export const ForgotPasswordForm = ({
   handleForgetSubmit,
@@ -10,31 +11,32 @@ export const ForgotPasswordForm = ({
   setMode,
   forgetMsg,
 }) => {
+  const { t } = useTranslation("storefront");
   return (
     <form onSubmit={handleForgetSubmit}>
       <h2 className={cn("text-center text-2xl font-bold mb-4 text-gray-900")}>
-        Reset Password
+        {t("resetPassword")}
       </h2>
       <p className={cn("text-xs text-gray-500 text-center mb-6")}>
-        Enter your email address and we&apos;ll send you reset instructions.
+        {t("resetInstructions")}
       </p>
       <div className={cn("relative mb-4")}>
         <i
           className={cn(
-            "fa-regular fa-envelope text-gray-500 absolute left-4 top-[14px] z-10",
+            "fa-regular fa-envelope text-gray-500 absolute start-4 top-[14px] z-10",
           )}
         ></i>
         <Input
           type="email"
-          placeholder="Email Address"
+          placeholder={t("emailAddress")}
           value={forgetEmail}
           onChange={(e) => setForgetEmail(e.target.value)}
-          className={cn("pl-11 h-12")}
+          className={cn("ps-11 h-12")}
         />
       </div>
       <div className={cn("mb-6")}>
         <label className={cn("block text-xs font-semibold text-gray-700 mb-2")}>
-          Reset Method
+          {t("resetMethod")}
         </label>
         <select
           value={resetMethod}
@@ -43,12 +45,12 @@ export const ForgotPasswordForm = ({
             "w-full h-11 border border-gray-300 rounded-md px-3 text-sm outline-none bg-white",
           )}
         >
-          <option value="email">Send via Email</option>
-          <option value="phone">Send via SMS Code</option>
+          <option value="email">{t("sendViaEmail")}</option>
+          <option value="phone">{t("sendViaSms")}</option>
         </select>
       </div>
       <Button type="submit" className={cn("w-full h-12")}>
-        Send Instructions
+        {t("sendInstructionsBtn")}
       </Button>
       {forgetMsg.text && (
         <p
@@ -60,13 +62,13 @@ export const ForgotPasswordForm = ({
         </p>
       )}
       <div className={cn("register text-center mt-6 text-sm text-gray-600")}>
-        Back to{" "}
+        {t("backTo")}{" "}
         <button
           type="button"
           onClick={() => setMode("login")}
           className={cn("font-bold text-black hover:underline cursor-pointer")}
         >
-          Login
+          {t("loginTitle")}
         </button>
       </div>
     </form>

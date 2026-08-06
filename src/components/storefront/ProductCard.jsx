@@ -3,8 +3,12 @@ import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { addToCart, selectCartItems } from "../../store/cartSlice";
 import { toggleWishlist, selectIsInWishlist } from "../../store/wishlistSlice";
+import { useTranslation } from "react-i18next";
+import { formatPrice } from "../../utils/formatPrice";
+import { getLocalizedString } from "../../utils/localization";
 
 export const ProductCard = ({ product }) => {
+  const { t, i18n } = useTranslation(["storefront", "common"]);
   const dispatch = useDispatch();
   const isFavorite = useSelector(selectIsInWishlist(product.id));
   const navigate = useNavigate();
@@ -58,7 +62,7 @@ export const ProductCard = ({ product }) => {
         <Link to={`/product/${product.id}`}>
           <img
             src={product.img || (product.images && product.images[0])}
-            alt={product.name}
+            alt={getLocalizedString(product, "name", i18n.language)}
             className={cn(
               "w-full h-full object-cover transition-transform duration-400 group-hover:scale-108",
             )}
@@ -67,7 +71,7 @@ export const ProductCard = ({ product }) => {
         {(discountPercent > 0 || product.offer) && !isOutOfStock && (
           <span
             className={cn(
-              "discount absolute top-3 left-3 bg-[#e60023] text-white text-[12px] font-bold px-3 py-1 rounded-full shadow",
+              "discount absolute top-3 start-3 bg-[#e60023] text-white text-[12px] font-bold px-3 py-1 rounded-full shadow",
             )}
           >
             {discountPercent > 0 ? `-${discountPercent}%` : product.offer}
@@ -76,16 +80,16 @@ export const ProductCard = ({ product }) => {
         {isOutOfStock && (
           <span
             className={cn(
-              "out-of-stock absolute top-3 left-3 bg-black text-white text-[12px] font-bold px-3 py-1 rounded-full shadow",
+              "out-of-stock absolute top-3 start-3 bg-black text-white text-[12px] font-bold px-3 py-1 rounded-full shadow",
             )}
           >
-            Out of Stock
+            {t("outOfStock")}
           </span>
         )}
         <button
           onClick={handleToggleWishlist}
           className={cn(
-            `heart absolute top-3 right-3 w-[42px] h-[42px] rounded-full flex items-center justify-center cursor-pointer text-[19px] z-10 shadow-[0_5px_15px_rgba(0,0,0,0.15)] transition-all duration-300 hover:scale-115 ${isFavorite ? "text-red-600 bg-[#fff0f0]" : "text-gray-700 bg-white hover:text-red-600"}`,
+            `heart absolute top-3 end-3 w-[42px] h-[42px] rounded-full flex items-center justify-center cursor-pointer text-[19px] z-10 shadow-[0_5px_15px_rgba(0,0,0,0.15)] transition-all duration-300 hover:scale-115 ${isFavorite ? "text-red-600 bg-[#fff0f0]" : "text-gray-700 bg-white hover:text-red-600"}`,
           )}
           aria-label="Add to Wishlist"
         >
@@ -106,7 +110,7 @@ export const ProductCard = ({ product }) => {
                 "text-[14px] sm:text-[15px] md:text-[17px] font-semibold text-gray-900 mb-2 min-h-[40px] line-clamp-2 hover:text-[#e60023] transition-colors",
               )}
             >
-              {product.name}
+              {getLocalizedString(product, "name", i18n.language)}
             </h4>
           </Link>
           <div
@@ -119,7 +123,7 @@ export const ProductCard = ({ product }) => {
                 "new-price text-[#e60023] text-[15px] sm:text-[17px] md:text-[21px] font-bold leading-none",
               )}
             >
-              {product.newPrice}
+              {formatPrice(product.newPrice, t)}
             </span>
             {product.oldPrice && (
               <span
@@ -127,7 +131,7 @@ export const ProductCard = ({ product }) => {
                   "old-price text-gray-400 line-through text-[11px] sm:text-xs md:text-sm",
                 )}
               >
-                {product.oldPrice}
+                {formatPrice(product.oldPrice, t)}
               </span>
             )}
           </div>
@@ -147,10 +151,10 @@ export const ProductCard = ({ product }) => {
             )}
           >
             {isOutOfStock
-              ? "Out of Stock"
+              ? t("outOfStock")
               : isInCart
-                ? "Added to Cart! ✓"
-                : "Add To Cart"}
+                ? t("addedToCart") + " ✓"
+                : t("addToCart")}
           </button>
         </div>
       </div>

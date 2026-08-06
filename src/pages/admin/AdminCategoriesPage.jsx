@@ -2,8 +2,10 @@ import { cn } from "../../utils/cn";
 import { CategoriesGrid } from "./AdminCategories/CategoriesGrid";
 import { CategoryForm } from "./AdminCategories/CategoryForm";
 import { useCategoriesLogic } from "./AdminCategories/useCategoriesLogic";
+import { useTranslation } from "react-i18next";
 
 export const AdminCategoriesPage = () => {
+  const { t } = useTranslation(["admin", "common"]);
   const logic = useCategoriesLogic();
 
   return (
@@ -14,7 +16,7 @@ export const AdminCategoriesPage = () => {
         )}
       >
         <h1 className={cn("text-3xl font-bold text-gray-900")}>
-          Manage Categories
+          {t("manageCategories")}
         </h1>
         <button
           onClick={logic.resetForm}
@@ -22,7 +24,7 @@ export const AdminCategoriesPage = () => {
             "bg-black text-white px-5 py-2.5 rounded-lg text-sm font-bold hover:bg-[#e60023] transition-colors",
           )}
         >
-          + Add New Category
+          {t("addNewCategory")}
         </button>
       </div>
 

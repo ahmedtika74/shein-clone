@@ -2,8 +2,11 @@ import { cn } from "../../../utils/cn";
 import { Card, CardContent, CardFooter } from "../../../components/ui";
 import { Badge } from "../../../components/ui";
 import { Button } from "../../../components/ui";
+import { useTranslation } from "react-i18next";
+import { getLocalizedString } from "../../../utils/localization";
 
 export const OffersList = ({ offers, handleEdit, handleDelete }) => {
+  const { t, i18n } = useTranslation("admin");
   return (
     <div
       className={cn(
@@ -17,7 +20,9 @@ export const OffersList = ({ offers, handleEdit, handleDelete }) => {
         >
           <CardContent className={cn("pb-0")}>
             <div className={cn("flex justify-between items-start mb-3")}>
-              <Badge variant="brand">{o.discount}</Badge>
+              <Badge variant="brand">
+                {getLocalizedString(o, "discount", i18n.language)}
+              </Badge>
               {o.expDate && (
                 <Badge
                   variant={
@@ -25,14 +30,16 @@ export const OffersList = ({ offers, handleEdit, handleDelete }) => {
                   }
                   className={cn("text-[10px]")}
                 >
-                  Exp: {o.expDate}
+                  {t("exp")} {o.expDate}
                 </Badge>
               )}
             </div>
-            <h3 className={cn("font-bold text-gray-900 text-lg")}>{o.title}</h3>
+            <h3 className={cn("font-bold text-gray-900 text-lg")}>
+              {getLocalizedString(o, "title", i18n.language)}
+            </h3>
             {o.code && (
               <p className={cn("text-xs text-gray-500 font-mono mt-1")}>
-                CODE: {o.code}
+                {t("codeLabel")} {o.code}
               </p>
             )}
           </CardContent>
@@ -48,7 +55,7 @@ export const OffersList = ({ offers, handleEdit, handleDelete }) => {
               onClick={() => handleEdit(o)}
               className={cn("text-blue-500 hover:text-blue-700")}
             >
-              Edit
+              {t("edit")}
             </Button>
             <Button
               variant="ghost"
@@ -56,7 +63,7 @@ export const OffersList = ({ offers, handleEdit, handleDelete }) => {
               onClick={() => handleDelete(o.id)}
               className={cn("text-red-500 hover:text-red-700")}
             >
-              Delete
+              {t("delete")}
             </Button>
           </CardFooter>
         </Card>

@@ -1,12 +1,17 @@
 import { cn } from "../../../utils/cn";
 import { Button, Input, Card, CardContent } from "../../../components/ui";
+import { useTranslation } from "react-i18next";
 
 export const PaymentMethodForm = ({
   handleAdd,
-  newMethodName,
-  setNewMethodName,
-  newMethodDetails,
-  setNewMethodDetails,
+  newMethodNameEn,
+  setNewMethodNameEn,
+  newMethodNameAr,
+  setNewMethodNameAr,
+  newMethodDetailsEn,
+  setNewMethodDetailsEn,
+  newMethodDetailsAr,
+  setNewMethodDetailsAr,
   newMethodImg,
   setNewMethodImg,
   inputMode,
@@ -16,29 +21,43 @@ export const PaymentMethodForm = ({
   setImageInputUrl,
   handleAddUrl,
 }) => {
+  const { t } = useTranslation("admin");
   return (
     <Card className={cn("mb-8 bg-gray-50")}>
       <CardContent className={cn("space-y-4")}>
         <form onSubmit={handleAdd} className={cn("space-y-4")}>
           <div className={cn("flex flex-col md:flex-row gap-4 items-start")}>
-            <Input
-              value={newMethodName}
-              onChange={(e) => setNewMethodName(e.target.value)}
-              placeholder="Method Name (e.g. InstaPay)"
-              className={cn("flex-1")}
-              required
-            />
-            <Input
-              value={newMethodDetails}
-              onChange={(e) => setNewMethodDetails(e.target.value)}
-              placeholder="Details (Number or Link)"
-              className={cn("flex-1")}
-            />
+            <div className={cn("flex-1 space-y-4 w-full")}>
+              <Input
+                value={newMethodNameEn}
+                onChange={(e) => setNewMethodNameEn(e.target.value)}
+                placeholder={`${t("methodNamePlaceholder")} (EN)`}
+                required
+              />
+              <Input
+                value={newMethodNameAr}
+                onChange={(e) => setNewMethodNameAr(e.target.value)}
+                placeholder={`${t("methodNamePlaceholder")} (AR)`}
+                required
+              />
+            </div>
+            <div className={cn("flex-1 space-y-4 w-full")}>
+              <Input
+                value={newMethodDetailsEn}
+                onChange={(e) => setNewMethodDetailsEn(e.target.value)}
+                placeholder={`${t("methodDetailsPlaceholder")} (EN)`}
+              />
+              <Input
+                value={newMethodDetailsAr}
+                onChange={(e) => setNewMethodDetailsAr(e.target.value)}
+                placeholder={`${t("methodDetailsPlaceholder")} (AR)`}
+              />
+            </div>
           </div>
 
           <div className={cn("flex flex-col gap-2")}>
             <label className={cn("font-bold text-sm text-gray-800")}>
-              Payment Icon / Image
+              {t("paymentIconImage")}
             </label>
             {newMethodImg ? (
               <div className={cn("relative w-16 h-16 group")}>
@@ -53,7 +72,7 @@ export const PaymentMethodForm = ({
                   type="button"
                   onClick={() => setNewMethodImg("")}
                   className={cn(
-                    "absolute -top-2 -right-2 bg-red-500 text-white w-5 h-5 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center text-[10px]",
+                    "absolute -top-2 -end-2 bg-red-500 text-white w-5 h-5 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center text-[10px]",
                   )}
                 >
                   <i className={cn("fa-solid fa-times")}></i>
@@ -72,7 +91,7 @@ export const PaymentMethodForm = ({
                         : "text-gray-500 hover:text-gray-700",
                     )}
                   >
-                    Upload File
+                    {t("uploadFile", { defaultValue: "Upload File" })}
                   </button>
                   <button
                     type="button"
@@ -84,7 +103,7 @@ export const PaymentMethodForm = ({
                         : "text-gray-500 hover:text-gray-700",
                     )}
                   >
-                    Image URL
+                    {t("imageModeUrl", { defaultValue: "Image URL" })}
                   </button>
                 </div>
 
@@ -103,8 +122,8 @@ export const PaymentMethodForm = ({
                         "inline-flex items-center justify-center bg-black text-white px-4 py-2 rounded-lg text-sm font-bold cursor-pointer hover:bg-gray-800 transition-colors whitespace-nowrap h-[42px]",
                       )}
                     >
-                      <i className={cn("fa-solid fa-upload mr-2")}></i>Choose
-                      File...
+                      <i className={cn("fa-solid fa-upload me-2")}></i>
+                      {t("chooseFile", { defaultValue: "Choose File..." })}
                     </label>
                   </div>
                 ) : (
@@ -112,7 +131,9 @@ export const PaymentMethodForm = ({
                     <Input
                       value={imageInputUrl}
                       onChange={(e) => setImageInputUrl(e.target.value)}
-                      placeholder="Image URL..."
+                      placeholder={t("imageUrlPlaceholder", {
+                        defaultValue: "Image URL...",
+                      })}
                       className={cn("flex-1 min-w-0")}
                     />
                     <Button
@@ -126,7 +147,7 @@ export const PaymentMethodForm = ({
                       }
                       className={cn("h-[46px]")}
                     >
-                      Add URL
+                      {t("addUrl", { defaultValue: "Add URL" })}
                     </Button>
                   </div>
                 )}
@@ -135,7 +156,7 @@ export const PaymentMethodForm = ({
           </div>
 
           <Button type="submit" className={cn("w-full h-11")}>
-            Add Method
+            {t("addMethod")}
           </Button>
         </form>
       </CardContent>

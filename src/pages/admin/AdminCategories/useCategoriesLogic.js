@@ -14,7 +14,8 @@ export const useCategoriesLogic = () => {
   const isLoading = status === "loading";
 
   const [editId, setEditId] = useState(null);
-  const [catName, setCatName] = useState("");
+  const [catNameEn, setCatNameEn] = useState("");
+  const [catNameAr, setCatNameAr] = useState("");
   const [catImg, setCatImg] = useState("");
   const [imageInputUrl, setImageInputUrl] = useState("");
   const [inputMode, setInputMode] = useState("upload");
@@ -39,27 +40,30 @@ export const useCategoriesLogic = () => {
 
   const resetForm = () => {
     setEditId(null);
-    setCatName("");
+    setCatNameEn("");
+    setCatNameAr("");
     setCatImg("");
     setImageInputUrl("");
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!catName) return;
+    if (!catNameEn || !catNameAr) return;
 
     if (editId) {
       dispatch(
         updateCategoryThunk({
           id: editId,
-          name: catName,
+          nameEn: catNameEn,
+          nameAr: catNameAr,
           img: catImg || "/images/dress.webp",
         }),
       );
     } else {
       dispatch(
         createCategoryThunk({
-          name: catName,
+          nameEn: catNameEn,
+          nameAr: catNameAr,
           img: catImg || "/images/dress.webp",
         }),
       );
@@ -70,7 +74,8 @@ export const useCategoriesLogic = () => {
 
   const handleEdit = (cat) => {
     setEditId(cat.id);
-    setCatName(cat.name);
+    setCatNameEn(cat.nameEn || "");
+    setCatNameAr(cat.nameAr || "");
     setCatImg(cat.img);
   };
 
@@ -82,8 +87,10 @@ export const useCategoriesLogic = () => {
     categories,
     isLoading,
     editId,
-    catName,
-    setCatName,
+    catNameEn,
+    setCatNameEn,
+    catNameAr,
+    setCatNameAr,
     catImg,
     setCatImg,
     imageInputUrl,

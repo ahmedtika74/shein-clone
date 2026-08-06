@@ -1,4 +1,5 @@
 import { cn } from "../../../utils/cn";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "../../../components/ui";
 import { Input, Button } from "../../../components/ui";
 
@@ -10,6 +11,7 @@ export const FreeShippingToggle = ({
   handleToggleFreeShipping,
   handleSaveFsThreshold,
 }) => {
+  const { t } = useTranslation("admin");
   return (
     <Card className={cn("bg-gray-50 border-gray-200 mb-8")}>
       <CardContent>
@@ -20,10 +22,10 @@ export const FreeShippingToggle = ({
         >
           <div>
             <h3 className={cn("text-lg font-bold text-gray-900")}>
-              Free Shipping Offer
+              {t("freeShippingOffer")}
             </h3>
             <p className={cn("text-sm text-gray-500")}>
-              Enable free shipping for orders over a specific amount.
+              {t("freeShippingDesc")}
             </p>
           </div>
           <button
@@ -34,14 +36,16 @@ export const FreeShippingToggle = ({
             )}
             title={
               freeShipping.enabled
-                ? "Disable Free Shipping"
-                : "Enable Free Shipping"
+                ? t("disableFreeShipping")
+                : t("enableFreeShipping")
             }
           >
             <span
               className={cn(
                 "inline-block h-4 w-4 transform rounded-full bg-white transition-transform",
-                freeShipping.enabled ? "translate-x-6" : "translate-x-1",
+                freeShipping.enabled
+                  ? "translate-x-6 rtl:-translate-x-6"
+                  : "translate-x-1 rtl:-translate-x-1",
               )}
             />
           </button>
@@ -55,7 +59,7 @@ export const FreeShippingToggle = ({
           >
             <div className={cn("flex-1")}>
               <Input
-                label="Minimum Order Amount (EGP)"
+                label={t("minOrderAmountEGP")}
                 type="number"
                 value={fsThreshold}
                 onChange={(e) => setFsThreshold(e.target.value)}
@@ -70,11 +74,11 @@ export const FreeShippingToggle = ({
                     "text-green-600 font-bold text-sm transition-opacity",
                   )}
                 >
-                  Saved!
+                  {t("saved")}
                 </span>
               )}
               <Button onClick={handleSaveFsThreshold} className={cn("h-full")}>
-                Save Threshold
+                {t("saveThreshold")}
               </Button>
             </div>
           </div>

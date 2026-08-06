@@ -1,4 +1,5 @@
 import { cn } from "../../../utils/cn";
+import { useTranslation } from "react-i18next";
 import { Badge } from "../../../components/ui/Badge";
 import { Button } from "../../../components/ui/Button";
 
@@ -7,6 +8,24 @@ export const UserOrderCard = ({
   setCancelOrderId,
   setRefundOrderId,
 }) => {
+  const { t, i18n } = useTranslation(["storefront", "common"]);
+  const currentLang = i18n.language === "ar" ? "ar-EG" : "en-US";
+
+  const translateStatus = (status) => {
+    if (!status) return t("pending");
+    const keyMap = {
+      Pending: "pending",
+      Processing: "processing",
+      Shipped: "shipped",
+      Completed: "completed",
+      Cancelled: "cancelled",
+      "Refund Requested": "refundRequested",
+      "Refund Refused": "refundRefused",
+      Refunded: "returned",
+    };
+    return keyMap[status] ? t(keyMap[status]) : status;
+  };
+
   const getStatusVariant = (status) => {
     if (status === "Completed") return "success";
     if (status === "Cancelled" || status === "Refund Refused") return "error";
@@ -31,22 +50,26 @@ export const UserOrderCard = ({
               "font-bold text-gray-900 text-sm sm:text-base truncate block sm:inline",
             )}
           >
-            Order #{order.id}
+            {t("orderNumber")}
+            <bdi>{order.id}</bdi>
           </span>
-          <span className={cn("text-xs text-gray-400 sm:ml-3 block sm:inline")}>
+          <span
+            className={cn("text-xs text-gray-400 sm:ms-3 block sm:inline")}
+            dir="auto"
+          >
             {order.createdAt
-              ? new Date(order.createdAt).toLocaleString(undefined, {
+              ? new Date(order.createdAt).toLocaleString(currentLang, {
                   year: "numeric",
                   month: "short",
                   day: "numeric",
                   hour: "2-digit",
                   minute: "2-digit",
                 })
-              : order.date || "Recent"}
+              : order.date || t("recent")}
           </span>
         </div>
         <Badge variant={getStatusVariant(order.status)}>
-          {order.status || "Pending"}
+          {translateStatus(order.status)}
         </Badge>
       </div>
 
@@ -68,17 +91,17 @@ export const UserOrderCard = ({
                   {item.name}
                 </h4>
                 <p className={cn("text-xs text-gray-500")}>
-                  Qty: {item.quantity}{" "}
+                  {t("qty")} {item.quantity}{" "}
                   {item.color
-                    ? `| Color: ${typeof item.color === "object" ? item.color.name : item.color}`
+                    ? `| ${t("color")} ${typeof item.color === "object" ? item.color.name : item.color}`
                     : ""}{" "}
                   {item.size
-                    ? `| Size: ${typeof item.size === "object" ? item.size.name : item.size}`
+                    ? `| ${t("size")} ${typeof item.size === "object" ? item.size.name : item.size}`
                     : ""}
                 </p>
               </div>
               <span className={cn("font-bold text-black text-sm")}>
-                EGP {(item.price * item.quantity).toFixed(2)}
+                {t("egp")} {(item.price * item.quantity).toFixed(2)}
               </span>
             </div>
           ))}
@@ -97,7 +120,7 @@ export const UserOrderCard = ({
             }`,
           )}
         >
-          Ordered
+          {t("ordered")}
         </div>
         <div
           className={cn(
@@ -108,7 +131,7 @@ export const UserOrderCard = ({
             }`,
           )}
         >
-          Shipped
+          {t("shipped")}
         </div>
         <div
           className={cn(
@@ -119,7 +142,7 @@ export const UserOrderCard = ({
             }`,
           )}
         >
-          Delivered
+          {t("delivered")}
         </div>
       </div>
 
@@ -135,7 +158,7 @@ export const UserOrderCard = ({
               onClick={() => setCancelOrderId(order.id)}
               className="py-1 px-3 text-xs"
             >
-              Cancel Order
+              {t("cancelOrder")}
             </Button>
           )}
           {order.status === "Completed" && (
@@ -143,14 +166,14 @@ export const UserOrderCard = ({
               onClick={() => setRefundOrderId(order.id)}
               className="py-1 px-3 text-xs bg-orange-50 hover:bg-orange-100 text-orange-600 border border-orange-200"
             >
-              Request Refund
+              {t("requestRefund")}
             </Button>
           )}
           {order.status === "Refund Requested" && (
             <span
               className={cn("text-orange-600 font-bold text-xs sm:text-sm")}
             >
-              Refund Pending
+              {t("refundPending")}
             </span>
           )}
           {order.status === "Refund Refused" && (
@@ -159,15 +182,15 @@ export const UserOrderCard = ({
                 "text-red-600 font-bold text-xs sm:text-sm flex flex-col",
               )}
             >
-              <span>Refund Refused</span>
+              <span>{t("refundRefused")}</span>
               {order.refusalReason && (
                 <span className="text-[10px] sm:text-xs text-gray-500 font-normal mt-1">
-                  Reason: {order.refusalReason}
+                  {t("reason")} {order.refusalReason}
                 </span>
               )}
               {order.refusedAt && (
                 <span className="text-[10px] sm:text-xs text-gray-500 font-normal mt-1">
-                  Refused on: {new Date(order.refusedAt).toLocaleString()}
+                  {t("refusedOn")} {new Date(order.refusedAt).toLocaleString()}
                 </span>
               )}
             </div>
@@ -178,10 +201,11 @@ export const UserOrderCard = ({
                 "text-green-600 font-bold text-xs sm:text-sm flex flex-col",
               )}
             >
-              <span>Refunded</span>
+              <span>{t("returned")}</span>
               {order.refundedAt && (
                 <span className="text-[10px] sm:text-xs text-gray-500 font-normal mt-1">
-                  Accepted on: {new Date(order.refundedAt).toLocaleString()}
+                  {t("acceptedOn")}{" "}
+                  {new Date(order.refundedAt).toLocaleString()}
                 </span>
               )}
             </div>
@@ -195,13 +219,13 @@ export const UserOrderCard = ({
           <span
             className={cn("font-bold text-gray-700 hidden sm:inline-block")}
           >
-            Total Order Amount:
+            {t("totalOrderAmount")}
           </span>
           <span className={cn("font-bold text-gray-700 sm:hidden")}>
-            Total:
+            {t("total")}
           </span>
           <span className={cn("font-bold text-[#e60023] text-lg")}>
-            EGP {order.total?.toFixed(2)}
+            {t("egp")} {order.total?.toFixed(2)}
           </span>
         </div>
       </div>

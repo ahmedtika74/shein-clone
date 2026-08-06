@@ -1,4 +1,5 @@
 import { cn } from "../../../utils/cn";
+import { useTranslation } from "react-i18next";
 
 export const ColorPicker = ({
   selectedColors,
@@ -6,6 +7,7 @@ export const ColorPicker = ({
   handleRemoveColor,
   handleColorChange,
 }) => {
+  const { t } = useTranslation(["admin"]);
   return (
     <div
       className={cn(
@@ -14,7 +16,7 @@ export const ColorPicker = ({
     >
       <div className={cn("flex justify-between items-center")}>
         <label className={cn("font-bold text-sm text-gray-800")}>
-          Product Colors (Variants)
+          {t("productColors")}
         </label>
         <button
           type="button"
@@ -23,21 +25,30 @@ export const ColorPicker = ({
             "text-xs bg-black text-white px-3 py-1.5 rounded-md hover:bg-gray-800",
           )}
         >
-          + Add Color
+          {t("addColor")}
         </button>
       </div>
       {selectedColors.map((color, idx) => (
         <div
           key={idx}
           className={cn(
-            "grid grid-cols-1 md:grid-cols-5 gap-3 items-center bg-white p-3 rounded-lg border border-gray-200 shadow-sm",
+            "grid grid-cols-1 md:grid-cols-6 gap-3 items-center bg-white p-3 rounded-lg border border-gray-200 shadow-sm",
           )}
         >
           <input
             type="text"
-            placeholder="Color Name (e.g. Red)"
-            value={color.name || ""}
-            onChange={(e) => handleColorChange(idx, "name", e.target.value)}
+            placeholder={`${t("colorName")} (EN)`}
+            value={color.nameEn || ""}
+            onChange={(e) => handleColorChange(idx, "nameEn", e.target.value)}
+            className={cn(
+              "h-10 px-3 border border-gray-300 rounded outline-none focus:border-[#e60023] text-sm",
+            )}
+          />
+          <input
+            type="text"
+            placeholder={`${t("colorName")} (AR)`}
+            value={color.nameAr || ""}
+            onChange={(e) => handleColorChange(idx, "nameAr", e.target.value)}
             className={cn(
               "h-10 px-3 border border-gray-300 rounded outline-none focus:border-[#e60023] text-sm",
             )}
@@ -57,7 +68,7 @@ export const ColorPicker = ({
             />
             <input
               type="text"
-              placeholder="Hex (e.g. #FF0000)"
+              placeholder={t("hex")}
               value={color.hex || ""}
               onChange={(e) => handleColorChange(idx, "hex", e.target.value)}
               className={cn("w-full border-none outline-none text-sm")}
@@ -65,7 +76,7 @@ export const ColorPicker = ({
           </div>
           <input
             type="text"
-            placeholder="Image URL (Optional)"
+            placeholder={t("imageUrl")}
             value={color.image || ""}
             onChange={(e) => handleColorChange(idx, "image", e.target.value)}
             className={cn(
@@ -74,7 +85,7 @@ export const ColorPicker = ({
           />
           <input
             type="number"
-            placeholder="Specific Price (Optional)"
+            placeholder={t("specificPrice")}
             value={color.price || ""}
             onChange={(e) => handleColorChange(idx, "price", e.target.value)}
             className={cn(
@@ -85,17 +96,15 @@ export const ColorPicker = ({
             type="button"
             onClick={() => handleRemoveColor(idx)}
             className={cn(
-              "text-red-500 hover:text-red-700 font-bold text-sm ml-auto",
+              "text-red-500 hover:text-red-700 font-bold text-sm ms-auto",
             )}
           >
-            Remove
+            {t("remove")}
           </button>
         </div>
       ))}
       {selectedColors.length === 0 && (
-        <p className={cn("text-sm text-gray-500")}>
-          No colors added. Defaulting to standard variant.
-        </p>
+        <p className={cn("text-sm text-gray-500")}>{t("noColorsAdded")}</p>
       )}
     </div>
   );

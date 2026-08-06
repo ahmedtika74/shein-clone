@@ -1,17 +1,24 @@
 import { cn } from "../../../utils/cn";
+import { useTranslation } from "react-i18next";
 import { changeQty, removeItem } from "../../../store/cartSlice";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { selectProducts } from "../../../store/dataSlice";
+import { getLocalizedString } from "../../../utils/localization";
 
 export const CartItemList = ({ cart, dispatch }) => {
+  const { t, i18n } = useTranslation(["storefront", "common"]);
   const products = useSelector(selectProducts);
   return (
     <div className={cn("flex-1")}>
       {cart.map((item, index) => {
         const product = products.find((p) => String(p.id) === String(item.id));
-        const cName = item.color?.name || item.color || "Default";
-        const sName = item.size?.name || item.size || "Free Size";
+        const cName =
+          item.color?.nameEn ||
+          item.color?.name ||
+          item.color ||
+          t("defaultColor");
+        const sName = item.size?.name || item.size || t("freeSize");
         const variantKey = `${cName}-${sName}`;
         const maxStock =
           product?.variantsStock?.[variantKey] !== undefined
@@ -37,7 +44,11 @@ export const CartItemList = ({ cart, dispatch }) => {
             >
               <img
                 src={item.img}
-                alt={item.name}
+                alt={
+                  product
+                    ? getLocalizedString(product, "name", i18n.language)
+                    : getLocalizedString(item, "name", i18n.language)
+                }
                 className={cn("w-35 h-42.5 object-cover rounded-md shrink-0")}
               />
             </Link>
@@ -47,22 +58,24 @@ export const CartItemList = ({ cart, dispatch }) => {
                 className={cn("hover:underline")}
               >
                 <h3 className={cn("text-xl font-bold text-gray-900 mb-1")}>
-                  {item.name}
+                  {product
+                    ? getLocalizedString(product, "name", i18n.language)
+                    : getLocalizedString(item, "name", i18n.language)}
                 </h3>
               </Link>
               {(item.color || item.size) && (
                 <p className={cn("text-xs text-gray-500 mb-2")}>
                   {item.color && (
                     <span>
-                      Color:{" "}
+                      {t("color")}{" "}
                       {typeof item.color === "object"
-                        ? item.color.name
+                        ? getLocalizedString(item.color, "name", i18n.language)
                         : item.color}{" "}
                     </span>
                   )}
                   {item.size && (
                     <span>
-                      | Size:{" "}
+                      | {t("size")}{" "}
                       {typeof item.size === "object"
                         ? item.size.name
                         : item.size}
@@ -72,11 +85,11 @@ export const CartItemList = ({ cart, dispatch }) => {
               )}
               <div className={cn("flex items-center gap-2 mb-3")}>
                 <p className={cn("price text-lg font-bold text-[#e60023]")}>
-                  EGP {item.price.toFixed(2)}
+                  {t("egp")} {item.price.toFixed(2)}
                 </p>
                 {item.originalPrice && item.originalPrice > item.price && (
                   <p className={cn("text-sm text-gray-400 line-through")}>
-                    EGP {item.originalPrice.toFixed(2)}
+                    {t("egp")} {item.originalPrice.toFixed(2)}
                   </p>
                 )}
               </div>
@@ -116,7 +129,7 @@ export const CartItemList = ({ cart, dispatch }) => {
                     "remove bg-black text-white text-sm font-semibold px-5 py-2.5 rounded-md hover:bg-red-600 transition-colors cursor-pointer",
                   )}
                 >
-                  Remove
+                  {t("remove")}
                 </button>
               </div>
             </div>

@@ -1,12 +1,16 @@
 import { cn } from "../../../utils/cn";
+import { useTranslation } from "react-i18next";
+import { getLocalizedString } from "../../../utils/localization";
 import { Card, CardContent } from "../../../components/ui";
 import { Input, Button } from "../../../components/ui";
 
 export const ShippingRatesList = ({
   shippingRates,
   editingId,
-  editGovName,
-  setEditGovName,
+  editGovNameEn,
+  setEditGovNameEn,
+  editGovNameAr,
+  setEditGovNameAr,
   editPrice,
   setEditPrice,
   editDeliveryDays,
@@ -16,6 +20,8 @@ export const ShippingRatesList = ({
   handleCancelEdit,
   handleDelete,
 }) => {
+  const { t, i18n } = useTranslation("admin");
+  const { t: tCommon } = useTranslation("common");
   return (
     <div className={cn("space-y-4")}>
       {shippingRates.map((rate) => (
@@ -24,45 +30,65 @@ export const ShippingRatesList = ({
             {editingId === rate.id ? (
               <div
                 className={cn(
-                  "w-full flex flex-col md:flex-row gap-3 items-start md:items-center",
+                  "w-full flex flex-col lg:flex-row gap-3 items-start lg:items-center",
                 )}
               >
-                <Input
-                  value={editGovName}
-                  onChange={(e) => setEditGovName(e.target.value)}
-                  className={cn("flex-1")}
-                  required
-                />
-                <Input
-                  type="number"
-                  value={editPrice}
-                  onChange={(e) => setEditPrice(e.target.value)}
-                  className={cn("w-full md:w-32")}
-                  min="0"
-                  step="0.01"
-                  required
-                />
-                <Input
-                  value={editDeliveryDays}
-                  onChange={(e) => setEditDeliveryDays(e.target.value)}
-                  className={cn("w-full md:w-48")}
-                  placeholder="Delivery Days"
-                  required
-                />
-                <div className={cn("flex items-center gap-2 w-full md:w-auto")}>
-                  <Button
-                    onClick={handleSaveEdit}
-                    className={cn("flex-1 md:flex-none")}
+                <div className={cn("flex flex-1 w-full gap-2")}>
+                  <Input
+                    value={editGovNameEn}
+                    onChange={(e) => setEditGovNameEn(e.target.value)}
+                    className={cn("flex-1")}
+                    placeholder="EN"
+                    required
+                  />
+                  <Input
+                    value={editGovNameAr}
+                    onChange={(e) => setEditGovNameAr(e.target.value)}
+                    className={cn("flex-1")}
+                    placeholder="AR"
+                    required
+                  />
+                </div>
+                <div
+                  className={cn(
+                    "flex flex-1 w-full flex-col sm:flex-row gap-3 items-start sm:items-center",
+                  )}
+                >
+                  <Input
+                    type="number"
+                    value={editPrice}
+                    onChange={(e) => setEditPrice(e.target.value)}
+                    className={cn("flex-1 w-full sm:w-auto")}
+                    min="0"
+                    step="0.01"
+                    required
+                  />
+                  <Input
+                    value={editDeliveryDays}
+                    onChange={(e) => setEditDeliveryDays(e.target.value)}
+                    className={cn("flex-1 w-full sm:w-auto")}
+                    placeholder={t("deliveryDays")}
+                    required
+                  />
+                  <div
+                    className={cn(
+                      "flex items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0",
+                    )}
                   >
-                    Save
-                  </Button>
-                  <Button
-                    onClick={handleCancelEdit}
-                    variant="secondary"
-                    className={cn("flex-1 md:flex-none")}
-                  >
-                    Cancel
-                  </Button>
+                    <Button
+                      onClick={handleSaveEdit}
+                      className={cn("flex-1 sm:flex-none")}
+                    >
+                      {t("save", { defaultValue: "Save" })}
+                    </Button>
+                    <Button
+                      onClick={handleCancelEdit}
+                      variant="secondary"
+                      className={cn("flex-1 sm:flex-none")}
+                    >
+                      {t("cancel", { defaultValue: "Cancel" })}
+                    </Button>
+                  </div>
                 </div>
               </div>
             ) : (
@@ -73,17 +99,17 @@ export const ShippingRatesList = ({
               >
                 <div>
                   <span className={cn("font-bold text-gray-900 block")}>
-                    {rate.government}
+                    {getLocalizedString(rate, "government", i18n.language)}
                   </span>
                   {rate.deliveryDays && (
                     <span className={cn("text-xs text-gray-500")}>
-                      Delivery: {rate.deliveryDays}
+                      {t("deliveryLabel")} {rate.deliveryDays}
                     </span>
                   )}
                 </div>
                 <div className={cn("flex items-center gap-4")}>
                   <span className={cn("font-semibold text-[#e60023]")}>
-                    EGP {rate.price.toFixed(2)}
+                    {tCommon("egp")} {rate.price.toFixed(2)}
                   </span>
                   <div className={cn("flex gap-2")}>
                     <Button
@@ -93,7 +119,7 @@ export const ShippingRatesList = ({
                       className={cn(
                         "text-blue-600 hover:text-blue-800 hover:bg-blue-50",
                       )}
-                      title="Edit Rate"
+                      title={t("editRateTitle")}
                     >
                       <i className={cn("fa-solid fa-pen")}></i>
                     </Button>
@@ -104,7 +130,7 @@ export const ShippingRatesList = ({
                       className={cn(
                         "text-red-600 hover:text-red-800 hover:bg-red-50",
                       )}
-                      title="Delete Rate"
+                      title={t("deleteRateTitle")}
                     >
                       <i className={cn("fa-solid fa-trash")}></i>
                     </Button>
@@ -117,7 +143,7 @@ export const ShippingRatesList = ({
       ))}
       {shippingRates.length === 0 && (
         <p className={cn("text-gray-500 text-center py-4")}>
-          No shipping rates found.
+          {t("noShippingRatesFound")}
         </p>
       )}
     </div>

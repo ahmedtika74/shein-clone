@@ -1,4 +1,5 @@
 import { cn } from "../../../utils/cn";
+import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
 import { SEO } from "../../../components/common/SEO";
 import { logoutUser } from "../../../store/authSlice";
@@ -10,6 +11,7 @@ import { CancelOrderModal } from "./CancelOrderModal";
 import { RefundRequestModal } from "./RefundRequestModal";
 
 export const UserDashboardPage = () => {
+  const { t } = useTranslation(["storefront", "common"]);
   const navigate = useNavigate();
   const logic = useDashboardLogic();
 
@@ -64,7 +66,7 @@ export const UserDashboardPage = () => {
                 "text-2xl md:text-3xl font-bold text-gray-900 capitalize truncate",
               )}
             >
-              Welcome, {logic.user?.name || "Customer"}!
+              {t("hello")} {logic.user?.name || "Customer"}!
             </h1>
             <p className={cn("text-gray-500 text-sm mt-1 truncate")}>
               {logic.user?.email}
@@ -80,7 +82,7 @@ export const UserDashboardPage = () => {
               "md:hidden shrink-0 bg-black text-white text-xs px-4 py-2 rounded-lg font-bold",
             )}
           >
-            Logout
+            {t("logout")}
           </button>
         </div>
 
@@ -96,7 +98,7 @@ export const UserDashboardPage = () => {
               }`,
             )}
           >
-            My Orders
+            {t("myOrders")}
           </button>
           <button
             onClick={() => logic.setActiveTab("profile")}
@@ -108,7 +110,7 @@ export const UserDashboardPage = () => {
               }`,
             )}
           >
-            Profile Info
+            {t("personalInfo")}
           </button>
         </div>
 

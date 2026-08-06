@@ -7,11 +7,14 @@ import {
   CardHeader,
   CardTitle,
 } from "../../../components/ui";
+import { useTranslation } from "react-i18next";
 
 export const CategoryForm = ({
   editId,
-  catName,
-  setCatName,
+  catNameEn,
+  setCatNameEn,
+  catNameAr,
+  setCatNameAr,
   catImg,
   setCatImg,
   imageInputUrl,
@@ -24,6 +27,7 @@ export const CategoryForm = ({
   resetForm,
   isLoading,
 }) => {
+  const { t } = useTranslation(["admin", "common"]);
   return (
     <Card
       className={cn(
@@ -32,16 +36,29 @@ export const CategoryForm = ({
     >
       <CardHeader className={cn("border-b pb-3 mb-6")}>
         <CardTitle className={cn("text-xl")}>
-          {editId ? `Edit Category #${editId}` : "+ Add New Category"}
+          {editId
+            ? t("editCategoryId", {
+                id: editId,
+                defaultValue: `Edit Category #${editId}`,
+              })
+            : t("addNewCategory")}
         </CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className={cn("space-y-6")}>
           <Input
-            label="Category Name"
-            placeholder="e.g. Dresses"
-            value={catName}
-            onChange={(e) => setCatName(e.target.value)}
+            label={`${t("categoryName")} (English)`}
+            placeholder={`${t("egDresses")} (EN)`}
+            value={catNameEn}
+            onChange={(e) => setCatNameEn(e.target.value)}
+            required
+            className={cn("h-11")}
+          />
+          <Input
+            label={`${t("categoryName")} (Arabic)`}
+            placeholder={`${t("egDresses")} (AR)`}
+            value={catNameAr}
+            onChange={(e) => setCatNameAr(e.target.value)}
             required
             className={cn("h-11")}
           />
@@ -52,7 +69,7 @@ export const CategoryForm = ({
                 "block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2",
               )}
             >
-              Category Image
+              {t("categoryImage")}
             </label>
 
             <div className={cn("flex flex-col gap-4")}>
@@ -61,7 +78,7 @@ export const CategoryForm = ({
                 <div className={cn("relative w-24 h-24 group")}>
                   <img
                     src={catImg}
-                    alt="Category Preview"
+                    alt={t("categoryPreview")}
                     className={cn(
                       "w-24 h-24 object-cover rounded-xl border border-gray-200",
                     )}
@@ -70,7 +87,7 @@ export const CategoryForm = ({
                     type="button"
                     onClick={() => setCatImg("")}
                     className={cn(
-                      "absolute -top-2 -right-2 bg-red-500 text-white w-6 h-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-xs cursor-pointer",
+                      "absolute -top-2 -end-2 bg-red-500 text-white w-6 h-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-xs cursor-pointer",
                     )}
                   >
                     <i className={cn("fa-solid fa-times")}></i>
@@ -92,7 +109,7 @@ export const CategoryForm = ({
                           : "text-gray-500 hover:text-gray-700",
                       )}
                     >
-                      Upload File
+                      {t("uploadFile")}
                     </button>
                     <button
                       type="button"
@@ -104,7 +121,7 @@ export const CategoryForm = ({
                           : "text-gray-500 hover:text-gray-700",
                       )}
                     >
-                      Image URL
+                      {t("imageLink")}
                     </button>
                   </div>
 
@@ -123,8 +140,8 @@ export const CategoryForm = ({
                           "inline-flex items-center justify-center bg-black text-white px-4 py-2 rounded-lg text-sm font-bold cursor-pointer hover:bg-gray-800 transition-colors whitespace-nowrap h-[42px]",
                         )}
                       >
-                        <i className={cn("fa-solid fa-upload mr-2")}></i>
-                        Choose File...
+                        <i className={cn("fa-solid fa-upload me-2")}></i>
+                        {t("chooseFile")}
                       </label>
                     </div>
                   ) : (
@@ -132,7 +149,7 @@ export const CategoryForm = ({
                       <Input
                         value={imageInputUrl}
                         onChange={(e) => setImageInputUrl(e.target.value)}
-                        placeholder="Image URL..."
+                        placeholder={`${t("imageLink")}...`}
                         className={cn("flex-1 min-w-0")}
                       />
                       <Button
@@ -140,7 +157,7 @@ export const CategoryForm = ({
                         onClick={handleAddUrl}
                         className={cn("h-[46px]")}
                       >
-                        Add URL
+                        {t("addUrl")}
                       </Button>
                     </div>
                   )}
@@ -156,10 +173,10 @@ export const CategoryForm = ({
               className={cn("flex-1 h-11 bg-[#111] hover:bg-[#e60023]")}
             >
               {isLoading
-                ? "Saving..."
+                ? t("saving")
                 : editId
-                  ? "Update Category"
-                  : "Save Category"}
+                  ? t("updateCategory")
+                  : t("saveCategory")}
             </Button>
             {editId && (
               <Button
@@ -168,7 +185,7 @@ export const CategoryForm = ({
                 onClick={resetForm}
                 className={cn("flex-1 h-11")}
               >
-                Cancel
+                {t("cancelEdit", { defaultValue: "Cancel" })}
               </Button>
             )}
           </div>

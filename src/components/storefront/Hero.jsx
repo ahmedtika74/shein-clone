@@ -7,8 +7,11 @@ import {
   selectLeftSideCards,
   selectRightSideCards,
 } from "../../store/dataSlice";
+import { useTranslation } from "react-i18next";
+import { getLocalizedString } from "../../utils/localization";
 
 export const Hero = () => {
+  const { i18n } = useTranslation();
   const heroSlides = useSelector(selectHeroSlides);
   const leftSideCards = useSelector(selectLeftSideCards);
   const rightSideCards = useSelector(selectRightSideCards);
@@ -42,10 +45,10 @@ export const Hero = () => {
           "w-full md:w-[18%] grid grid-cols-3 md:flex md:flex-col gap-2 md:gap-4 h-full",
         )}
       >
-        {leftSideCards.map((card) => (
+        {leftSideCards.map((card, idx) => (
           <Link
             to={card.link || "#"}
-            key={card.title}
+            key={`left-${idx}`}
             className={cn(
               "flex-1 relative overflow-hidden rounded-[10px] group cursor-pointer h-[100px] sm:h-[130px] md:h-auto block",
             )}
@@ -67,14 +70,14 @@ export const Hero = () => {
                   "text-sm sm:text-lg md:text-2xl font-bold mb-0.5 md:mb-2 drop-shadow text-center px-1 leading-tight",
                 )}
               >
-                {card.title}
+                {getLocalizedString(card, "title", i18n.language)}
               </h3>
               <p
                 className={cn(
                   "bg-white text-black px-2 py-0.5 md:px-4 md:py-1.5 rounded-full text-[9px] md:text-xs font-semibold hover:bg-gray-100 transition-colors shadow",
                 )}
               >
-                {card.actionText}
+                {getLocalizedString(card, "actionText", i18n.language)}
               </p>
             </div>
           </Link>
@@ -89,12 +92,16 @@ export const Hero = () => {
       >
         <div
           className={cn(
-            "flex h-full transition-transform duration-700 ease-in-out translate-x-[calc(var(--slide-idx)*-100%)]",
+            "flex h-full transition-transform duration-700 ease-in-out ltr:translate-x-[calc(var(--slide-idx)*-100%)] rtl:translate-x-[calc(var(--slide-idx)*100%)]",
           )}
           style={{ "--slide-idx": currentSlide }}
         >
           {heroSlides.map((slide, idx) => (
-            <Link key={slide.img || slide} to={slide.link || "#"} className={cn("min-w-full h-full shrink-0 block")}>
+            <Link
+              key={slide.img || slide}
+              to={slide.link || "#"}
+              className={cn("min-w-full h-full shrink-0 block")}
+            >
               <img
                 src={slide.img || slide}
                 alt={`Slide ${idx + 1}`}
@@ -106,7 +113,7 @@ export const Hero = () => {
         <button
           onClick={prevSlide}
           className={cn(
-            "absolute left-[15px] top-1/2 -translate-y-1/2 w-11.25 h-11.25 rounded-full bg-white/90 hover:bg-white text-black flex items-center justify-center shadow-lg transition-all cursor-pointer z-10",
+            "absolute start-[15px] top-1/2 -translate-y-1/2 w-11.25 h-11.25 rounded-full bg-white/90 hover:bg-white text-black flex items-center justify-center shadow-lg transition-all cursor-pointer z-10",
           )}
           aria-label="Previous Slide"
         >
@@ -115,7 +122,7 @@ export const Hero = () => {
         <button
           onClick={nextSlide}
           className={cn(
-            "absolute right-3.75 top-1/2 -translate-y-1/2 w-11.25 h-11.25 rounded-full bg-white/90 hover:bg-white text-black flex items-center justify-center shadow-lg transition-all cursor-pointer z-10",
+            "absolute end-3.75 top-1/2 -translate-y-1/2 w-11.25 h-11.25 rounded-full bg-white/90 hover:bg-white text-black flex items-center justify-center shadow-lg transition-all cursor-pointer z-10",
           )}
           aria-label="Next Slide"
         >
@@ -123,7 +130,7 @@ export const Hero = () => {
         </button>
         <div
           className={cn(
-            "absolute bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10",
+            "absolute bottom-5 start-1/2 -translate-x-1/2 flex items-center gap-2 z-10",
           )}
         >
           {heroSlides.map((slide, idx) => (
@@ -145,10 +152,10 @@ export const Hero = () => {
           "w-full md:w-[18%] grid grid-cols-3 md:flex md:flex-col gap-2 md:gap-4 h-full",
         )}
       >
-        {rightSideCards.map((card) => (
+        {rightSideCards.map((card, idx) => (
           <Link
             to={card.link || "#"}
-            key={card.title}
+            key={`right-${idx}`}
             className={cn(
               "flex-1 relative overflow-hidden rounded-[10px] group cursor-pointer h-[100px] sm:h-[130px] md:h-auto block",
             )}
@@ -170,14 +177,14 @@ export const Hero = () => {
                   "text-sm sm:text-lg md:text-2xl font-bold mb-0.5 md:mb-2 drop-shadow text-center px-1 leading-tight",
                 )}
               >
-                {card.title}
+                {getLocalizedString(card, "title", i18n.language)}
               </h3>
               <p
                 className={cn(
                   "bg-white text-black px-2 py-0.5 md:px-4 md:py-1.5 rounded-full text-[9px] md:text-xs font-semibold hover:bg-gray-100 transition-colors shadow",
                 )}
               >
-                {card.actionText}
+                {getLocalizedString(card, "actionText", i18n.language)}
               </p>
             </div>
           </Link>

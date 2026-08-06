@@ -7,11 +7,14 @@ import {
 } from "../../../components/ui";
 import { Input } from "../../../components/ui";
 import { Button } from "../../../components/ui";
+import { useTranslation } from "react-i18next";
 
 export const OfferForm = ({
   editingId,
-  title,
-  setTitle,
+  titleEn,
+  setTitleEn,
+  titleAr,
+  setTitleAr,
   discountValue,
   setDiscountValue,
   discountType,
@@ -23,29 +26,37 @@ export const OfferForm = ({
   handleSubmit,
   resetForm,
 }) => {
+  const { t } = useTranslation("admin");
   return (
     <Card className={cn("max-w-lg")}>
       <CardHeader>
         <CardTitle>
-          {editingId ? `Edit Offer #${editingId}` : "+ Create New Offer"}
+          {editingId ? t("editOffer", { id: editingId }) : t("createNewOffer")}
         </CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className={cn("space-y-4")}>
           <Input
-            label="Offer Title"
-            placeholder="e.g. Weekend Flash Deal"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            label={`${t("offerTitle")} (English)`}
+            placeholder={`${t("egWeekendFlashDeal")} (EN)`}
+            value={titleEn}
+            onChange={(e) => setTitleEn(e.target.value)}
+            required
+          />
+          <Input
+            label={`${t("offerTitle")} (Arabic)`}
+            placeholder={`${t("egWeekendFlashDeal")} (AR)`}
+            value={titleAr}
+            onChange={(e) => setTitleAr(e.target.value)}
             required
           />
 
           <div className={cn("flex gap-4")}>
             <div className={cn("flex-1")}>
               <Input
-                label="Discount Value"
+                label={t("discountValue")}
                 type="number"
-                placeholder="e.g. 25"
+                placeholder={t("egFlash25")}
                 value={discountValue}
                 onChange={(e) => setDiscountValue(e.target.value)}
                 required
@@ -58,7 +69,7 @@ export const OfferForm = ({
                   "block text-xs font-bold text-gray-700 uppercase",
                 )}
               >
-                Type
+                {t("type")}
               </label>
               <select
                 value={discountType}
@@ -67,21 +78,21 @@ export const OfferForm = ({
                   "w-full p-3 border border-gray-300 rounded-lg text-sm outline-none focus:border-black focus:ring-1 focus:ring-black transition-colors",
                 )}
               >
-                <option value="%">% Percentage</option>
-                <option value="EGP">EGP Fixed</option>
+                <option value="%">{t("percentage")}</option>
+                <option value="EGP">{t("egpFixed")}</option>
               </select>
             </div>
           </div>
 
           <Input
-            label="Promo Code (Optional)"
-            placeholder="e.g. FLASH25"
+            label={t("promoCodeOptional")}
+            placeholder={t("egFlash25")}
             value={code}
             onChange={(e) => setCode(e.target.value)}
           />
 
           <Input
-            label="Expiration Date (Optional)"
+            label={t("expirationDateOptional")}
             type="date"
             value={expDate}
             onChange={(e) => setExpDate(e.target.value)}
@@ -89,7 +100,7 @@ export const OfferForm = ({
 
           <div className={cn("flex gap-4 pt-2")}>
             <Button type="submit" className={cn("flex-1 h-11")}>
-              {editingId ? "Update Offer" : "Save Offer"}
+              {editingId ? t("updateOffer") : t("saveOffer")}
             </Button>
             {editingId && (
               <Button
@@ -98,7 +109,7 @@ export const OfferForm = ({
                 onClick={resetForm}
                 className={cn("flex-1 h-11")}
               >
-                Cancel
+                {t("cancel")}
               </Button>
             )}
           </div>

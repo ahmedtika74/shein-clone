@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { cn } from "../../../utils/cn";
 
 export const ReviewsSection = ({
@@ -24,11 +25,10 @@ export const ReviewsSection = ({
   handleDeleteReview,
   confirmDeleteReview,
 }) => {
+  const { t } = useTranslation(["storefront", "common"]);
   return (
     <div className={cn("reviews-section mt-16 border-t border-gray-200 pt-10")}>
-      <h2 className={cn("text-2xl font-bold text-gray-900 mb-8")}>
-        Customer Reviews
-      </h2>
+      <h2 className={cn("text-2xl font-bold text-gray-900 mb-8")}>{t("customerReviews")}</h2>
 
       {product.reviews && product.reviews.length > 0 ? (
         <div className={cn("space-y-6 mb-10")}>
@@ -51,9 +51,7 @@ export const ReviewsSection = ({
                         className={cn(
                           "block text-sm font-bold text-gray-700 mb-2",
                         )}
-                      >
-                        Rating
-                      </label>
+                      >{t("rating")}</label>
                       <div className={cn("flex gap-2")}>
                         {[1, 2, 3, 4, 5].map((star) => (
                           <button
@@ -87,18 +85,14 @@ export const ReviewsSection = ({
                         className={cn(
                           "bg-black text-white px-4 py-2 rounded-lg text-sm font-bold cursor-pointer",
                         )}
-                      >
-                        Save
-                      </button>
+                      >{t("save")}</button>
                       <button
                         type="button"
                         onClick={() => setEditingReviewId(null)}
                         className={cn(
                           "bg-gray-200 text-gray-800 px-4 py-2 rounded-lg text-sm font-bold cursor-pointer",
                         )}
-                      >
-                        Cancel
-                      </button>
+                      >{t("cancel")}</button>
                     </div>
                   </form>
                 ) : (
@@ -128,9 +122,7 @@ export const ReviewsSection = ({
                               className={cn(
                                 "text-xs text-gray-500 hover:text-black font-semibold cursor-pointer",
                               )}
-                            >
-                              Edit
-                            </button>
+                            >{t("edit")}</button>
                           )}
                           {canDelete && (
                             <button
@@ -138,9 +130,7 @@ export const ReviewsSection = ({
                               className={cn(
                                 "text-xs text-red-500 hover:text-red-700 font-semibold cursor-pointer",
                               )}
-                            >
-                              Delete
-                            </button>
+                            >{t("delete")}</button>
                           )}
                         </div>
                       </div>
@@ -153,9 +143,7 @@ export const ReviewsSection = ({
           })}
         </div>
       ) : (
-        <p className={cn("text-gray-500 mb-10")}>
-          No reviews yet. Be the first to review!
-        </p>
+        <p className={cn("text-gray-500 mb-10")}>{t("noReviewsYet")}</p>
       )}
 
       {hasPurchasedProduct ? (
@@ -164,23 +152,19 @@ export const ReviewsSection = ({
             "write-review bg-white p-8 rounded-2xl border border-gray-200 shadow-sm max-w-2xl",
           )}
         >
-          <h3 className={cn("text-xl font-bold mb-6")}>Write a Review</h3>
+          <h3 className={cn("text-xl font-bold mb-6")}>{t("writeReview")}</h3>
           {reviewSubmitted && (
             <div
               className={cn(
                 "mb-6 p-4 bg-green-50 text-green-700 border border-green-200 rounded-lg font-semibold",
               )}
-            >
-              Thank you for your review!
-            </div>
+            >{t("reviewThankYou")}</div>
           )}
           <form onSubmit={handleReviewSubmit}>
             <div className={cn("mb-4")}>
               <label
                 className={cn("block text-sm font-bold text-gray-700 mb-2")}
-              >
-                Rating
-              </label>
+              >{t("rating")}</label>
               <div className={cn("flex gap-2")}>
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button
@@ -203,13 +187,11 @@ export const ReviewsSection = ({
             <div className={cn("mb-6")}>
               <label
                 className={cn("block text-sm font-bold text-gray-700 mb-2")}
-              >
-                Your Review
-              </label>
+              >{t("yourReview")}</label>
               <textarea
                 value={reviewComment}
                 onChange={(e) => setReviewComment(e.target.value)}
-                placeholder="What did you like or dislike?"
+                placeholder={t("reviewPlaceholder")}
                 className={cn(
                   "w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-black min-h-[120px]",
                 )}
@@ -221,9 +203,7 @@ export const ReviewsSection = ({
               className={cn(
                 "bg-black text-white px-8 py-3 rounded-full font-bold hover:bg-gray-800 transition-colors cursor-pointer",
               )}
-            >
-              Submit Review
-            </button>
+            >{t("submitReview")}</button>
           </form>
         </div>
       ) : (
@@ -233,9 +213,7 @@ export const ReviewsSection = ({
           )}
         >
           <i className={cn("fa-solid fa-lock text-gray-400 text-2xl mb-3")}></i>
-          <p className={cn("text-gray-600 font-medium")}>
-            Only users who have purchased this product can leave a review.
-          </p>
+          <p className={cn("text-gray-600 font-medium")}>{t("mustPurchaseToReview")}</p>
         </div>
       )}
 
@@ -259,30 +237,21 @@ export const ReviewsSection = ({
               >
                 <i className={cn("fa-solid fa-triangle-exclamation")}></i>
               </div>
-              <h3 className={cn("text-xl font-bold text-gray-900 mb-2")}>
-                Delete Review
-              </h3>
-              <p className={cn("text-gray-500 mb-6")}>
-                Are you sure you want to delete this review? This action cannot
-                be undone.
-              </p>
+              <h3 className={cn("text-xl font-bold text-gray-900 mb-2")}>{t("deleteReview")}</h3>
+              <p className={cn("text-gray-500 mb-6")}>{t("deleteReviewConfirm")}</p>
               <div className={cn("flex gap-3 w-full")}>
                 <button
                   onClick={() => setDeleteReviewId(null)}
                   className={cn(
                     "flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 px-4 rounded-xl transition-colors cursor-pointer",
                   )}
-                >
-                  Cancel
-                </button>
+                >{t("cancel")}</button>
                 <button
                   onClick={confirmDeleteReview}
                   className={cn(
                     "flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-xl transition-colors cursor-pointer",
                   )}
-                >
-                  Delete
-                </button>
+                >{t("delete")}</button>
               </div>
             </div>
           </div>

@@ -48,7 +48,8 @@ export const formatProductData = (
       editIndex === -1
         ? crypto.randomUUID()
         : existingProducts[editIndex]?.id || crypto.randomUUID(),
-    name: productData.name,
+    nameEn: productData.nameEn,
+    nameAr: productData.nameAr,
     newPrice: newPriceStr.startsWith("EGP ")
       ? newPriceStr
       : `EGP ${newPriceStr}`,
@@ -68,14 +69,26 @@ export const formatProductData = (
     colors: Array.isArray(productData.colors)
       ? productData.colors.map((c) =>
           typeof c === "string"
-            ? { name: c, hex: "", image: "", price: null }
+            ? { nameEn: c, nameAr: c, hex: "", image: "", price: null }
             : c,
         )
       : productData.colors
-        ? productData.colors
-            .split(",")
-            .map((c) => ({ name: c.trim(), hex: "", image: "", price: null }))
-        : [{ name: "Default", hex: "", image: "", price: null }],
+        ? productData.colors.split(",").map((c) => ({
+            nameEn: c.trim(),
+            nameAr: c.trim(),
+            hex: "",
+            image: "",
+            price: null,
+          }))
+        : [
+            {
+              nameEn: "Default",
+              nameAr: "Default",
+              hex: "",
+              image: "",
+              price: null,
+            },
+          ],
     sizes: Array.isArray(productData.sizes)
       ? productData.sizes.map((s) =>
           typeof s === "string" ? { name: s, priceAdjustment: 0 } : s,
@@ -86,9 +99,11 @@ export const formatProductData = (
             .map((s) => ({ name: s.trim(), priceAdjustment: 0 }))
         : [{ name: "Free Size", priceAdjustment: 0 }],
     offer: productData.offer || "",
-    description:
-      productData.description ||
+    descriptionEn:
+      productData.descriptionEn ||
       "Women's fashion item. High quality and comfortable design.",
+    descriptionAr:
+      productData.descriptionAr || "عنصر أزياء نسائي. جودة عالية وتصميم مريح.",
     rating: 0,
     reviewsCount: 0,
     reviews: [],
@@ -240,21 +255,45 @@ export const deleteOrderThunk = createAsyncThunk(
 const initialState = {
   status: "idle",
   error: null,
-  products: loadFromStorage("products", initialProducts).map((p) => ({
-    ...p,
-    colors: Array.isArray(p.colors)
+  products: loadFromStorage("products", initialProducts).map((p) => {
+    const formattedColors = Array.isArray(p.colors)
       ? p.colors.map((c) =>
           typeof c === "string"
-            ? { name: c, hex: "", image: "", price: null }
+            ? { nameEn: c, nameAr: c, hex: "", image: "", price: null }
             : c,
         )
-      : [],
-    sizes: Array.isArray(p.sizes)
+      : [];
+    const formattedSizes = Array.isArray(p.sizes)
       ? p.sizes.map((s) =>
           typeof s === "string" ? { name: s, priceAdjustment: 0 } : s,
         )
-      : [],
-  })),
+      : [];
+
+    let variantsStock = p.variantsStock || {};
+    if (Object.keys(variantsStock).length === 0) {
+      const stock = {};
+      const colors =
+        formattedColors.length > 0 ? formattedColors : [{ nameEn: "Default" }];
+      const sizes =
+        formattedSizes.length > 0 ? formattedSizes : [{ name: "Free Size" }];
+
+      colors.forEach((c) => {
+        const cName = c.nameEn || c.name || "Default";
+        sizes.forEach((s) => {
+          const sName = s.name || "Free Size";
+          stock[`${cName}-${sName}`] = Math.floor(Math.random() * 15) + 1;
+        });
+      });
+      variantsStock = stock;
+    }
+
+    return {
+      ...p,
+      colors: formattedColors,
+      sizes: formattedSizes,
+      variantsStock,
+    };
+  }),
   categories: loadFromStorage("categories", initialCategories),
   heroSlides: loadFromStorage("heroSlides", initialHeroSlides),
   leftSideCards: loadFromStorage("leftSideCards", initialLeftSideCards),
@@ -263,46 +302,72 @@ const initialState = {
   offers: loadFromStorage("offers", [
     {
       id: 1,
-      title: "Summer Flash Sale",
-      discount: "30% OFF",
+      titleEn: "Summer Flash Sale",
+      titleAr: "عرض الصيف الخاص",
+      discountEn: "30% OFF",
+      discountAr: "خصم 30%",
       code: "SUMMER30",
     },
     {
       id: 2,
-      title: "New Customer Deal",
-      discount: "15% OFF",
+      titleEn: "New Customer Deal",
+      titleAr: "عرض العميل الجديد",
+      discountEn: "15% OFF",
+      discountAr: "خصم 15%",
       code: "WELCOME15",
     },
   ]),
   paymentMethods: loadFromStorage("paymentMethods", [
     {
       id: 1,
-      name: "InstaPay",
-      details: "Transfer to: instapay.me/store or 01012345678",
+      nameEn: "InstaPay",
+      nameAr: "إنستاباي",
+      detailsEn: "Transfer to: instapay.me/store or 01012345678",
+      detailsAr: "تحويل إلى: instapay.me/store أو 01012345678",
       img: "/images/InstaPay.webp",
     },
     {
       id: 2,
-      name: "Vodafone Cash",
-      details: "Transfer to: 01012345678",
+      nameEn: "Vodafone Cash",
+      nameAr: "فودافون كاش",
+      detailsEn: "Transfer to: 01012345678",
+      detailsAr: "تحويل إلى: 01012345678",
       img: "/images/VodafoneCash.png",
     },
     {
       id: 3,
-      name: "Cash on Delivery",
-      details: "Pay to courier upon delivery",
+      nameEn: "Cash on Delivery",
+      nameAr: "الدفع عند الاستلام",
+      detailsEn: "Pay to courier upon delivery",
+      detailsAr: "الدفع للمندوب عند الاستلام",
       img: "/images/CashOnDelivery.png",
     },
-  ]),
+  ]).map((pm) => ({
+    ...pm,
+    nameEn: pm.nameEn || pm.name || "",
+    nameAr: pm.nameAr || pm.name || "",
+    detailsEn: pm.detailsEn || pm.details || "",
+    detailsAr: pm.detailsAr || pm.details || "",
+  })),
   shippingRates: loadFromStorage("shippingRates", [
-    { id: 1, government: "Cairo", price: 50 },
-    { id: 2, government: "Alexandria", price: 60 },
-    { id: 3, government: "Giza", price: 50 },
-  ]),
+    { id: 1, governmentEn: "Cairo", governmentAr: "القاهرة", price: 50 },
+    {
+      id: 2,
+      governmentEn: "Alexandria",
+      governmentAr: "الإسكندرية",
+      price: 60,
+    },
+    { id: 3, governmentEn: "Giza", governmentAr: "الجيزة", price: 50 },
+  ]).map((sr) => ({
+    ...sr,
+    governmentEn: sr.governmentEn || sr.government || "",
+    governmentAr: sr.governmentAr || sr.government || "",
+  })),
   announcements: loadFromStorage("announcements", [
     {
       id: 1,
-      text: "Free Shipping On Orders Over 500 EGP",
+      textEn: "Free Shipping On Orders Over 500 EGP",
+      textAr: "شحن مجاني للطلبات أكثر من 500 ج.م",
       isActive: true,
     },
   ]),

@@ -1,4 +1,5 @@
 import { cn } from "../../../utils/cn";
+import { useTranslation } from "react-i18next";
 
 export const ImageUploader = ({
   inputMode,
@@ -11,10 +12,11 @@ export const ImageUploader = ({
   setImagesBase64,
   mainIndex,
 }) => {
+  const { t } = useTranslation(["admin"]);
   return (
     <div className={cn("border-t pt-4")}>
       <label className={cn("font-bold text-sm text-gray-800 block mb-2")}>
-        Product Images
+        {t("productImages")}
       </label>
       <div className={cn("flex flex-col gap-3 mb-4")}>
         <div className={cn("flex bg-gray-100 p-1 rounded-lg w-fit")}>
@@ -28,7 +30,7 @@ export const ImageUploader = ({
                 : "text-gray-500 hover:text-gray-700",
             )}
           >
-            Upload File
+            {t("uploadFile")}
           </button>
           <button
             type="button"
@@ -40,7 +42,7 @@ export const ImageUploader = ({
                 : "text-gray-500 hover:text-gray-700",
             )}
           >
-            Image URL
+            {t("imageModeUrl")}
           </button>
         </div>
 
@@ -60,15 +62,15 @@ export const ImageUploader = ({
                 "inline-block bg-black text-white px-4 py-2 rounded-lg text-sm font-bold cursor-pointer hover:bg-gray-800 transition-colors whitespace-nowrap",
               )}
             >
-              <i className={cn("fa-solid fa-upload mr-2")}></i>
-              Choose Files...
+              <i className={cn("fa-solid fa-upload me-2")}></i>
+              {t("chooseFiles")}
             </label>
           </div>
         ) : (
           <div className={cn("flex w-full gap-2")}>
             <input
               type="text"
-              placeholder="Paste Image URL"
+              placeholder={t("pasteImageUrl")}
               value={imageInputUrl}
               onChange={(e) => setImageInputUrl(e.target.value)}
               className={cn(
@@ -82,7 +84,7 @@ export const ImageUploader = ({
                 "h-9.5 px-4 bg-black text-white text-sm font-bold rounded-md hover:bg-gray-800 transition-colors whitespace-nowrap",
               )}
             >
-              Add URL
+              {t("addUrl")}
             </button>
           </div>
         )}
@@ -114,7 +116,7 @@ export const ImageUploader = ({
                   setImagesBase64((prev) => prev.filter((_, i) => i !== idx))
                 }
                 className={cn(
-                  "absolute -top-2 -right-2 bg-red-600 text-white w-5 h-5 rounded-full text-xs flex items-center justify-center shadow cursor-pointer",
+                  "absolute -top-2 -end-2 bg-red-600 text-white w-5 h-5 rounded-full text-xs flex items-center justify-center shadow cursor-pointer",
                 )}
               >
                 ×

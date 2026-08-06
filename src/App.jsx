@@ -10,6 +10,7 @@ import {
 import { ErrorBoundary } from "./components/storefront/ErrorBoundary";
 import { ScrollToTop } from "./components/ScrollToTop";
 import { useDispatch } from "react-redux";
+import { useTranslation } from "react-i18next";
 import {
   fetchProductsThunk,
   fetchCategoriesThunk,
@@ -42,6 +43,12 @@ import { AdminReportsPage } from "./pages/admin/AdminReports";
 
 export function App() {
   const dispatch = useDispatch();
+  const { i18n } = useTranslation();
+
+  useEffect(() => {
+    document.documentElement.dir = i18n.language === "ar" ? "rtl" : "ltr";
+    document.documentElement.lang = i18n.language;
+  }, [i18n.language]);
 
   useEffect(() => {
     dispatch(fetchProductsThunk());

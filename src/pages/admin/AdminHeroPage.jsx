@@ -3,21 +3,23 @@ import { useHeroLogic } from "./AdminHero/useHeroLogic";
 import { HeroSlidesList } from "./AdminHero/HeroSlidesList";
 import { SlideForm } from "./AdminHero/SlideForm";
 import { SideCardGrid } from "./AdminHero/SideCardGrid";
+import { useTranslation } from "react-i18next";
 
 export const AdminHeroPage = () => {
+  const { t } = useTranslation("admin");
   const logic = useHeroLogic();
 
   return (
     <div>
       <h1 className={cn("text-3xl font-bold text-gray-900 mb-8")}>
-        Manage Hero Section
+        {t("manageHeroSection")}
       </h1>
 
       <div className={cn("mb-12")}>
         <h2
           className={cn("text-xl font-bold text-gray-800 mb-6 border-b pb-2")}
         >
-          Main Slider Banners
+          {t("mainSliderBanners")}
         </h2>
 
         <HeroSlidesList
@@ -32,7 +34,7 @@ export const AdminHeroPage = () => {
         <h2
           className={cn("text-xl font-bold text-gray-800 mb-6 border-b pb-2")}
         >
-          Left Side Cards
+          {t("leftSideCards")}
         </h2>
         <SideCardGrid cards={logic.leftSideCards} side="left" />
       </div>
@@ -41,7 +43,7 @@ export const AdminHeroPage = () => {
         <h2
           className={cn("text-xl font-bold text-gray-800 mb-6 border-b pb-2")}
         >
-          Right Side Cards
+          {t("rightSideCards")}
         </h2>
         <SideCardGrid cards={logic.rightSideCards} side="right" />
       </div>

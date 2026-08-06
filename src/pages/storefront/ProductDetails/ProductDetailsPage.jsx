@@ -1,20 +1,23 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { cn } from "../../../utils/cn";
 import { useProductDetails } from "./useProductDetails";
 import { ProductGallery } from "./ProductGallery";
 import { ProductInfo } from "./ProductInfo";
 import { ReviewsSection } from "./ReviewsSection";
 import { ProductCard } from "../../../components/storefront/ProductCard";
+import { getLocalizedString } from "../../../utils/localization";
 
 export const ProductDetailsPage = () => {
+  const { t, i18n } = useTranslation(["storefront", "common"]);
   const details = useProductDetails();
 
   if (!details.product) {
     return (
       <div className={cn("max-w-7xl mx-auto py-20 text-center")}>
-        <h2 className={cn("text-2xl font-bold")}>Product Not Found</h2>
+        <h2 className={cn("text-2xl font-bold")}>{t("productNotFound")}</h2>
         <Link to="/" className={cn("text-red-600 underline mt-4 inline-block")}>
-          Return to Storefront
+          {t("returnToStorefront")}
         </Link>
       </div>
     );
@@ -31,7 +34,11 @@ export const ProductDetailsPage = () => {
           imagesList={details.imagesList}
           selectedImg={details.selectedImg}
           setSelectedImg={details.setSelectedImg}
-          productName={details.product.name}
+          productName={getLocalizedString(
+            details.product,
+            "name",
+            i18n.language,
+          )}
         />
 
         <ProductInfo {...details} />
@@ -44,7 +51,7 @@ export const ProductDetailsPage = () => {
           )}
         >
           <h2 className={cn("text-2xl font-bold text-gray-900 mb-8")}>
-            You Might Also Like
+            {t("youMightAlsoLike")}
           </h2>
           <div
             className={cn(

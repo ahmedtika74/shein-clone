@@ -1,4 +1,5 @@
 import { cn } from "../../../utils/cn";
+import { useTranslation } from "react-i18next";
 import { updateOrderStatusThunk } from "../../../store/dataSlice";
 import { Modal } from "../../../components/ui/Modal";
 
@@ -7,11 +8,12 @@ export const CancelOrderModal = ({
   setCancelOrderId,
   dispatch,
 }) => {
+  const { t } = useTranslation(["storefront", "common"]);
   return (
     <Modal
       isOpen={!!cancelOrderId}
       onClose={() => setCancelOrderId(null)}
-      title="Cancel Order"
+      title={t("cancelOrder")}
       maxWidth="max-w-sm"
     >
       <div className={cn("text-center")}>
@@ -22,10 +24,7 @@ export const CancelOrderModal = ({
         >
           <i className={cn("fa-solid fa-triangle-exclamation text-3xl")}></i>
         </div>
-        <p className={cn("text-gray-500 mb-8")}>
-          Are you sure you want to cancel this order? This action cannot be
-          undone.
-        </p>
+        <p className={cn("text-gray-500 mb-8")}>{t("cancelOrderConfirm")}</p>
         <div className={cn("flex flex-col gap-3")}>
           <button
             onClick={() => {
@@ -41,7 +40,7 @@ export const CancelOrderModal = ({
               "w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-md cursor-pointer",
             )}
           >
-            Yes, Cancel Order
+            {t("yesCancelOrder")}
           </button>
           <button
             onClick={() => setCancelOrderId(null)}
@@ -49,7 +48,7 @@ export const CancelOrderModal = ({
               "w-full bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3.5 rounded-xl transition-all cursor-pointer",
             )}
           >
-            Keep Order
+            {t("keepOrder")}
           </button>
         </div>
       </div>

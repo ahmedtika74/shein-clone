@@ -6,11 +6,14 @@ import {
   updateProductThunk,
 } from "../../../store/dataSlice";
 
-export const useProductForm = (products) => {
+export const useProductForm = (products, onSuccess) => {
   const dispatch = useDispatch();
 
   const [editIndex, setEditIndex] = useState(-1);
-  const [name, setName] = useState("");
+  const [nameEn, setNameEn] = useState("");
+  const [nameAr, setNameAr] = useState("");
+  const [descriptionEn, setDescriptionEn] = useState("");
+  const [descriptionAr, setDescriptionAr] = useState("");
   const [newPrice, setNewPrice] = useState("");
   const [oldPrice, setOldPrice] = useState("");
   const [mainIndex, setMainIndex] = useState(0);
@@ -51,7 +54,10 @@ export const useProductForm = (products) => {
   const handleEdit = (index) => {
     setEditIndex(index);
     const p = products[index];
-    setName(p.name || "");
+    setNameEn(p.nameEn || "");
+    setNameAr(p.nameAr || "");
+    setDescriptionEn(p.descriptionEn || "");
+    setDescriptionAr(p.descriptionAr || "");
     setNewPrice(p.newPrice || "");
     setOldPrice(p.oldPrice || "");
     setMainIndex(p.mainIndex || 0);
@@ -59,7 +65,7 @@ export const useProductForm = (products) => {
       Array.isArray(p.colors)
         ? p.colors.map((c) =>
             typeof c === "string"
-              ? { name: c, hex: "", image: "", price: "" }
+              ? { nameEn: c, nameAr: c, hex: "", image: "", price: "" }
               : { ...c, price: c.price || "" },
           )
         : [],
@@ -82,7 +88,7 @@ export const useProductForm = (products) => {
   const handleAddColor = () => {
     setSelectedColors([
       ...selectedColors,
-      { name: "", hex: "#000000", image: "", price: "" },
+      { nameEn: "", nameAr: "", hex: "#000000", image: "", price: "" },
     ]);
   };
 
@@ -119,7 +125,10 @@ export const useProductForm = (products) => {
 
   const resetForm = () => {
     setEditIndex(-1);
-    setName("");
+    setNameEn("");
+    setNameAr("");
+    setDescriptionEn("");
+    setDescriptionAr("");
     setNewPrice("");
     setOldPrice("");
     setMainIndex(0);
@@ -134,13 +143,16 @@ export const useProductForm = (products) => {
 
   const handleSave = (e) => {
     e.preventDefault();
-    if (!name || !newPrice) {
-      alert("Product Name and Price are required.");
+    if (!nameEn || !nameAr || !newPrice) {
+      alert("Both English and Arabic Names and Price are required.");
       return;
     }
 
     const unformattedData = {
-      name,
+      nameEn,
+      nameAr,
+      descriptionEn,
+      descriptionAr,
       newPrice,
       oldPrice,
       images: imagesBase64.length > 0 ? imagesBase64 : ["/images/top.jpg"],
@@ -151,7 +163,15 @@ export const useProductForm = (products) => {
               ...c,
               price: c.price ? Number(c.price) : null,
             }))
-          : [{ name: "Default", hex: "", image: "", price: null }],
+          : [
+              {
+                nameEn: "Default",
+                nameAr: "Default",
+                hex: "",
+                image: "",
+                price: null,
+              },
+            ],
       sizes:
         selectedSizes.length > 0
           ? selectedSizes.map((s) => ({
@@ -178,14 +198,21 @@ export const useProductForm = (products) => {
 
     resetForm();
     setShowSuccess(true);
+    if (onSuccess) onSuccess();
     setTimeout(() => setShowSuccess(false), 3000);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return {
     editIndex,
-    name,
-    setName,
+    nameEn,
+    setNameEn,
+    nameAr,
+    setNameAr,
+    descriptionEn,
+    setDescriptionEn,
+    descriptionAr,
+    setDescriptionAr,
     newPrice,
     setNewPrice,
     oldPrice,

@@ -1,6 +1,8 @@
 import { cn } from "../../../utils/cn";
-
+import { useTranslation } from "react-i18next";
 export const OrderItemsList = ({ order }) => {
+  const { t: tCommon } = useTranslation("common");
+  const { t } = useTranslation("admin");
   return (
     <>
       <div className={cn("divide-y divide-gray-100 mb-4")}>
@@ -19,18 +21,18 @@ export const OrderItemsList = ({ order }) => {
                 <div>
                   <p className={cn("font-bold text-gray-800")}>{item.name}</p>
                   <p className={cn("text-xs text-gray-400")}>
-                    Qty: {item.quantity}{" "}
+                    {t("qtyLabel")} {item.quantity}{" "}
                     {item.color
-                      ? `| Color: ${typeof item.color === "object" ? item.color.name : item.color}`
+                      ? `${t("colorLabel")} ${typeof item.color === "object" ? item.color.name : item.color}`
                       : ""}{" "}
                     {item.size
-                      ? `| Size: ${typeof item.size === "object" ? item.size.name : item.size}`
+                      ? `${t("sizeLabel")} ${typeof item.size === "object" ? item.size.name : item.size}`
                       : ""}
                   </p>
                 </div>
               </div>
               <span className={cn("font-bold text-gray-900")}>
-                EGP {(item.price * item.quantity).toFixed(2)}
+                {tCommon("egp")} {(item.price * item.quantity).toFixed(2)}
               </span>
             </div>
           ))}
@@ -42,10 +44,10 @@ export const OrderItemsList = ({ order }) => {
         )}
       >
         <span className={cn("text-gray-600")}>
-          Total Items: {order.items?.length || 0}
+          {t("totalItems")} {order.items?.length || 0}
         </span>
         <span className={cn("text-xl text-[#e60023]")}>
-          EGP {order.total?.toFixed(2)}
+          {tCommon("egp")} {order.total?.toFixed(2)}
         </span>
       </div>
     </>

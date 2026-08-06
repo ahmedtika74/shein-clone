@@ -22,9 +22,12 @@ export const useReportStats = (orders, products) => {
   }, []);
 
   const filteredProductsForSearch = useMemo(() => {
-    return products.filter((p) =>
-      p.name.toLowerCase().includes(productSearch.toLowerCase()),
-    );
+    return products.filter((p) => {
+      const pNameEn = (p.nameEn || p.name || "").toLowerCase();
+      const pNameAr = (p.nameAr || p.name || "").toLowerCase();
+      const searchTarget = (productSearch || "").toLowerCase();
+      return pNameEn.includes(searchTarget) || pNameAr.includes(searchTarget);
+    });
   }, [products, productSearch]);
 
   const selectedProduct = products.find(
@@ -87,7 +90,7 @@ export const useReportStats = (orders, products) => {
           } else {
             productSales[item.id] = {
               id: item.id,
-              name: item.name,
+              name: item.nameEn || item.name || "Unknown",
               img: item.img,
               quantity: item.quantity,
               revenue: itemRev,

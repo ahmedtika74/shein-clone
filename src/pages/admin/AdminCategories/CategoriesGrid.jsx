@@ -1,5 +1,7 @@
 import { cn } from "../../../utils/cn";
 import { Card, CardContent, Button } from "../../../components/ui";
+import { useTranslation } from "react-i18next";
+import { getLocalizedString } from "../../../utils/localization";
 
 export const CategoriesGrid = ({
   categories,
@@ -7,6 +9,7 @@ export const CategoriesGrid = ({
   handleDelete,
   isLoading,
 }) => {
+  const { t, i18n } = useTranslation(["admin", "common"]);
   return (
     <div
       className={cn(
@@ -24,15 +27,15 @@ export const CategoriesGrid = ({
             <div className={cn("flex items-center gap-4")}>
               <img
                 src={cat.img}
-                alt={cat.name}
+                alt={getLocalizedString(cat, "name", i18n.language)}
                 className={cn("w-16 h-16 rounded-full object-cover border")}
               />
               <div>
                 <h3 className={cn("font-bold text-gray-900 text-base")}>
-                  {cat.name}
+                  {getLocalizedString(cat, "name", i18n.language)}
                 </h3>
                 <span className={cn("text-xs text-gray-400")}>
-                  ID: {cat.id}
+                  {t("id")}: {cat.id}
                 </span>
               </div>
             </div>
@@ -44,7 +47,7 @@ export const CategoriesGrid = ({
                 className={cn(
                   "w-9 h-9 rounded-full bg-black hover:bg-blue-600",
                 )}
-                title="Edit Category"
+                title={t("editCategory")}
               >
                 <i className={cn("fa-solid fa-pen text-xs")}></i>
               </Button>
@@ -56,7 +59,7 @@ export const CategoriesGrid = ({
                 className={cn(
                   "w-9 h-9 rounded-full bg-black hover:bg-red-600 disabled:opacity-50",
                 )}
-                title="Delete Category"
+                title={t("deleteCategory")}
               >
                 <i className={cn("fa-solid fa-trash text-xs")}></i>
               </Button>
@@ -66,7 +69,7 @@ export const CategoriesGrid = ({
       ))}
       {categories.length === 0 && (
         <p className={cn("text-gray-500 col-span-full text-center py-4")}>
-          No categories found.
+          {t("noCategoriesFound")}
         </p>
       )}
     </div>

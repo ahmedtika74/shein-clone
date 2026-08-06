@@ -1,7 +1,9 @@
 import { cn } from "../../../utils/cn";
+import { useTranslation } from "react-i18next";
 import { AddressFormModal } from "../../../components/common/AddressFormModal";
 import { Button, Input } from "../../../components/ui";
 import { addAddress } from "../../../store/authSlice";
+import { getLocalizedString } from "../../../utils/localization";
 
 export const CheckoutPanel = ({
   dispatch,
@@ -41,6 +43,7 @@ export const CheckoutPanel = ({
   handleCheckout,
   isCheckoutLoading,
 }) => {
+  const { t, i18n } = useTranslation(["storefront", "common"]);
   return (
     <div className={cn("w-full lg:w-[450px]")}>
       {/* Address & Payment Form */}
@@ -50,7 +53,7 @@ export const CheckoutPanel = ({
         )}
       >
         <h2 className={cn("text-xl font-bold mb-4 border-b pb-3")}>
-          Shipping Address
+          {t("shippingAddress")}
         </h2>
         {user ? (
           <div className={cn("space-y-3")}>
@@ -77,19 +80,34 @@ export const CheckoutPanel = ({
                     {addr.isDefault && (
                       <span
                         className={cn(
-                          "ml-2 text-[10px] bg-black text-white px-2 py-0.5 rounded-full",
+                          "ms-2 text-[10px] bg-black text-white px-2 py-0.5 rounded-full",
                         )}
                       >
-                        Default
+                        {t("default")}
                       </span>
                     )}
                   </div>
                   <div className={cn("text-gray-600 mt-1")}>
                     {addr.street}, {addr.city}
                   </div>
-                  <div className={cn("text-gray-600")}>{addr.government}</div>
+                  <div className={cn("text-gray-600")}>
+                    {shippingRates.find(
+                      (r) =>
+                        (r.governmentEn || r.government) === addr.government,
+                    )
+                      ? getLocalizedString(
+                          shippingRates.find(
+                            (r) =>
+                              (r.governmentEn || r.government) ===
+                              addr.government,
+                          ),
+                          "government",
+                          i18n.language,
+                        )
+                      : addr.government}
+                  </div>
                   <div className={cn("text-gray-600 mt-1")}>
-                    <i className={cn("fa-solid fa-phone text-xs mr-1")}></i>{" "}
+                    <i className={cn("fa-solid fa-phone text-xs me-1")}></i>{" "}
                     {addr.phone}
                   </div>
                 </div>
@@ -102,7 +120,7 @@ export const CheckoutPanel = ({
                 variant="secondary"
                 className={cn("w-full py-2.5 border-dashed border-2 mt-2")}
               >
-                + Add New Address
+                {t("addNewAddress")}
               </Button>
             )}
 
@@ -125,16 +143,19 @@ export const CheckoutPanel = ({
                 "w-full p-3 border border-gray-300 rounded-[10px] focus:outline-none focus:border-black",
               )}
             >
-              <option value="">Select Government</option>
+              <option value="">{t("selectGovernment")}</option>
               {shippingRates.map((rate) => (
-                <option key={rate.id} value={rate.government}>
-                  {rate.government}
+                <option
+                  key={rate.id}
+                  value={rate.governmentEn || rate.government}
+                >
+                  {getLocalizedString(rate, "government", i18n.language)}
                 </option>
               ))}
             </select>
             <input
               type="text"
-              placeholder="City"
+              placeholder={t("city")}
               value={guestAddress.city}
               onChange={(e) =>
                 setGuestAddress({ ...guestAddress, city: e.target.value })
@@ -145,7 +166,7 @@ export const CheckoutPanel = ({
             />
             <input
               type="text"
-              placeholder="Street Address"
+              placeholder={t("streetAddressPlaceholder")}
               value={guestAddress.street}
               onChange={(e) =>
                 setGuestAddress({ ...guestAddress, street: e.target.value })
@@ -156,7 +177,7 @@ export const CheckoutPanel = ({
             />
             <input
               type="text"
-              placeholder="Phone Number"
+              placeholder={t("phone")}
               value={guestAddress.phone}
               onChange={(e) =>
                 setGuestAddress({ ...guestAddress, phone: e.target.value })
@@ -169,7 +190,7 @@ export const CheckoutPanel = ({
         )}
 
         <h2 className={cn("text-xl font-bold mb-4 border-b pb-3 mt-8")}>
-          Payment Method
+          {t("paymentMethod")}
         </h2>
         <div className={cn("space-y-3")}>
           {paymentMethods.length > 0 ? (
@@ -183,8 +204,10 @@ export const CheckoutPanel = ({
                 <input
                   type="radio"
                   name="paymentMethod"
-                  value={method.name}
-                  checked={selectedPaymentMethod === method.name}
+                  value={method.nameEn || method.name}
+                  checked={
+                    selectedPaymentMethod === (method.nameEn || method.name)
+                  }
                   onChange={(e) => setSelectedPaymentMethod(e.target.value)}
                   className={cn("w-4 h-4 accent-black mt-1")}
                 />
@@ -197,21 +220,26 @@ export const CheckoutPanel = ({
                     )}
                   />
                 )}
-                <div className={cn("flex-1")}>
+                <div className={cn("flex flex-col flex-1")}>
                   <span className={cn("text-gray-900 font-bold block")}>
-                    {method.name}
+                    {getLocalizedString(method, "name", i18n.language)}
                   </span>
-                  {method.details && (
+                  {(method.detailsEn || method.detailsAr || method.details) && (
                     <span className={cn("text-sm text-gray-500 mt-1 block")}>
-                      {method.details}
+                      {getLocalizedString(method, "details", i18n.language)}
                     </span>
                   )}
-                  {(method.name.toLowerCase().includes("instapay") ||
-                    method.name.toLowerCase().includes("vodafone")) &&
-                    selectedPaymentMethod === method.name && (
+                  {((method.nameEn || method.name || "")
+                    .toLowerCase()
+                    .includes("instapay") ||
+                    (method.nameEn || method.name || "")
+                      .toLowerCase()
+                      .includes("vodafone")) &&
+                    selectedPaymentMethod ===
+                      (method.nameEn || method.name) && (
                       <div className={cn("mt-3 space-y-2")}>
                         <Input
-                          placeholder="Transaction Number"
+                          placeholder={t("transactionNumber")}
                           value={transactionNumber}
                           onChange={(e) => setTransactionNumber(e.target.value)}
                         />
@@ -219,7 +247,7 @@ export const CheckoutPanel = ({
                           <span
                             className={cn("text-xs text-gray-500 font-bold")}
                           >
-                            OR
+                            {t("or")}
                           </span>
                         </div>
                         <div className={cn("flex items-center gap-3")}>
@@ -228,8 +256,8 @@ export const CheckoutPanel = ({
                               "cursor-pointer bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs px-3 py-2 rounded-lg font-bold transition-colors border border-gray-200 inline-block",
                             )}
                           >
-                            <i className="fa-solid fa-image mr-1"></i> Upload
-                            Screenshot
+                            <i className="fa-solid fa-image me-1"></i>{" "}
+                            {t("uploadScreenshot")}
                             <input
                               type="file"
                               accept="image/*"
@@ -254,7 +282,7 @@ export const CheckoutPanel = ({
                                 )}
                               >
                                 <i className="fa-solid fa-check-circle"></i>{" "}
-                                Uploaded
+                                {t("uploaded")}
                               </span>
                               <Button
                                 variant="ghost"
@@ -267,7 +295,7 @@ export const CheckoutPanel = ({
                                   "text-red-500 hover:text-red-600 hover:bg-red-50 px-2 py-1",
                                 )}
                               >
-                                Remove
+                                {t("remove")}
                               </Button>
                             </div>
                           )}
@@ -279,7 +307,7 @@ export const CheckoutPanel = ({
             ))
           ) : (
             <p className={cn("text-sm text-red-500")}>
-              No payment methods available.
+              {t("noPaymentMethods")}
             </p>
           )}
         </div>
@@ -291,7 +319,7 @@ export const CheckoutPanel = ({
         )}
       >
         <h2 className={cn("text-xl font-bold mb-4 border-b pb-3")}>
-          Order Summary
+          {t("orderSummary")}
         </h2>
 
         <div className={cn("mb-6")}>
@@ -300,7 +328,7 @@ export const CheckoutPanel = ({
               type="text"
               value={promoInput}
               onChange={(e) => setPromoInput(e.target.value)}
-              placeholder="Enter Promo Code"
+              placeholder={t("enterPromoCode")}
               className={cn(
                 "flex-1 p-2 border border-gray-300 rounded-lg outline-none focus:border-black text-sm uppercase",
               )}
@@ -311,7 +339,7 @@ export const CheckoutPanel = ({
                 "bg-black text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-gray-800 transition-colors",
               )}
             >
-              Apply
+              {t("apply")}
             </button>
           </div>
           {promoError && (
@@ -326,46 +354,46 @@ export const CheckoutPanel = ({
               )}
             >
               <span className={cn("font-bold")}>
-                {appliedPromo.code} Applied!
+                {appliedPromo.code} {t("applied")}
               </span>
               <button
                 onClick={() => setAppliedPromo(null)}
                 className={cn("text-xs font-bold hover:underline")}
               >
-                Remove
+                {t("remove")}
               </button>
             </div>
           )}
         </div>
 
         <div className={cn("flex justify-between mb-3 text-gray-600")}>
-          <span>Subtotal</span>
+          <span>{t("subtotal")}</span>
           <span className={cn("font-semibold")}>
-            EGP {(cartTotal + (productDiscountAmount || 0)).toFixed(2)}
+            {t("egp")} {(cartTotal + (productDiscountAmount || 0)).toFixed(2)}
           </span>
         </div>
 
         {appliedPromo && (
           <div className={cn("flex justify-between mb-3 text-green-600")}>
             <span>
-              Discount (
+              {t("discount")} (
               {appliedPromo.discount ||
                 (appliedPromo.discountType === "%"
                   ? `${appliedPromo.discountValue}%`
-                  : `EGP ${appliedPromo.discountValue}`)}
+                  : `${t("egp")} ${appliedPromo.discountValue}`)}
               )
             </span>
             <span className={cn("font-semibold")}>
-              - EGP {discountAmount.toFixed(2)}
+              - {t("egp")} {discountAmount.toFixed(2)}
             </span>
           </div>
         )}
 
         {productDiscountAmount > 0 && (
           <div className={cn("flex justify-between mb-3 text-green-600")}>
-            <span>Products Discount</span>
+            <span>{t("productsDiscount")}</span>
             <span className={cn("font-semibold")}>
-              - EGP {productDiscountAmount.toFixed(2)}
+              - {t("egp")} {productDiscountAmount.toFixed(2)}
             </span>
           </div>
         )}
@@ -380,12 +408,12 @@ export const CheckoutPanel = ({
             >
               <i className={cn("fa-solid fa-truck-fast")}></i>
               <span>
-                Add{" "}
+                {t("addMoreForFreeShipping").split("{{amount}}")[0]}
                 <strong>
-                  EGP{" "}
+                  {t("egp")}{" "}
                   {(freeShipping.threshold - subtotalAfterDiscount).toFixed(2)}
                 </strong>{" "}
-                more to get Free Shipping!
+                {t("addMoreForFreeShipping").split("{{amount}}")[1]}
               </span>
             </div>
           )}
@@ -396,24 +424,24 @@ export const CheckoutPanel = ({
             )}
           >
             <i className={cn("fa-solid fa-gift")}></i>
-            You&apos;ve unlocked Free Shipping!
+            {t("unlockedFreeShipping")}
           </div>
         )}
 
         <div className={cn("flex justify-between mb-3 text-gray-600")}>
-          <span>Shipping</span>
+          <span>{t("shipping")}</span>
           <span className={cn("font-semibold")}>
             {baseShippingCost === 0 ? (
-              "Choose address first"
+              t("chooseAddressFirst")
             ) : isFreeShippingEligible ? (
               <span className={cn("text-green-600")}>
-                <span className={cn("line-through text-gray-400 mr-2")}>
-                  EGP {baseShippingCost.toFixed(2)}
+                <span className={cn("line-through text-gray-400 me-2")}>
+                  {t("egp")} {baseShippingCost.toFixed(2)}
                 </span>
-                Free
+                {t("free")}
               </span>
             ) : (
-              `EGP ${shippingCost.toFixed(2)}`
+              `${t("egp")} ${shippingCost.toFixed(2)}`
             )}
           </span>
         </div>
@@ -421,7 +449,7 @@ export const CheckoutPanel = ({
           <div
             className={cn("flex justify-between mb-3 text-sm text-gray-500")}
           >
-            <span>Est. Delivery</span>
+            <span>{t("estDelivery")}</span>
             <span className={cn("font-medium")}>
               {selectedRate.deliveryDays}
             </span>
@@ -432,8 +460,10 @@ export const CheckoutPanel = ({
             "flex justify-between text-lg font-bold text-gray-900 border-t pt-3 mt-3",
           )}
         >
-          <span>Total</span>
-          <span>EGP {finalTotal.toFixed(2)}</span>
+          <span>{t("total")}</span>
+          <span>
+            {t("egp")} {finalTotal.toFixed(2)}
+          </span>
         </div>
 
         {checkoutError && (
@@ -453,7 +483,7 @@ export const CheckoutPanel = ({
             "checkout w-full h-13.75 bg-black text-white font-bold text-lg rounded-xl hover:bg-gray-900 transition-all cursor-pointer mt-4 disabled:opacity-50",
           )}
         >
-          {isCheckoutLoading ? "Placing Order..." : "Place Order"}
+          {isCheckoutLoading ? t("placingOrder") : t("placeOrder")}
         </button>
       </div>
     </div>

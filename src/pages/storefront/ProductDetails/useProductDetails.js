@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useParams, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import {
@@ -13,6 +14,7 @@ import { addToCart, selectCartItems } from "../../../store/cartSlice";
 import { selectIsInWishlist } from "../../../store/wishlistSlice";
 
 export const useProductDetails = () => {
+  const { t } = useTranslation("common");
   const { id } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -79,9 +81,9 @@ export const useProductDetails = () => {
   const activePriceNumeric =
     (selectedColor?.price ?? baseNumeric) +
     (selectedSize?.priceAdjustment || 0);
-  const activePriceStr = `EGP ${activePriceNumeric}`;
+  const activePriceStr = `${t("egp")} ${activePriceNumeric}`;
 
-  const cName = selectedColor?.name || "Default";
+  const cName = selectedColor?.nameEn || selectedColor?.name || "Default";
   const sName = selectedSize?.name || "Free Size";
   const variantKey = `${cName}-${sName}`;
   const totalVariantStock =
@@ -92,7 +94,8 @@ export const useProductDetails = () => {
   const cartItem = cartItems.find(
     (item) =>
       String(item.id) === String(product?.id) &&
-      (item.color?.name || item.color) === selectedColor?.name &&
+      (item.color?.nameEn || item.color?.name || item.color) ===
+        (selectedColor?.nameEn || selectedColor?.name) &&
       (item.size?.name || item.size) === selectedSize?.name,
   );
 

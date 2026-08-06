@@ -1,8 +1,11 @@
 import { cn } from "../../../utils/cn";
+import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { Button, Modal } from "../../../components/ui";
 
 export const OrderExpandedDetails = ({ order }) => {
+  const { t: tCommon } = useTranslation("common");
+  const { t } = useTranslation("admin");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
@@ -13,44 +16,54 @@ export const OrderExpandedDetails = ({ order }) => {
     >
       <div>
         <h4 className={cn("font-bold text-gray-900 mb-2 border-b pb-1")}>
-          Shipping Details
+          {t("shippingDetails")}
         </h4>
         {order.address ? (
           <ul className={cn("text-gray-600 space-y-1")}>
             <li>
-              <span className={cn("font-semibold text-gray-800")}>Gov:</span>{" "}
+              <span className={cn("font-semibold text-gray-800")}>
+                {t("govLabel")}
+              </span>{" "}
               {order.address.government}
             </li>
             <li>
-              <span className={cn("font-semibold text-gray-800")}>City:</span>{" "}
+              <span className={cn("font-semibold text-gray-800")}>
+                {t("cityLabel")}
+              </span>{" "}
               {order.address.city}
             </li>
             <li>
-              <span className={cn("font-semibold text-gray-800")}>Street:</span>{" "}
+              <span className={cn("font-semibold text-gray-800")}>
+                {t("streetLabel")}
+              </span>{" "}
               {order.address.street}
             </li>
             <li>
-              <span className={cn("font-semibold text-gray-800")}>Phone:</span>{" "}
+              <span className={cn("font-semibold text-gray-800")}>
+                {t("phoneLabel")}
+              </span>{" "}
               {order.address.phone}
             </li>
           </ul>
         ) : (
-          <p className={cn("text-gray-400 italic")}>No address provided</p>
+          <p className={cn("text-gray-400 italic")}>{t("noAddressProvided")}</p>
         )}
       </div>
       <div>
         <h4 className={cn("font-bold text-gray-900 mb-2 border-b pb-1")}>
-          Payment & Pricing
+          {t("paymentAndPricing")}
         </h4>
         <ul className={cn("text-gray-600 space-y-1")}>
           <li>
-            <span className={cn("font-semibold text-gray-800")}>Method:</span>{" "}
-            {order.paymentMethod || "N/A"}
+            <span className={cn("font-semibold text-gray-800")}>
+              {t("methodLabel")}
+            </span>{" "}
+            {order.paymentMethod || t("na")}
           </li>
           {order.transactionNumber && (
             <li>
               <span className={cn("font-semibold text-gray-800")}>
-                Transaction code:
+                {t("transactionCode")}
               </span>{" "}
               {order.transactionNumber}
             </li>
@@ -58,7 +71,7 @@ export const OrderExpandedDetails = ({ order }) => {
           {order.transactionScreenshot && (
             <li className="mt-2">
               <span className={cn("font-semibold text-gray-800")}>
-                Screenshot:
+                {t("screenshot")}
               </span>
               <div className="mt-2">
                 <Button
@@ -66,12 +79,13 @@ export const OrderExpandedDetails = ({ order }) => {
                   variant="secondary"
                   onClick={() => setIsModalOpen(true)}
                 >
-                  <i className="fa-solid fa-image mr-2"></i> View Screenshot
+                  <i className="fa-solid fa-image me-2"></i>{" "}
+                  {t("viewScreenshot")}
                 </Button>
                 <Modal
                   isOpen={isModalOpen}
                   onClose={() => setIsModalOpen(false)}
-                  title="Transaction Screenshot"
+                  title={t("transactionScreenshot")}
                   maxWidth="max-w-md"
                 >
                   <img
@@ -88,7 +102,7 @@ export const OrderExpandedDetails = ({ order }) => {
           {order.promoCode && (
             <li>
               <span className={cn("font-semibold text-gray-800")}>
-                Promo Code:
+                {t("promoCodeLabel")}
               </span>{" "}
               <span className={cn("bg-green-100 text-green-800 px-1 rounded")}>
                 {order.promoCode}
@@ -96,21 +110,23 @@ export const OrderExpandedDetails = ({ order }) => {
             </li>
           )}
           <li>
-            <span className={cn("font-semibold text-gray-800")}>Subtotal:</span>{" "}
-            EGP{" "}
+            <span className={cn("font-semibold text-gray-800")}>
+              {t("subtotalLabel")}
+            </span>{" "}
+            {tCommon("egp")}{" "}
             {order.subtotal?.toFixed(2) ||
               (order.total - (order.shippingCost || 0)).toFixed(2)}
           </li>
           <li>
             <span className={cn("font-semibold text-gray-800")}>
-              Shipping Cost:
+              {t("shippingCostLabel")}
             </span>{" "}
-            EGP {order.shippingCost?.toFixed(2) || "0.00"}
+            {tCommon("egp")} {order.shippingCost?.toFixed(2) || "0.00"}
           </li>
           {order.discount > 0 && (
             <li className={cn("text-green-600")}>
-              <span className={cn("font-semibold")}>Discount:</span> - EGP{" "}
-              {order.discount.toFixed(2)}
+              <span className={cn("font-semibold")}>{t("discountLabel")}</span>{" "}
+              - {tCommon("egp")} {order.discount.toFixed(2)}
             </li>
           )}
         </ul>
@@ -130,30 +146,32 @@ export const OrderExpandedDetails = ({ order }) => {
                 "font-bold text-orange-800 mb-2 border-b border-orange-200 pb-1 flex items-center gap-2",
               )}
             >
-              <i className={cn("fa-solid fa-rotate-left")}></i> Refund
-              Information
+              <i className={cn("fa-solid fa-rotate-left")}></i>{" "}
+              {t("refundInformation")}
             </h4>
             <ul className={cn("text-orange-900 space-y-1 mt-2")}>
               <li>
-                <span className={cn("font-semibold")}>Reason:</span>{" "}
+                <span className={cn("font-semibold")}>{t("reasonLabel")}</span>{" "}
                 {order.refundReason}
               </li>
               {order.refundRequestedAt && (
                 <li>
-                  <span className={cn("font-semibold")}>Requested on:</span>{" "}
+                  <span className={cn("font-semibold")}>
+                    {t("requestedOn")}
+                  </span>{" "}
                   {new Date(order.refundRequestedAt).toLocaleString()}
                 </li>
               )}
               {order.refundedAt && order.status !== "Refund Requested" && (
                 <li>
-                  <span className={cn("font-semibold")}>Refunded on:</span>{" "}
+                  <span className={cn("font-semibold")}>{t("refundedOn")}</span>{" "}
                   {new Date(order.refundedAt).toLocaleString()}
                 </li>
               )}
               {order.refusalReason && order.status !== "Refund Requested" && (
                 <li>
                   <span className={cn("font-semibold text-red-600")}>
-                    Refusal Reason:
+                    {t("refusalReasonLabel")}
                   </span>{" "}
                   {order.refusalReason}
                 </li>
@@ -161,7 +179,7 @@ export const OrderExpandedDetails = ({ order }) => {
               {order.refusedAt && order.status !== "Refund Requested" && (
                 <li>
                   <span className={cn("font-semibold text-red-600")}>
-                    Refused on:
+                    {t("refusedOn")}
                   </span>{" "}
                   {new Date(order.refusedAt).toLocaleString()}
                 </li>
@@ -169,9 +187,9 @@ export const OrderExpandedDetails = ({ order }) => {
               {order.status === "Refund Requested" && (
                 <li>
                   <span className={cn("font-semibold text-orange-600")}>
-                    Decision:
+                    {t("decisionLabel")}
                   </span>{" "}
-                  Pending
+                  {t("pending", { defaultValue: "Pending" })}
                 </li>
               )}
             </ul>

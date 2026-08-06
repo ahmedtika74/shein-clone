@@ -1,4 +1,5 @@
 import { cn } from "../../../utils/cn";
+import { useTranslation } from "react-i18next";
 import { Pagination } from "../../../components/common/Pagination";
 import { UserOrderCard } from "./UserOrderCard";
 import { ScrollToTop } from "../../../components/ScrollToTop";
@@ -13,18 +14,21 @@ export const OrdersTab = ({
   setCurrentPage,
   totalPages,
 }) => {
+  const { t } = useTranslation(["storefront", "common"]);
   return (
     <div>
       <ScrollToTop />
       <div className={cn("flex justify-between items-center mb-6")}>
-        <h2 className={cn("text-xl font-bold text-gray-800")}>Recent Orders</h2>
+        <h2 className={cn("text-xl font-bold text-gray-800")}>
+          {t("recentOrders")}
+        </h2>
         <div className={cn("flex items-center gap-2")}>
           <span
             className={cn(
               "text-xs font-bold text-gray-500 uppercase hidden sm:inline-block",
             )}
           >
-            Filter:
+            {t("filter")}
           </span>
           <select
             value={filterStatus}
@@ -33,15 +37,15 @@ export const OrdersTab = ({
               "h-9 px-3 border border-gray-300 rounded-md text-sm bg-white outline-none focus:border-black",
             )}
           >
-            <option value="ALL">All Orders</option>
-            <option value="Pending">Pending</option>
-            <option value="Processing">Processing</option>
-            <option value="Shipped">Shipped</option>
-            <option value="Completed">Completed</option>
-            <option value="Cancelled">Cancelled</option>
-            <option value="Refund Requested">Refund Requested</option>
-            <option value="Refunded">Refunded</option>
-            <option value="Refund Refused">Refund Refused</option>
+            <option value="ALL">{t("allOrders")}</option>
+            <option value="Pending">{t("pending")}</option>
+            <option value="Processing">{t("processing")}</option>
+            <option value="Shipped">{t("shipped")}</option>
+            <option value="Completed">{t("completed")}</option>
+            <option value="Cancelled">{t("cancelled")}</option>
+            <option value="Refund Requested">{t("refundRequested")}</option>
+            <option value="Refunded">{t("returned")}</option>
+            <option value="Refund Refused">{t("refundRefused")}</option>
           </select>
         </div>
       </div>
@@ -57,7 +61,7 @@ export const OrdersTab = ({
               "fa-solid fa-box-open text-4xl text-gray-300 mb-3 block",
             )}
           ></i>
-          No order history yet.
+          {t("noOrderHistory")}
         </div>
       ) : (
         <div className={cn("space-y-6")}>

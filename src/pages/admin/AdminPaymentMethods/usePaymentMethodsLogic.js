@@ -11,8 +11,10 @@ export const usePaymentMethodsLogic = () => {
   const dispatch = useDispatch();
   const paymentMethods = useSelector(selectPaymentMethods);
 
-  const [newMethodName, setNewMethodName] = useState("");
-  const [newMethodDetails, setNewMethodDetails] = useState("");
+  const [newMethodNameEn, setNewMethodNameEn] = useState("");
+  const [newMethodNameAr, setNewMethodNameAr] = useState("");
+  const [newMethodDetailsEn, setNewMethodDetailsEn] = useState("");
+  const [newMethodDetailsAr, setNewMethodDetailsAr] = useState("");
   const [newMethodImg, setNewMethodImg] = useState("");
   const [imageInputUrl, setImageInputUrl] = useState("");
 
@@ -35,25 +37,31 @@ export const usePaymentMethodsLogic = () => {
 
   const handleAdd = (e) => {
     e.preventDefault();
-    if (newMethodName.trim()) {
+    if (newMethodNameEn.trim() && newMethodNameAr.trim()) {
       dispatch(
         addPaymentMethod({
           id: crypto.randomUUID(),
-          name: newMethodName.trim(),
-          details: newMethodDetails.trim(),
+          nameEn: newMethodNameEn.trim(),
+          nameAr: newMethodNameAr.trim(),
+          detailsEn: newMethodDetailsEn.trim(),
+          detailsAr: newMethodDetailsAr.trim(),
           img: newMethodImg,
         }),
       );
-      setNewMethodName("");
-      setNewMethodDetails("");
+      setNewMethodNameEn("");
+      setNewMethodNameAr("");
+      setNewMethodDetailsEn("");
+      setNewMethodDetailsAr("");
       setNewMethodImg("");
       setImageInputUrl("");
     }
   };
 
   const [editingId, setEditingId] = useState(null);
-  const [editName, setEditName] = useState("");
-  const [editDetails, setEditDetails] = useState("");
+  const [editNameEn, setEditNameEn] = useState("");
+  const [editNameAr, setEditNameAr] = useState("");
+  const [editDetailsEn, setEditDetailsEn] = useState("");
+  const [editDetailsAr, setEditDetailsAr] = useState("");
   const [editImg, setEditImg] = useState("");
   const [editImageInputUrl, setEditImageInputUrl] = useState("");
   const [inputMode, setInputMode] = useState("upload");
@@ -61,19 +69,23 @@ export const usePaymentMethodsLogic = () => {
 
   const handleEdit = (method) => {
     setEditingId(method.id);
-    setEditName(method.name);
-    setEditDetails(method.details || "");
+    setEditNameEn(method.nameEn || method.name || "");
+    setEditNameAr(method.nameAr || method.name || "");
+    setEditDetailsEn(method.detailsEn || method.details || "");
+    setEditDetailsAr(method.detailsAr || method.details || "");
     setEditImg(method.img || "");
     setEditImageInputUrl("");
   };
 
   const handleSaveEdit = () => {
-    if (editName.trim()) {
+    if (editNameEn.trim() && editNameAr.trim()) {
       dispatch(
         updatePaymentMethod({
           id: editingId,
-          name: editName.trim(),
-          details: editDetails.trim(),
+          nameEn: editNameEn.trim(),
+          nameAr: editNameAr.trim(),
+          detailsEn: editDetailsEn.trim(),
+          detailsAr: editDetailsAr.trim(),
           img: editImg,
         }),
       );
@@ -91,10 +103,14 @@ export const usePaymentMethodsLogic = () => {
 
   return {
     paymentMethods,
-    newMethodName,
-    setNewMethodName,
-    newMethodDetails,
-    setNewMethodDetails,
+    newMethodNameEn,
+    setNewMethodNameEn,
+    newMethodNameAr,
+    setNewMethodNameAr,
+    newMethodDetailsEn,
+    setNewMethodDetailsEn,
+    newMethodDetailsAr,
+    setNewMethodDetailsAr,
     newMethodImg,
     setNewMethodImg,
     imageInputUrl,
@@ -103,10 +119,14 @@ export const usePaymentMethodsLogic = () => {
     handleAddUrl,
     handleAdd,
     editingId,
-    editName,
-    setEditName,
-    editDetails,
-    setEditDetails,
+    editNameEn,
+    setEditNameEn,
+    editNameAr,
+    setEditNameAr,
+    editDetailsEn,
+    setEditDetailsEn,
+    editDetailsAr,
+    setEditDetailsAr,
     editImg,
     setEditImg,
     editImageInputUrl,

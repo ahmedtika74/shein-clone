@@ -33,45 +33,61 @@ export const useShippingRatesLogic = () => {
     }
   };
 
-  const [govName, setGovName] = useState("");
+  const [govNameEn, setGovNameEn] = useState("");
+  const [govNameAr, setGovNameAr] = useState("");
   const [price, setPrice] = useState("");
   const [deliveryDays, setDeliveryDays] = useState("");
 
   const handleAdd = (e) => {
     e.preventDefault();
-    if (govName.trim() && price !== "" && deliveryDays.trim()) {
+    if (
+      govNameEn.trim() &&
+      govNameAr.trim() &&
+      price !== "" &&
+      deliveryDays.trim()
+    ) {
       dispatch(
         addShippingRate({
           id: crypto.randomUUID(),
-          government: govName.trim(),
+          governmentEn: govNameEn.trim(),
+          governmentAr: govNameAr.trim(),
           price: parseFloat(price),
           deliveryDays: deliveryDays.trim(),
         }),
       );
-      setGovName("");
+      setGovNameEn("");
+      setGovNameAr("");
       setPrice("");
       setDeliveryDays("");
     }
   };
 
   const [editingId, setEditingId] = useState(null);
-  const [editGovName, setEditGovName] = useState("");
+  const [editGovNameEn, setEditGovNameEn] = useState("");
+  const [editGovNameAr, setEditGovNameAr] = useState("");
   const [editPrice, setEditPrice] = useState("");
   const [editDeliveryDays, setEditDeliveryDays] = useState("");
 
   const handleEdit = (rate) => {
     setEditingId(rate.id);
-    setEditGovName(rate.government);
+    setEditGovNameEn(rate.governmentEn || rate.government || "");
+    setEditGovNameAr(rate.governmentAr || rate.government || "");
     setEditPrice(rate.price.toString());
     setEditDeliveryDays(rate.deliveryDays || "");
   };
 
   const handleSaveEdit = () => {
-    if (editGovName.trim() && editPrice !== "" && editDeliveryDays.trim()) {
+    if (
+      editGovNameEn.trim() &&
+      editGovNameAr.trim() &&
+      editPrice !== "" &&
+      editDeliveryDays.trim()
+    ) {
       dispatch(
         updateShippingRate({
           id: editingId,
-          government: editGovName.trim(),
+          governmentEn: editGovNameEn.trim(),
+          governmentAr: editGovNameAr.trim(),
           price: parseFloat(editPrice),
           deliveryDays: editDeliveryDays.trim(),
         }),
@@ -96,16 +112,20 @@ export const useShippingRatesLogic = () => {
     isSaved,
     handleToggleFreeShipping,
     handleSaveFsThreshold,
-    govName,
-    setGovName,
+    govNameEn,
+    setGovNameEn,
+    govNameAr,
+    setGovNameAr,
     price,
     setPrice,
     deliveryDays,
     setDeliveryDays,
     handleAdd,
     editingId,
-    editGovName,
-    setEditGovName,
+    editGovNameEn,
+    setEditGovNameEn,
+    editGovNameAr,
+    setEditGovNameAr,
     editPrice,
     setEditPrice,
     editDeliveryDays,

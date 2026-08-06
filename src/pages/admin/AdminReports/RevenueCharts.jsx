@@ -1,6 +1,7 @@
 import { cn } from "../../../utils/cn";
-
+import { useTranslation } from "react-i18next";
 export const RevenueCharts = ({ stats, filterMonth, filterProductId }) => {
+  const { t } = useTranslation(["admin", "common"]);
   return (
     <div
       className={cn(
@@ -17,7 +18,7 @@ export const RevenueCharts = ({ stats, filterMonth, filterProductId }) => {
           <h2
             className={cn("text-lg font-bold text-gray-900 mb-6 border-b pb-3")}
           >
-            Revenue Over Time
+            {t("revenueOverTime")}
           </h2>
 
           <div
@@ -28,9 +29,9 @@ export const RevenueCharts = ({ stats, filterMonth, filterProductId }) => {
               <div
                 className={cn("flex justify-between text-sm font-bold mb-2")}
               >
-                <span className={cn("text-gray-600")}>Today (Daily)</span>
+                <span className={cn("text-gray-600")}>{t("todayDaily")}</span>
                 <span className={cn("text-gray-900")}>
-                  EGP {stats.dailyRevenue.toFixed(2)}
+                  {t("egp", { ns: "common" })} {stats.dailyRevenue.toFixed(2)}
                 </span>
               </div>
               <div
@@ -55,10 +56,10 @@ export const RevenueCharts = ({ stats, filterMonth, filterProductId }) => {
                 className={cn("flex justify-between text-sm font-bold mb-2")}
               >
                 <span className={cn("text-gray-600")}>
-                  This Month (Monthly)
+                  {t("thisMonthMonthly")}
                 </span>
                 <span className={cn("text-gray-900")}>
-                  EGP {stats.monthlyRevenue.toFixed(2)}
+                  {t("egp", { ns: "common" })} {stats.monthlyRevenue.toFixed(2)}
                 </span>
               </div>
               <div
@@ -82,9 +83,11 @@ export const RevenueCharts = ({ stats, filterMonth, filterProductId }) => {
               <div
                 className={cn("flex justify-between text-sm font-bold mb-2")}
               >
-                <span className={cn("text-gray-600")}>This Year (Yearly)</span>
+                <span className={cn("text-gray-600")}>
+                  {t("thisYearYearly")}
+                </span>
                 <span className={cn("text-gray-900")}>
-                  EGP {stats.yearlyRevenue.toFixed(2)}
+                  {t("egp", { ns: "common" })} {stats.yearlyRevenue.toFixed(2)}
                 </span>
               </div>
               <div
@@ -116,8 +119,8 @@ export const RevenueCharts = ({ stats, filterMonth, filterProductId }) => {
           className={cn("text-lg font-bold text-gray-900 mb-6 border-b pb-3")}
         >
           {filterProductId === "all"
-            ? "Top 5 Selling Products"
-            : "Product Sales Performance"}
+            ? t("top5Selling")
+            : t("productSalesPerformance")}
         </h2>
 
         {stats.topProducts.length === 0 ? (
@@ -126,7 +129,7 @@ export const RevenueCharts = ({ stats, filterMonth, filterProductId }) => {
               "flex-grow flex items-center justify-center text-gray-500 py-8 font-medium",
             )}
           >
-            No sales data available for selected filters.
+            {t("noSalesData")}
           </div>
         ) : (
           <div className={cn("flex flex-col justify-center flex-grow gap-5")}>
@@ -179,10 +182,10 @@ export const RevenueCharts = ({ stats, filterMonth, filterProductId }) => {
                     className={cn("flex justify-between text-xs text-gray-500")}
                   >
                     <span className={cn("font-medium")}>
-                      {product.quantity} items sold
+                      {product.quantity} {t("itemsSoldSuffix")}
                     </span>
                     <span className={cn("font-black text-gray-900")}>
-                      EGP {product.revenue.toFixed(2)}
+                      {t("egp", { ns: "common" })} {product.revenue.toFixed(2)}
                     </span>
                   </div>
                 </div>

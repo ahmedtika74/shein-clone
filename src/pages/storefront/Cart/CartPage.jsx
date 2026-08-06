@@ -1,18 +1,20 @@
 import { cn } from "../../../utils/cn";
 import { Link } from "react-router-dom";
 import { SEO } from "../../../components/common/SEO";
+import { useTranslation } from "react-i18next";
 import { useCartLogic } from "./useCartLogic";
 import { CartItemList } from "./CartItemList";
 import { CheckoutPanel } from "./CheckoutPanel";
 
 export const CartPage = () => {
+  const { t } = useTranslation(["storefront", "common"]);
   const logic = useCartLogic();
 
   return (
     <div className={cn("cart-container w-[90%] max-w-275 mx-auto py-10")}>
       <SEO title="Shopping Cart" noindex={true} />
       <h1 className={cn("text-3xl font-bold mb-8 text-gray-900")}>
-        Shopping Cart ({logic.cart.length})
+        {t("shoppingCart")} ({logic.cart.length})
       </h1>
 
       {logic.checkoutMessage ? (
@@ -28,8 +30,9 @@ export const CartPage = () => {
           ></i>
           <h2 className={cn("text-2xl font-bold")}>{logic.checkoutMessage}</h2>
           <p className={cn("text-gray-600 mt-2")}>
-            Thank you for shopping with {logic.siteSettings?.siteName || "us"}!
-            Your order has been placed.
+            {t("thankYouShopping")} {logic.siteSettings?.siteName || "us"}!
+            <br />
+            {t("orderPlaced")}
           </p>
           <Link
             to="/user-dashboard"
@@ -37,7 +40,7 @@ export const CartPage = () => {
               "inline-block mt-6 bg-black text-white px-8 py-3 rounded-full font-bold hover:bg-gray-800 transition-colors",
             )}
           >
-            View Orders
+            {t("viewOrders")}
           </Link>
         </div>
       ) : logic.cart.length === 0 ? (
@@ -52,10 +55,10 @@ export const CartPage = () => {
             )}
           ></i>
           <h2 className={cn("text-2xl font-bold text-gray-800")}>
-            Your bag is empty
+            {t("emptyBag")}
           </h2>
           <p className={cn("text-gray-500 mt-2 mb-6")}>
-            Looks like you haven&apos;t added any items yet.
+            {t("emptyBagMessage")}
           </p>
           <Link
             to="/"
@@ -63,7 +66,7 @@ export const CartPage = () => {
               "inline-block bg-black text-white px-8 py-3 rounded-full font-bold hover:bg-gray-800 transition-colors",
             )}
           >
-            Start Shopping
+            {t("startShopping")}
           </Link>
         </div>
       ) : (

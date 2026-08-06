@@ -1,4 +1,5 @@
 import { cn } from "../../../utils/cn";
+import { useTranslation } from "react-i18next";
 import { AddressFormModal } from "../../../components/common/AddressFormModal";
 import { Button } from "../../../components/ui/Button";
 import { ScrollToTop } from "../../../components/ScrollToTop";
@@ -21,6 +22,7 @@ export const ProfileTab = ({
   handleDeleteAddress,
   handleSetDefault,
 }) => {
+  const { t } = useTranslation(["storefront", "common"]);
   const addresses = user?.addresses || [];
 
   return (
@@ -34,7 +36,7 @@ export const ProfileTab = ({
         <h2
           className={cn("text-xl font-bold mb-6 text-gray-900 border-b pb-3")}
         >
-          Personal Information
+          {t("personalInfo")}
         </h2>
         <form
           onSubmit={handleUpdateProfile}
@@ -44,7 +46,7 @@ export const ProfileTab = ({
             <label
               className={cn("block text-gray-500 font-medium text-xs mb-1")}
             >
-              Full Name
+              {t("fullName")}
             </label>
             <input
               type="text"
@@ -61,7 +63,7 @@ export const ProfileTab = ({
             <label
               className={cn("block text-gray-500 font-medium text-xs mb-1")}
             >
-              Email Address
+              {t("email")}
             </label>
             <input
               type="email"
@@ -81,11 +83,11 @@ export const ProfileTab = ({
                 "bg-black text-white px-6 py-3 rounded-lg font-bold hover:bg-gray-800 transition-colors",
               )}
             >
-              Save Changes
+              {t("saveChanges")}
             </button>
             {saveMessage && (
               <span className={cn("text-green-600 font-bold text-sm")}>
-                <i className={cn("fa-solid fa-check mr-1")}></i> {saveMessage}
+                <i className={cn("fa-solid fa-check me-1")}></i> {saveMessage}
               </span>
             )}
           </div>
@@ -96,7 +98,7 @@ export const ProfileTab = ({
             "text-xl font-bold mb-6 text-gray-900 border-b pb-3 mt-10",
           )}
         >
-          Shipping Addresses
+          {t("shippingAddresses")}
         </h3>
 
         <div className={cn("space-y-4")}>
@@ -120,7 +122,7 @@ export const ProfileTab = ({
                           "text-[10px] bg-black text-white px-2 py-0.5 rounded-full font-bold",
                         )}
                       >
-                        Default
+                        {t("default")}
                       </span>
                     )}
                   </div>
@@ -131,7 +133,7 @@ export const ProfileTab = ({
                     {addr.government}
                   </p>
                   <p className={cn("text-sm text-gray-600 mt-1")}>
-                    <i className={cn("fa-solid fa-phone text-xs mr-1")}></i>{" "}
+                    <i className={cn("fa-solid fa-phone text-xs me-1")}></i>{" "}
                     {addr.phone}
                   </p>
                 </div>
@@ -139,18 +141,18 @@ export const ProfileTab = ({
                   <button
                     onClick={() => handleEditAddressClick(addr)}
                     className={cn(
-                      "text-sm text-blue-600 font-bold hover:underline text-right",
+                      "text-sm text-blue-600 font-bold hover:underline text-end",
                     )}
                   >
-                    Edit
+                    {t("edit")}
                   </button>
                   <button
                     onClick={() => handleDeleteAddress(addr.id)}
                     className={cn(
-                      "text-sm text-red-600 font-bold hover:underline text-right",
+                      "text-sm text-red-600 font-bold hover:underline text-end",
                     )}
                   >
-                    Delete
+                    {t("delete")}
                   </button>
                 </div>
               </div>
@@ -158,10 +160,10 @@ export const ProfileTab = ({
                 <button
                   onClick={() => handleSetDefault(addr.id)}
                   className={cn(
-                    "text-sm text-gray-600 hover:text-black font-bold text-left",
+                    "text-sm text-gray-600 hover:text-black font-bold text-start",
                   )}
                 >
-                  Set as Default
+                  {t("setAsDefault")}
                 </button>
               )}
             </div>
@@ -173,12 +175,12 @@ export const ProfileTab = ({
               variant="secondary"
               className={cn("w-full py-3 border-dashed border-2")}
             >
-              + Add New Address
+              {t("addNewAddress")}
             </Button>
           )}
           {addresses.length >= 3 && (
             <p className={cn("text-sm text-orange-600 font-medium mt-2")}>
-              You have reached the maximum of 3 addresses.
+              {t("maxAddresses")}
             </p>
           )}
         </div>

@@ -8,27 +8,34 @@ import {
   removeAnnouncement,
 } from "../../store/dataSlice";
 import { Card, CardContent, Input, Button, Modal } from "../../components/ui";
+import { useTranslation } from "react-i18next";
+import { getLocalizedString } from "../../utils/localization";
 
 export const AdminAnnouncementPage = () => {
+  const { t, i18n } = useTranslation("admin");
   const dispatch = useDispatch();
   const announcements = useSelector(selectAnnouncements);
 
-  const [newText, setNewText] = useState("");
+  const [newTextEn, setNewTextEn] = useState("");
+  const [newTextAr, setNewTextAr] = useState("");
   const [editingId, setEditingId] = useState(null);
-  const [editText, setEditText] = useState("");
+  const [editTextEn, setEditTextEn] = useState("");
+  const [editTextAr, setEditTextAr] = useState("");
   const [deleteId, setDeleteId] = useState(null);
   const [isSaved, setIsSaved] = useState(false);
 
   const handleAdd = () => {
-    if (!newText.trim()) return;
+    if (!newTextEn.trim() || !newTextAr.trim()) return;
     dispatch(
       addAnnouncement({
         id: Date.now(),
-        text: newText.trim(),
+        textEn: newTextEn.trim(),
+        textAr: newTextAr.trim(),
         isActive: true,
       }),
     );
-    setNewText("");
+    setNewTextEn("");
+    setNewTextAr("");
     flashSaved();
   };
 
@@ -38,14 +45,22 @@ export const AdminAnnouncementPage = () => {
 
   const handleStartEdit = (ann) => {
     setEditingId(ann.id);
-    setEditText(ann.text);
+    setEditTextEn(ann.textEn || ann.text || "");
+    setEditTextAr(ann.textAr || ann.text || "");
   };
 
   const handleSaveEdit = () => {
-    if (!editText.trim()) return;
-    dispatch(updateAnnouncement({ id: editingId, text: editText.trim() }));
+    if (!editTextEn.trim() || !editTextAr.trim()) return;
+    dispatch(
+      updateAnnouncement({
+        id: editingId,
+        textEn: editTextEn.trim(),
+        textAr: editTextAr.trim(),
+      }),
+    );
     setEditingId(null);
-    setEditText("");
+    setEditTextEn("");
+    setEditTextAr("");
     flashSaved();
   };
 
@@ -67,12 +82,9 @@ export const AdminAnnouncementPage = () => {
     <div className={cn("p-6 w-full max-w-4xl")}>
       <div className={cn("mb-8")}>
         <h1 className={cn("text-2xl font-bold text-gray-900 mb-2")}>
-          Announcement Settings
+          {t("announcementSettings")}
         </h1>
-        <p className={cn("text-gray-500")}>
-          Manage the rotating announcement bar displayed across the storefront.
-          Active announcements auto-rotate every 4 seconds.
-        </p>
+        <p className={cn("text-gray-500")}>{t("announcementSettingsDesc")}</p>
       </div>
 
       {/* Add New Announcement */}
@@ -83,22 +95,29 @@ export const AdminAnnouncementPage = () => {
       >
         <CardContent className={cn("p-6")}>
           <h3 className={cn("font-bold text-gray-900 mb-4")}>
-            Add New Announcement
+            {t("addNewAnnouncement")}
           </h3>
           <div className={cn("flex gap-3")}>
             <Input
-              value={newText}
-              onChange={(e) => setNewText(e.target.value)}
-              placeholder="e.g., Free Shipping On Orders Over 500 EGP"
+              value={newTextEn}
+              onChange={(e) => setNewTextEn(e.target.value)}
+              placeholder={`${t("egAnnouncement")} (EN)`}
+              className={cn("h-11")}
+              onKeyDown={(e) => e.key === "Enter" && handleAdd()}
+            />
+            <Input
+              value={newTextAr}
+              onChange={(e) => setNewTextAr(e.target.value)}
+              placeholder={`${t("egAnnouncement")} (AR)`}
               className={cn("h-11")}
               onKeyDown={(e) => e.key === "Enter" && handleAdd()}
             />
             <Button
               onClick={handleAdd}
-              disabled={!newText.trim()}
+              disabled={!newTextEn.trim() || !newTextAr.trim()}
               className={cn("px-6 h-11 shrink-0")}
             >
-              <i className="fa-solid fa-plus mr-2"></i> Add
+              <i className="fa-solid fa-plus me-2"></i> {t("addNew")}
             </Button>
           </div>
         </CardContent>
@@ -113,20 +132,18 @@ export const AdminAnnouncementPage = () => {
         <CardContent className={cn("p-6")}>
           <div className={cn("flex items-center justify-between mb-4")}>
             <h3 className={cn("font-bold text-gray-900")}>
-              All Announcements ({announcements.length})
+              {t("allAnnouncements", { count: announcements.length })}
             </h3>
             <span className={cn("text-xs text-gray-500")}>
-              {activeAnnouncements.length} active
+              {t("activeCount", { count: activeAnnouncements.length })}
             </span>
           </div>
 
           {announcements.length === 0 ? (
             <div className={cn("text-center py-12 text-gray-400")}>
               <i className="fa-solid fa-bullhorn text-4xl mb-3 block opacity-30"></i>
-              <p className={cn("font-medium")}>No announcements yet</p>
-              <p className={cn("text-sm mt-1")}>
-                Add your first announcement above.
-              </p>
+              <p className={cn("font-medium")}>{t("noAnnouncementsYet")}</p>
+              <p className={cn("text-sm mt-1")}>{t("addFirstAnnouncement")}</p>
             </div>
           ) : (
             <div className={cn("space-y-3")}>
@@ -151,7 +168,9 @@ export const AdminAnnouncementPage = () => {
                     <div
                       className={cn(
                         "w-4 h-4 rounded-full bg-white transition-transform",
-                        ann.isActive ? "translate-x-5" : "translate-x-0",
+                        ann.isActive
+                          ? "translate-x-5 rtl:-translate-x-5"
+                          : "translate-x-0",
                       )}
                     />
                   </button>
@@ -160,24 +179,32 @@ export const AdminAnnouncementPage = () => {
                   {editingId === ann.id ? (
                     <div className={cn("flex-1 flex gap-2")}>
                       <Input
-                        value={editText}
-                        onChange={(e) => setEditText(e.target.value)}
+                        value={editTextEn}
+                        onChange={(e) => setEditTextEn(e.target.value)}
                         className={cn("h-9")}
+                        placeholder="EN"
+                        onKeyDown={(e) => e.key === "Enter" && handleSaveEdit()}
+                      />
+                      <Input
+                        value={editTextAr}
+                        onChange={(e) => setEditTextAr(e.target.value)}
+                        className={cn("h-9")}
+                        placeholder="AR"
                         onKeyDown={(e) => e.key === "Enter" && handleSaveEdit()}
                       />
                       <Button
                         size="sm"
                         onClick={handleSaveEdit}
-                        disabled={!editText.trim()}
+                        disabled={!editTextEn.trim() || !editTextAr.trim()}
                       >
-                        Save
+                        {t("save")}
                       </Button>
                       <Button
                         size="sm"
                         variant="ghost"
                         onClick={() => setEditingId(null)}
                       >
-                        Cancel
+                        {t("cancel")}
                       </Button>
                     </div>
                   ) : (
@@ -186,7 +213,7 @@ export const AdminAnnouncementPage = () => {
                         "flex-1 text-sm font-medium text-gray-800 truncate",
                       )}
                     >
-                      {ann.text}
+                      {getLocalizedString(ann, "text", i18n.language)}
                     </span>
                   )}
 
@@ -224,7 +251,7 @@ export const AdminAnnouncementPage = () => {
       >
         <CardContent className={cn("p-6")}>
           <label className={cn("block font-bold text-gray-900 mb-3")}>
-            Preview
+            {t("preview")}
           </label>
           {activeAnnouncements.length > 0 ? (
             <div
@@ -232,11 +259,17 @@ export const AdminAnnouncementPage = () => {
                 "bg-gradient-to-r from-gray-900 via-black to-gray-900 text-white text-center text-sm font-semibold h-10 flex items-center justify-center uppercase tracking-[0.2em] shadow-sm relative px-8 rounded-lg overflow-hidden",
               )}
             >
-              <p className={cn("truncate")}>{activeAnnouncements[0].text}</p>
+              <p className={cn("truncate")}>
+                {getLocalizedString(
+                  activeAnnouncements[0],
+                  "text",
+                  i18n.language,
+                )}
+              </p>
               {activeAnnouncements.length > 1 && (
                 <div
                   className={cn(
-                    "absolute left-1/2 -translate-x-1/2 bottom-0.5 flex gap-1",
+                    "absolute start-1/2 -translate-x-1/2 rtl:translate-x-1/2 bottom-0.5 flex gap-1",
                   )}
                 >
                   {activeAnnouncements.map((_, idx) => (
@@ -252,7 +285,7 @@ export const AdminAnnouncementPage = () => {
               )}
               <div
                 className={cn(
-                  "absolute right-4 w-6 h-6 flex items-center justify-center",
+                  "absolute end-4 w-6 h-6 flex items-center justify-center",
                 )}
               >
                 <i className={cn("fa-solid fa-xmark text-sm")}></i>
@@ -264,13 +297,14 @@ export const AdminAnnouncementPage = () => {
                 "bg-gray-100 text-gray-400 text-center text-sm font-medium h-10 flex items-center justify-center rounded-lg",
               )}
             >
-              No active announcements to display
+              {t("noActiveAnnouncements")}
             </div>
           )}
           {activeAnnouncements.length > 1 && (
             <p className={cn("text-xs text-gray-400 mt-2 text-center")}>
-              {activeAnnouncements.length} announcements will auto-rotate every
-              4 seconds
+              {t("announcementsAutoRotateDesc", {
+                count: activeAnnouncements.length,
+              })}
             </p>
           )}
         </CardContent>
@@ -280,10 +314,10 @@ export const AdminAnnouncementPage = () => {
       {isSaved && (
         <div
           className={cn(
-            "fixed bottom-6 right-6 bg-black text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-2 text-sm font-bold z-50 animate-fade-in",
+            "fixed bottom-6 end-6 bg-black text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-2 text-sm font-bold z-50 animate-fade-in",
           )}
         >
-          <i className="fa-solid fa-check"></i> Changes Saved!
+          <i className="fa-solid fa-check"></i> {t("changesSaved")}
         </div>
       )}
 
@@ -291,7 +325,7 @@ export const AdminAnnouncementPage = () => {
       <Modal
         isOpen={!!deleteId}
         onClose={() => setDeleteId(null)}
-        title="Delete Announcement"
+        title={t("deleteAnnouncement")}
         maxWidth="max-w-sm"
       >
         <div className={cn("text-center")}>
@@ -303,8 +337,7 @@ export const AdminAnnouncementPage = () => {
             <i className={cn("fa-solid fa-trash text-3xl")}></i>
           </div>
           <p className={cn("text-gray-500 mb-6 text-sm")}>
-            Are you sure you want to delete this announcement? This action
-            cannot be undone.
+            {t("deleteAnnouncementConfirm")}
           </p>
           <div className={cn("flex flex-col gap-3")}>
             <Button
@@ -312,14 +345,14 @@ export const AdminAnnouncementPage = () => {
               onClick={handleDelete}
               className={cn("w-full py-3.5 rounded-xl font-bold")}
             >
-              Delete
+              {t("delete")}
             </Button>
             <Button
               variant="secondary"
               onClick={() => setDeleteId(null)}
               className={cn("w-full py-3.5 rounded-xl font-bold")}
             >
-              Cancel
+              {t("cancel")}
             </Button>
           </div>
         </div>

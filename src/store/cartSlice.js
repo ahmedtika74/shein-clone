@@ -34,8 +34,9 @@ const cartSlice = createSlice({
         const existingIndex = state.items.findIndex(
           (item) =>
             String(item.id) === String(id) &&
-            item.color?.name === color?.name &&
-            item.size?.name === size?.name,
+            (item.color?.nameEn || item.color?.name || item.color) ===
+              (color?.nameEn || color?.name || color) &&
+            (item.size?.name || item.size) === (size?.name || size),
         );
 
         if (existingIndex > -1) {
@@ -84,6 +85,8 @@ const cartSlice = createSlice({
           payload: {
             id: product.id,
             name: product.name,
+            nameEn: product.nameEn,
+            nameAr: product.nameAr,
             price: finalPrice,
             originalPrice,
             newPrice: `EGP ${finalPrice}`,

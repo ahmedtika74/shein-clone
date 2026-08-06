@@ -4,17 +4,29 @@ import { useSelector } from "react-redux";
 import {
   selectProducts,
   selectTopSellingProducts,
+  selectCategories,
 } from "../../store/dataSlice";
 import { Hero } from "../../components/storefront/Hero";
 import { Categories } from "../../components/storefront/Categories";
 import { ProductCard } from "../../components/storefront/ProductCard";
+import { useTranslation } from "react-i18next";
+import { getLocalizedString } from "../../utils/localization";
 
 export const HomePage = () => {
+  const { t, i18n } = useTranslation("storefront");
   const products = useSelector(selectProducts);
+  const categories = useSelector(selectCategories);
   const [searchParams] = useSearchParams();
 
   const activeCategory = searchParams.get("category");
   const activeSearch = searchParams.get("search");
+
+  const activeCategoryObj = categories?.find(
+    (c) => c.nameEn === activeCategory,
+  );
+  const activeCategoryDisplay = activeCategoryObj
+    ? getLocalizedString(activeCategoryObj, "name", i18n.language)
+    : activeCategory;
 
   const topSellingProducts = useSelector(selectTopSellingProducts) || [];
 
@@ -34,9 +46,14 @@ export const HomePage = () => {
 
     let matchesSearch = true;
     if (activeSearch) {
+      const searchTarget = activeSearch.toLowerCase();
+      const pNameEn = (product.nameEn || product.name || "").toLowerCase();
+      const pNameAr = (product.nameAr || product.name || "").toLowerCase();
+
       matchesSearch =
-        product.name.toLowerCase().includes(activeSearch.toLowerCase()) ||
-        product.category?.toLowerCase().includes(activeSearch.toLowerCase());
+        pNameEn.includes(searchTarget) ||
+        pNameAr.includes(searchTarget) ||
+        product.category?.toLowerCase().includes(searchTarget);
     }
 
     return matchesCategory && matchesSearch;
@@ -61,7 +78,7 @@ export const HomePage = () => {
                     "text-2xl md:text-[32px] font-bold text-gray-900",
                   )}
                 >
-                  Top Sales
+                  {t("topSelling")}
                 </h2>
               </div>
               <div
@@ -86,10 +103,10 @@ export const HomePage = () => {
         >
           <h2 className={cn("text-2xl md:text-[32px] font-bold text-gray-900")}>
             {activeSearch
-              ? `Results for "${activeSearch}"`
+              ? t("resultsFor", { search: activeSearch })
               : activeCategory
-                ? `${activeCategory} Collection`
-                : "Recommended For You"}
+                ? t("collection", { category: activeCategoryDisplay })
+                : t("recommendedForYou")}
           </h2>
           {(activeCategory || activeSearch) && (
             <a
@@ -98,7 +115,7 @@ export const HomePage = () => {
                 "text-gray-900 font-bold hover:text-[#e60023] transition-colors text-sm md:text-base",
               )}
             >
-              Clear Filters
+              {t("clearFilters")}
             </a>
           )}
         </div>
@@ -113,11 +130,9 @@ export const HomePage = () => {
               className={cn("fa-solid fa-box-open text-5xl text-gray-400 mb-4")}
             ></i>
             <h3 className={cn("text-xl font-bold text-gray-700")}>
-              No products found
+              {t("noProductsFound")}
             </h3>
-            <p className={cn("text-gray-500 mt-2")}>
-              Try adjusting your search or category filter.
-            </p>
+            <p className={cn("text-gray-500 mt-2")}>{t("tryAdjusting")}</p>
           </div>
         ) : (
           <div

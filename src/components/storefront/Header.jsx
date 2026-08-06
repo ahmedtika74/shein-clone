@@ -1,12 +1,15 @@
 import { cn } from "../../utils/cn";
+import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { selectUser, selectIsLoggedIn } from "../../store/authSlice";
 import { selectCartCount } from "../../store/cartSlice";
 import { selectWishlistCount } from "../../store/wishlistSlice";
 import { selectSiteSettings } from "../../store/dataSlice";
+import { LanguageSwitcher } from "../common/LanguageSwitcher";
 
 export const Header = ({ searchQuery, setSearchQuery, setIsDrawerOpen }) => {
+  const { t } = useTranslation(["storefront", "common"]);
   const navigate = useNavigate();
 
   const user = useSelector(selectUser);
@@ -32,7 +35,7 @@ export const Header = ({ searchQuery, setSearchQuery, setIsDrawerOpen }) => {
       <button
         onClick={() => setIsDrawerOpen(true)}
         className={cn(
-          "md:hidden text-2xl text-gray-800 p-2 -ml-2 focus:outline-none z-10",
+          "md:hidden text-2xl text-gray-800 p-2 -ms-2 focus:outline-none z-10",
         )}
       >
         <i className={cn("fa-solid fa-bars")}></i>
@@ -41,7 +44,7 @@ export const Header = ({ searchQuery, setSearchQuery, setIsDrawerOpen }) => {
       {/* Logo / Site Name */}
       <div
         className={cn(
-          "logo flex-shrink-0 absolute md:static left-1/2 -translate-x-1/2 md:translate-x-0 z-10",
+          "logo flex-shrink-0 absolute md:static start-1/2 -translate-x-1/2 md:translate-x-0 z-10",
         )}
       >
         <Link to="/">
@@ -72,18 +75,18 @@ export const Header = ({ searchQuery, setSearchQuery, setIsDrawerOpen }) => {
       >
         <div
           className={cn(
-            "absolute left-4 text-gray-400 group-focus-within:text-black transition-colors",
+            "absolute start-4 text-gray-400 group-focus-within:text-black transition-colors",
           )}
         >
           <i className={cn("fa-solid fa-magnifying-glass text-lg")}></i>
         </div>
         <input
           type="text"
-          placeholder="Search for items, brands and inspiration..."
+          placeholder={t("searchPlaceholder")}
           value={searchQuery || ""}
           onChange={(e) => setSearchQuery(e.target.value)}
           className={cn(
-            "w-full h-11 pl-12 pr-4 bg-gray-100 hover:bg-gray-200 focus:bg-white rounded-full outline-none text-sm border border-transparent focus:border-gray-200 focus:ring-4 focus:ring-black/5 transition-all duration-300",
+            "w-full h-11 ps-12 pe-4 bg-gray-100 hover:bg-gray-200 focus:bg-white rounded-full outline-none text-sm border border-transparent focus:border-gray-200 focus:ring-4 focus:ring-black/5 transition-all duration-300",
           )}
         />
         {searchQuery && (
@@ -91,7 +94,7 @@ export const Header = ({ searchQuery, setSearchQuery, setIsDrawerOpen }) => {
             type="button"
             onClick={() => setSearchQuery("")}
             className={cn(
-              "absolute right-4 text-gray-400 hover:text-black transition-colors",
+              "absolute end-4 text-gray-400 hover:text-black transition-colors",
             )}
           >
             <i className={cn("fa-solid fa-xmark")}></i>
@@ -101,6 +104,9 @@ export const Header = ({ searchQuery, setSearchQuery, setIsDrawerOpen }) => {
 
       {/* Icons & Actions */}
       <div className={cn("icons hidden md:flex items-center gap-2")}>
+        {/* Language Switcher */}
+        <LanguageSwitcher />
+
         {/* Wishlist Icon */}
         <Link
           to="/wishlist"
@@ -112,13 +118,13 @@ export const Header = ({ searchQuery, setSearchQuery, setIsDrawerOpen }) => {
           {wishlistCount > 0 && (
             <span
               className={cn(
-                "absolute top-0 right-0 bg-[#e60023] text-white text-[10px] font-bold rounded-full h-[18px] w-[18px] flex items-center justify-center shadow-sm animate-pulse-once",
+                "absolute top-0 end-0 bg-[#e60023] text-white text-[10px] font-bold rounded-full h-[18px] w-[18px] flex items-center justify-center shadow-sm animate-pulse-once",
               )}
             >
               {wishlistCount}
             </span>
           )}
-          <span className={cn("text-[10px] font-medium mt-0.5")}>Wishlist</span>
+          <span className={cn("text-[10px] font-medium mt-0.5")}>{t("wishlist")}</span>
         </Link>
 
         {/* Cart Shopping Icon */}
@@ -132,18 +138,18 @@ export const Header = ({ searchQuery, setSearchQuery, setIsDrawerOpen }) => {
           {cartCount > 0 && (
             <span
               className={cn(
-                "absolute top-0 right-0 bg-[#e60023] text-white text-[10px] font-bold rounded-full h-[18px] w-[18px] flex items-center justify-center shadow-sm",
+                "absolute top-0 end-0 bg-[#e60023] text-white text-[10px] font-bold rounded-full h-[18px] w-[18px] flex items-center justify-center shadow-sm",
               )}
             >
               {cartCount}
             </span>
           )}
-          <span className={cn("text-[10px] font-medium mt-0.5")}>Cart</span>
+          <span className={cn("text-[10px] font-medium mt-0.5")}>{t("cart")}</span>
         </Link>
 
         {/* User Account */}
         {isLoggedIn ? (
-          <div className={cn("flex items-center gap-2 mr-2")}>
+          <div className={cn("flex items-center gap-2 me-2")}>
             <Link
               to="/user-dashboard"
               className={cn(
@@ -156,7 +162,7 @@ export const Header = ({ searchQuery, setSearchQuery, setIsDrawerOpen }) => {
                   "text-xs font-semibold truncate max-w-[80px] hidden lg:block",
                 )}
               >
-                {user?.name || "Account"}
+                {user?.name || t("account")}
               </span>
             </Link>
           </div>
@@ -168,7 +174,7 @@ export const Header = ({ searchQuery, setSearchQuery, setIsDrawerOpen }) => {
             )}
           >
             <i className={cn("fa-regular fa-user text-xl")}></i>
-            <span className={cn("text-[10px] font-medium mt-0.5")}>Login</span>
+            <span className={cn("text-[10px] font-medium mt-0.5")}>{t("login")}</span>
           </Link>
         )}
       </div>

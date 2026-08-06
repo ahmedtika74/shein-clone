@@ -34,7 +34,7 @@ export const Layout = () => {
           <div className={cn("flex items-center p-4 border-b border-gray-100")}>
             <button
               onClick={() => setIsMobileSearchOpen(false)}
-              className={cn("mr-4 text-gray-500 hover:text-black")}
+              className={cn("me-4 text-gray-500 hover:text-black")}
             >
               <i className={cn("fa-solid fa-arrow-left text-xl")}></i>
             </button>
@@ -44,7 +44,7 @@ export const Layout = () => {
             >
               <i
                 className={cn(
-                  "fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400",
+                  "fa-solid fa-magnifying-glass absolute start-3 top-1/2 -translate-y-1/2 text-gray-400",
                 )}
               ></i>
               <input
@@ -54,7 +54,7 @@ export const Layout = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className={cn(
-                  "w-full bg-gray-100 h-10 rounded-full pl-10 pr-4 outline-none text-sm",
+                  "w-full bg-gray-100 h-10 rounded-full ps-10 pe-4 outline-none text-sm",
                 )}
               />
             </form>

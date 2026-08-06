@@ -36,7 +36,7 @@ export const Button = ({
       {...props}
     >
       {isLoading ? (
-        <i className={cn("fa-solid fa-spinner fa-spin mr-2")}></i>
+        <i className={cn("fa-solid fa-spinner fa-spin me-2")}></i>
       ) : null}
       {children}
     </button>

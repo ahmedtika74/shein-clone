@@ -1,9 +1,12 @@
 import { cn } from "../../utils/cn";
+import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { selectOrders, selectProducts } from "../../store/dataSlice";
 import { Card, CardContent, Badge } from "../../components/ui";
+import { formatPrice } from "../../utils/formatPrice";
 
 export const AdminDashboardPage = () => {
+  const { t } = useTranslation(["admin", "common"]);
   const orders = useSelector(selectOrders);
   const products = useSelector(selectProducts);
 
@@ -18,7 +21,7 @@ export const AdminDashboardPage = () => {
   return (
     <div>
       <h1 className={cn("text-[35px] font-bold text-gray-900 mb-7.5")}>
-        Dashboard
+        {t("dashboard")}
       </h1>
 
       <div
@@ -38,7 +41,7 @@ export const AdminDashboardPage = () => {
             ></i>
             <div>
               <h3 className={cn("text-gray-500 text-sm font-semibold mb-1")}>
-                Orders
+                {t("orders")}
               </h3>
               <span className={cn("text-[30px] font-bold text-gray-900")}>
                 {orders.length}
@@ -61,10 +64,10 @@ export const AdminDashboardPage = () => {
             ></i>
             <div>
               <h3 className={cn("text-gray-500 text-sm font-semibold mb-1")}>
-                Sales
+                {t("sales")}
               </h3>
               <span className={cn("text-[30px] font-bold text-gray-900")}>
-                EGP {totalSales.toFixed(2)}
+                {formatPrice(totalSales, t)}
               </span>
             </div>
           </CardContent>
@@ -84,7 +87,7 @@ export const AdminDashboardPage = () => {
             ></i>
             <div>
               <h3 className={cn("text-gray-500 text-sm font-semibold mb-1")}>
-                Products
+                {t("products")}
               </h3>
               <span className={cn("text-[30px] font-bold text-gray-900")}>
                 {products.length}
@@ -102,29 +105,35 @@ export const AdminDashboardPage = () => {
       >
         <CardContent className={cn("p-6")}>
           <h2 className={cn("text-xl font-bold text-gray-900 mb-4")}>
-            Recent Transactions
+            {t("recentOrders")}
           </h2>
           {orders.length === 0 ? (
             <p className={cn("text-gray-500 text-sm py-4")}>
-              No recent orders found.
+              {t("noRecentOrders")}
             </p>
           ) : (
             <div className={cn("overflow-x-auto")}>
-              <table className={cn("w-full text-left border-collapse")}>
+              <table className={cn("w-full text-start border-collapse")}>
                 <thead>
                   <tr
                     className={cn(
                       "border-b border-gray-200 text-xs font-bold text-gray-500 uppercase tracking-wider",
                     )}
                   >
-                    <th className={cn("py-3 px-4 whitespace-nowrap")}>
-                      Order ID
+                    <th className={cn("py-3 px-4 whitespace-nowrap text-start")}>
+                      {t("orderId")}
                     </th>
-                    <th className={cn("py-3 px-4 whitespace-nowrap")}>Date</th>
-                    <th className={cn("py-3 px-4 whitespace-nowrap")}>Items</th>
-                    <th className={cn("py-3 px-4 whitespace-nowrap")}>Total</th>
-                    <th className={cn("py-3 px-4 whitespace-nowrap")}>
-                      Status
+                    <th className={cn("py-3 px-4 whitespace-nowrap text-start")}>
+                      {t("date")}
+                    </th>
+                    <th className={cn("py-3 px-4 whitespace-nowrap text-start")}>
+                      {t("items")}
+                    </th>
+                    <th className={cn("py-3 px-4 whitespace-nowrap text-start")}>
+                      {t("total")}
+                    </th>
+                    <th className={cn("py-3 px-4 whitespace-nowrap text-start")}>
+                      {t("status")}
                     </th>
                   </tr>
                 </thead>
@@ -143,25 +152,25 @@ export const AdminDashboardPage = () => {
                           "py-3 px-4 text-gray-500 whitespace-nowrap",
                         )}
                       >
-                        {order.date || "Recent"}
+                        {order.date || t("recent")}
                       </td>
                       <td
                         className={cn(
                           "py-3 px-4 text-gray-700 whitespace-nowrap",
                         )}
                       >
-                        {order.items?.length || 0} items
+                        {order.items?.length || 0} {t("items")}
                       </td>
                       <td
                         className={cn(
                           "py-3 px-4 font-bold text-[#e60023] whitespace-nowrap",
                         )}
                       >
-                        EGP {order.total?.toFixed(2)}
+                        {formatPrice(order.total, t)}
                       </td>
                       <td className={cn("py-3 px-4 whitespace-nowrap")}>
                         <Badge variant="primary">
-                          {order.status || "Pending"}
+                          {order.status || t("pending")}
                         </Badge>
                       </td>
                     </tr>

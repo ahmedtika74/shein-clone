@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { cn } from "../../../utils/cn";
 import { updateOrderStatusThunk } from "../../../store/dataSlice";
 import { Modal } from "../../../components/ui/Modal";
@@ -9,6 +10,7 @@ export const RefundRequestModal = ({
   setRefundOrderId,
   dispatch,
 }) => {
+  const { t } = useTranslation(["storefront", "common"]);
   const [reason, setReason] = useState("");
 
   const handleSubmit = (e) => {
@@ -29,7 +31,7 @@ export const RefundRequestModal = ({
     <Modal
       isOpen={!!refundOrderId}
       onClose={() => setRefundOrderId(null)}
-      title="Request Refund"
+      title={t("requestRefund")}
       maxWidth="max-w-sm"
     >
       <div className={cn("text-center")}>
@@ -41,19 +43,19 @@ export const RefundRequestModal = ({
           <i className={cn("fa-solid fa-rotate-left text-3xl")}></i>
         </div>
         <p className={cn("text-gray-500 mb-6 text-sm")}>
-          Please provide a reason for requesting a refund for Order #
+          {t("provideRefundReason")}
           {refundOrderId}.
         </p>
 
         <form
           onSubmit={handleSubmit}
-          className={cn("flex flex-col gap-4 text-left")}
+          className={cn("flex flex-col gap-4 text-start")}
         >
           <textarea
             required
             value={reason}
             onChange={(e) => setReason(e.target.value)}
-            placeholder="Reason for refund..."
+            placeholder={t("reasonForRefundPlaceholder")}
             className={cn(
               "w-full h-24 p-3 border border-gray-300 rounded-xl outline-none focus:border-black resize-none text-sm",
             )}
@@ -67,7 +69,7 @@ export const RefundRequestModal = ({
                 "w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed",
               )}
             >
-              Submit Request
+              {t("submitRequest")}
             </Button>
             <Button
               type="button"
@@ -77,7 +79,7 @@ export const RefundRequestModal = ({
                 "w-full bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3.5 rounded-xl transition-all cursor-pointer",
               )}
             >
-              Cancel
+              {t("cancel")}
             </Button>
           </div>
         </form>

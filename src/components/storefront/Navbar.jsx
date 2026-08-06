@@ -1,17 +1,23 @@
 import { cn } from "../../utils/cn";
+import { useTranslation } from "react-i18next";
 import { Link, useSearchParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { selectCategories } from "../../store/dataSlice";
+import { getLocalizedString } from "../../utils/localization";
 
 export const Navbar = () => {
+  const { t, i18n } = useTranslation(["storefront", "common"]);
   const [searchParams] = useSearchParams();
   const currentCategory = searchParams.get("category");
 
   const categories = useSelector(selectCategories);
 
   const navItems = [
-    ...categories.map((c) => ({ label: c.name.toUpperCase(), category: c.name })),
-    { label: "SALE", category: "SALE", isSale: true },
+    ...categories.map((c) => ({
+      label: getLocalizedString(c, "name", i18n.language).toUpperCase(),
+      category: c.name || c.nameEn,
+    })),
+    { label: t("sale"), category: "SALE", isSale: true },
   ];
 
   return (
@@ -39,7 +45,7 @@ export const Navbar = () => {
               {!currentCategory && (
                 <span
                   className={cn(
-                    "absolute bottom-0 left-0 w-full h-[3px] bg-black rounded-t-md",
+                    "absolute bottom-0 start-0 w-full h-[3px] bg-black rounded-t-md",
                   )}
                 ></span>
               )}
@@ -63,7 +69,7 @@ export const Navbar = () => {
                 {currentCategory === item.category && (
                   <span
                     className={cn(
-                      "absolute bottom-0 left-0 w-full h-[3px] bg-black rounded-t-md",
+                      "absolute bottom-0 start-0 w-full h-[3px] bg-black rounded-t-md",
                     )}
                   ></span>
                 )}

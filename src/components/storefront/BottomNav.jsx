@@ -1,10 +1,12 @@
 import { cn } from "../../utils/cn";
+import { useTranslation } from "react-i18next";
 import { Link, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { selectCartCount } from "../../store/cartSlice";
 import { selectWishlistCount } from "../../store/wishlistSlice";
 
 export const BottomNav = ({ isMobileSearchOpen, setIsMobileSearchOpen }) => {
+  const { t } = useTranslation(["storefront", "common"]);
   const location = useLocation();
   const cartCount = useSelector(selectCartCount);
   const wishlistCount = useSelector(selectWishlistCount);
@@ -12,7 +14,7 @@ export const BottomNav = ({ isMobileSearchOpen, setIsMobileSearchOpen }) => {
   return (
     <div
       className={cn(
-        "md:hidden fixed bottom-0 left-0 w-full h-[60px] bg-white border-t border-gray-100 z-50 flex items-center justify-around pb-safe shadow-[0_-4px_10px_rgba(0,0,0,0.03)]",
+        "md:hidden fixed bottom-0 start-0 w-full h-[60px] bg-white border-t border-gray-100 z-50 flex items-center justify-around pb-safe shadow-[0_-4px_10px_rgba(0,0,0,0.03)]",
       )}
     >
       {/* Home */}
@@ -26,7 +28,7 @@ export const BottomNav = ({ isMobileSearchOpen, setIsMobileSearchOpen }) => {
         )}
       >
         <i className={cn("text-xl mb-1 fa-solid fa-house")}></i>
-        <span className={cn("text-[10px] font-semibold")}>Home</span>
+        <span className={cn("text-[10px] font-semibold")}>{t("home")}</span>
       </Link>
 
       {/* Search */}
@@ -65,7 +67,7 @@ export const BottomNav = ({ isMobileSearchOpen, setIsMobileSearchOpen }) => {
           {wishlistCount > 0 && (
             <span
               className={cn(
-                "absolute -top-1 -right-2 bg-[#e60023] text-white text-[9px] font-bold rounded-full h-3.5 min-w-[14px] px-1 flex items-center justify-center",
+                "absolute -top-1 -end-2 bg-[#e60023] text-white text-[9px] font-bold rounded-full h-3.5 min-w-[14px] px-1 flex items-center justify-center",
               )}
             >
               {wishlistCount}
@@ -90,7 +92,7 @@ export const BottomNav = ({ isMobileSearchOpen, setIsMobileSearchOpen }) => {
           {cartCount > 0 && (
             <span
               className={cn(
-                "absolute -top-1 -right-2 bg-[#e60023] text-white text-[9px] font-bold rounded-full h-3.5 min-w-[14px] px-1 flex items-center justify-center",
+                "absolute -top-1 -end-2 bg-[#e60023] text-white text-[9px] font-bold rounded-full h-3.5 min-w-[14px] px-1 flex items-center justify-center",
               )}
             >
               {cartCount}

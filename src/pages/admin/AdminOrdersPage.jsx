@@ -2,8 +2,10 @@ import { cn } from "../../utils/cn";
 import { OrderFilters } from "./AdminOrders/OrderFilters";
 import { OrdersTable } from "./AdminOrders/OrdersTable";
 import { useOrdersLogic } from "./AdminOrders/useOrdersLogic";
+import { useTranslation } from "react-i18next";
 
 export const AdminOrdersPage = () => {
+  const { t } = useTranslation("admin");
   const logic = useOrdersLogic();
 
   return (
@@ -25,7 +27,7 @@ export const AdminOrdersPage = () => {
               "fa-solid fa-cart-flatbed text-5xl text-gray-300 mb-3 block",
             )}
           ></i>
-          No orders found under this status.
+          {t("noOrdersFoundStatus")}
         </div>
       ) : (
         <OrdersTable {...logic} />
