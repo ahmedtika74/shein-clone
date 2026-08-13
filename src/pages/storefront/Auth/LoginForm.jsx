@@ -32,7 +32,7 @@ export const LoginForm = ({
           className={cn("ps-11 h-12")}
         />
       </div>
-      <div className={cn("relative mb-5")}>
+      <div className={cn("relative mb-2")}>
         <i
           className={cn(
             "fa-solid fa-lock text-gray-500 absolute start-4 top-[14px] z-10",
@@ -45,6 +45,17 @@ export const LoginForm = ({
           onChange={(e) => setLoginPassword(e.target.value)}
           className={cn("ps-11 h-12")}
         />
+      </div>
+      <div className={cn("forget text-end mb-5")}>
+        <button
+          type="button"
+          onClick={() => setMode("forget")}
+          className={cn(
+            "text-xs text-gray-600 hover:text-black font-semibold cursor-pointer",
+          )}
+        >
+          {t("forgotPassword")}
+        </button>
       </div>
       <Button type="submit" disabled={isLoading} className={cn("w-full h-12")}>
         {isLoading ? t("signingIn") : t("signIn")}

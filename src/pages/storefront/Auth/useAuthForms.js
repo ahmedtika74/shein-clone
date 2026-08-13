@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import {
   loginUserThunk,
   registerUserThunk,
+  forgotPasswordThunk,
   fetchAddressesThunk,
   fetchProfileThunk,
   selectAuthStatus,
@@ -32,6 +33,9 @@ export const useAuthForms = () => {
   const [regEmail, setRegEmail] = useState("");
   const [regPassword, setRegPassword] = useState("");
   const [regMsg, setRegMsg] = useState(emptyMessage);
+
+  const [forgetEmail, setForgetEmail] = useState("");
+  const [forgetMsg, setForgetMsg] = useState(emptyMessage);
 
   const syncAccountData = () => {
     dispatch(fetchWishlistThunk());
@@ -76,6 +80,26 @@ export const useAuthForms = () => {
     );
   };
 
+  const handleForgetSubmit = async (event) => {
+    event.preventDefault();
+    setForgetMsg(emptyMessage);
+    if (!forgetEmail.trim()) {
+      setForgetMsg({ text: t("enterEmail"), isError: true });
+      return;
+    }
+    try {
+      await dispatch(
+        forgotPasswordThunk({ email: forgetEmail.trim() }),
+      ).unwrap();
+      setForgetMsg({ text: t("forgotPasswordSuccess"), isError: false });
+    } catch (error) {
+      setForgetMsg({
+        text: error || t("forgotPasswordFailed"),
+        isError: true,
+      });
+    }
+  };
+
   return {
     mode,
     setMode,
@@ -94,5 +118,9 @@ export const useAuthForms = () => {
     setRegPassword,
     regMsg,
     handleRegisterSubmit,
+    forgetEmail,
+    setForgetEmail,
+    forgetMsg,
+    handleForgetSubmit,
   };
 };

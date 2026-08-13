@@ -44,6 +44,7 @@ import { UserDashboardPage } from "./pages/storefront/UserDashboard";
 import { ContactPage } from "./pages/storefront/ContactPage";
 import { AboutPage } from "./pages/storefront/AboutPage";
 import { ReturnsPage } from "./pages/storefront/ReturnsPage";
+import { ResetPasswordPage } from "./pages/storefront/Auth/ResetPasswordPage";
 
 import { AdminLayout } from "./components/admin/AdminLayout";
 import { AdminLoginPage } from "./pages/admin/AdminLoginPage";
@@ -157,6 +158,7 @@ export function App() {
               <Route path="cart" element={<CartPage />} />
               <Route path="wishlist" element={<WishlistPage />} />
               <Route path="login" element={<LoginPage />} />
+              <Route path="reset-password" element={<ResetPasswordPage />} />
               <Route path="contact" element={<ContactPage />} />
               <Route path="about" element={<AboutPage />} />
               <Route path="returns" element={<ReturnsPage />} />

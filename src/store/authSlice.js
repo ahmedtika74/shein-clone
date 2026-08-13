@@ -83,6 +83,26 @@ export const changePasswordThunk = asThunk(
     apiClient.post("/auth/change-password", { currentPassword, newPassword }),
 );
 
+export const forgotPasswordThunk = asThunk(
+  "auth/forgotPassword",
+  ({ email }) =>
+    apiClient.post(
+      "/auth/forgot-password",
+      { email },
+      { authScope: "none" },
+    ),
+);
+
+export const resetPasswordThunk = asThunk(
+  "auth/resetPassword",
+  ({ email, token, newPassword }) =>
+    apiClient.post(
+      "/auth/reset-password",
+      { email, token, newPassword },
+      { authScope: "none" },
+    ),
+);
+
 export const fetchAddressesThunk = asThunk("auth/fetchAddresses", async () =>
   toList(await apiClient.get("/addresses")).map(toAddress),
 );
@@ -248,6 +268,8 @@ const authSlice = createSlice({
             loginUserThunk.pending.type,
             registerUserThunk.pending.type,
             loginAdminThunk.pending.type,
+            forgotPasswordThunk.pending.type,
+            resetPasswordThunk.pending.type,
           ].includes(action.type),
         (state) => {
           state.status = "loading";
@@ -256,9 +278,21 @@ const authSlice = createSlice({
       .addMatcher(
         (action) =>
           [
+            forgotPasswordThunk.fulfilled.type,
+            resetPasswordThunk.fulfilled.type,
+          ].includes(action.type),
+        (state) => {
+          state.status = "succeeded";
+        },
+      )
+      .addMatcher(
+        (action) =>
+          [
             loginUserThunk.rejected.type,
             registerUserThunk.rejected.type,
             loginAdminThunk.rejected.type,
+            forgotPasswordThunk.rejected.type,
+            resetPasswordThunk.rejected.type,
           ].includes(action.type),
         (state) => {
           state.status = "failed";
