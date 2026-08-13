@@ -66,7 +66,11 @@ export const ProductInfo = ({
         )}
       </div>
 
-      <p className={cn("desc text-gray-600 leading-relaxed mb-6")}>
+      <p
+        className={cn(
+          "desc text-gray-600 leading-relaxed mb-6 whitespace-pre-line",
+        )}
+      >
         {getLocalizedString(product, "description", i18n.language)}
       </p>
 

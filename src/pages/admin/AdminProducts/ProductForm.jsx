@@ -41,18 +41,6 @@ export const ProductForm = ({
           onChange={(event) => setField("nameAr")(event.target.value)}
           placeholder={`${t("egProductName")} (AR)`}
         />
-        <Input
-          label={t("descriptionEn")}
-          value={form.descriptionEn}
-          onChange={(event) => setField("descriptionEn")(event.target.value)}
-          placeholder={t("descriptionPlaceholderEn")}
-        />
-        <Input
-          label={t("descriptionAr")}
-          value={form.descriptionAr}
-          onChange={(event) => setField("descriptionAr")(event.target.value)}
-          placeholder={t("descriptionPlaceholderAr")}
-        />
 
         <Input
           label={t("newPriceEgp")}
@@ -112,7 +100,49 @@ export const ProductForm = ({
           onChange={(event) => setField("mainIndex")(event.target.value)}
           placeholder="0"
         />
+      </div>
 
+      <div className={cn("grid grid-cols-1 gap-6")}>
+        <div className={cn("flex flex-col gap-2")}>
+          <label
+            htmlFor="product-description-en"
+            className={cn("font-bold text-sm text-gray-800")}
+          >
+            {t("descriptionEn")}
+          </label>
+          <textarea
+            id="product-description-en"
+            rows={5}
+            value={form.descriptionEn}
+            onChange={(event) => setField("descriptionEn")(event.target.value)}
+            placeholder={t("descriptionPlaceholderEn")}
+            className={cn(
+              "w-full min-h-[120px] px-4 py-3 border border-gray-300 rounded-lg outline-none focus:border-[#e60023] text-sm bg-white resize-y",
+            )}
+          />
+        </div>
+        <div className={cn("flex flex-col gap-2")}>
+          <label
+            htmlFor="product-description-ar"
+            className={cn("font-bold text-sm text-gray-800")}
+          >
+            {t("descriptionAr")}
+          </label>
+          <textarea
+            id="product-description-ar"
+            rows={5}
+            value={form.descriptionAr}
+            onChange={(event) => setField("descriptionAr")(event.target.value)}
+            placeholder={t("descriptionPlaceholderAr")}
+            className={cn(
+              "w-full min-h-[120px] px-4 py-3 border border-gray-300 rounded-lg outline-none focus:border-[#e60023] text-sm bg-white resize-y",
+            )}
+            dir="rtl"
+          />
+        </div>
+      </div>
+
+      <div className={cn("grid grid-cols-1 md:grid-cols-4 gap-6")}>
         <ColorPicker
           colors={form.colors}
           onAdd={addColor}
