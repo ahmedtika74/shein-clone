@@ -346,5 +346,16 @@
   "saveAbout": "Save About Page",
   "aboutSaved": "About page saved successfully!",
   "failedToLoadAbout": "Failed to load about page",
-  "failedToSaveAbout": "Failed to save about page"
+  "failedToSaveAbout": "Failed to save about page",
+  "returns": "Returns",
+  "returnsPageHint": "Content shown on the public Returns page.",
+  "returnsTitlePlaceholderEn": "Returns & Exchanges",
+  "returnsTitlePlaceholderAr": "الإرجاع والاستبدال",
+  "returnsContentPlaceholderEn": "Write your returns policy in English...",
+  "returnsContentPlaceholderAr": "اكتب سياسة الإرجاع بالعربية...",
+  "returnsImageOptional": "Cover image (optional) — upload or paste a URL",
+  "saveReturns": "Save Returns Page",
+  "returnsSaved": "Returns page saved successfully!",
+  "failedToLoadReturns": "Failed to load returns page",
+  "failedToSaveReturns": "Failed to save returns page"
 }

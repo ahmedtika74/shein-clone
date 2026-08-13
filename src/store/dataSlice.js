@@ -16,6 +16,9 @@ import {
   toAboutPage,
   toAboutPagePayload,
   emptyAboutPage,
+  toReturnsPage,
+  toReturnsPagePayload,
+  emptyReturnsPage,
   toCategory,
   toCategoryPayload,
   toFreeShippingPayload,
@@ -426,6 +429,22 @@ export const updateAboutPageThunk = createAsyncThunk(
   }),
 );
 
+export const fetchReturnsPageThunk = createAsyncThunk(
+  "data/fetchReturnsPage",
+  withErrorMessage(async () =>
+    toReturnsPage(await apiClient.get("/returns", { authScope: "none" })),
+  ),
+);
+
+export const updateReturnsPageThunk = createAsyncThunk(
+  "data/updateReturnsPage",
+  withErrorMessage(async (form) => {
+    const payload = toReturnsPagePayload(form);
+    await apiClient.put("/returns", payload, { authScope: "admin" });
+    return payload;
+  }),
+);
+
 const emptySiteSettings = {
   logoUrl: "",
   siteName: "",
@@ -453,6 +472,7 @@ const initialState = {
   freeShipping: { enabled: false, threshold: 0 },
   siteSettings: emptySiteSettings,
   aboutPage: emptyAboutPage,
+  returnsPage: emptyReturnsPage,
 };
 
 /** Collections that only need `state[key] = payload` on fulfilment. */
@@ -607,6 +627,12 @@ const dataSlice = createSlice({
       .addCase(updateAboutPageThunk.fulfilled, (state, action) => {
         state.aboutPage = { ...emptyAboutPage, ...action.payload };
       })
+      .addCase(fetchReturnsPageThunk.fulfilled, (state, action) => {
+        state.returnsPage = action.payload;
+      })
+      .addCase(updateReturnsPageThunk.fulfilled, (state, action) => {
+        state.returnsPage = { ...emptyReturnsPage, ...action.payload };
+      })
       .addMatcher(isPending, (state) => {
         state.status = "loading";
         state.error = null;
@@ -645,6 +671,7 @@ export const selectDashboardSummary = (state) => state.data.dashboardSummary;
 export const selectFreeShipping = (state) => state.data.freeShipping;
 export const selectSiteSettings = (state) => state.data.siteSettings;
 export const selectAboutPage = (state) => state.data.aboutPage;
+export const selectReturnsPage = (state) => state.data.returnsPage;
 
 export const selectTopSellingProducts = createSelector(
   [selectOrders, selectProducts],

@@ -43,6 +43,7 @@ import { LoginPage } from "./pages/storefront/LoginPage";
 import { UserDashboardPage } from "./pages/storefront/UserDashboard";
 import { ContactPage } from "./pages/storefront/ContactPage";
 import { AboutPage } from "./pages/storefront/AboutPage";
+import { ReturnsPage } from "./pages/storefront/ReturnsPage";
 
 import { AdminLayout } from "./components/admin/AdminLayout";
 import { AdminLoginPage } from "./pages/admin/AdminLoginPage";
@@ -59,6 +60,7 @@ import { AdminSettingsPage } from "./pages/admin/AdminSettingsPage";
 import { AdminReportsPage } from "./pages/admin/AdminReports";
 import { AdminContactMessagesPage } from "./pages/admin/AdminContactMessagesPage";
 import { AdminAboutPage } from "./pages/admin/AdminAboutPage";
+import { AdminReturnsPage } from "./pages/admin/AdminReturnsPage";
 
 /** Public data every visitor needs before the shell can render. */
 const bootstrapThunks = [
@@ -157,6 +159,7 @@ export function App() {
               <Route path="login" element={<LoginPage />} />
               <Route path="contact" element={<ContactPage />} />
               <Route path="about" element={<AboutPage />} />
+              <Route path="returns" element={<ReturnsPage />} />
               <Route
                 path="user-dashboard"
                 element={
@@ -196,6 +199,7 @@ export function App() {
                 element={<AdminContactMessagesPage />}
               />
               <Route path="about" element={<AdminAboutPage />} />
+              <Route path="returns" element={<AdminReturnsPage />} />
             </Route>
 
             <Route path="*" element={<Navigate to="/" replace />} />

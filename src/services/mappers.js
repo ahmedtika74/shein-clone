@@ -244,6 +244,30 @@ export const toAboutPagePayload = (form) => ({
   imageUrl: form.imageUrl ?? "",
 });
 
+export const emptyReturnsPage = {
+  titleEn: "",
+  titleAr: "",
+  contentEn: "",
+  contentAr: "",
+  imageUrl: "",
+};
+
+export const toReturnsPage = (dto) => ({
+  titleEn: dto?.titleEn ?? "",
+  titleAr: dto?.titleAr ?? "",
+  contentEn: dto?.contentEn ?? "",
+  contentAr: dto?.contentAr ?? "",
+  imageUrl: dto?.imageUrl ?? "",
+});
+
+export const toReturnsPagePayload = (form) => ({
+  titleEn: form.titleEn ?? "",
+  titleAr: form.titleAr ?? "",
+  contentEn: form.contentEn ?? "",
+  contentAr: form.contentAr ?? "",
+  imageUrl: form.imageUrl ?? "",
+});
+
 /** Map API status variants (RefundRequested, refund_requested, …) to UI labels. */
 export const normalizeOrderStatus = (status) => {
   if (status == null || status === "") return "Pending";

@@ -346,5 +346,16 @@
   "saveAbout": "حفظ صفحة من نحن",
   "aboutSaved": "تم حفظ صفحة من نحن بنجاح!",
   "failedToLoadAbout": "فشل تحميل صفحة من نحن",
-  "failedToSaveAbout": "فشل حفظ صفحة من نحن"
+  "failedToSaveAbout": "فشل حفظ صفحة من نحن",
+  "returns": "الإرجاع",
+  "returnsPageHint": "المحتوى المعروض في صفحة الإرجاع للزوار.",
+  "returnsTitlePlaceholderEn": "Returns & Exchanges",
+  "returnsTitlePlaceholderAr": "الإرجاع والاستبدال",
+  "returnsContentPlaceholderEn": "Write your returns policy in English...",
+  "returnsContentPlaceholderAr": "اكتب سياسة الإرجاع بالعربية...",
+  "returnsImageOptional": "صورة الغلاف (اختياري) — رفع أو رابط",
+  "saveReturns": "حفظ صفحة الإرجاع",
+  "returnsSaved": "تم حفظ صفحة الإرجاع بنجاح!",
+  "failedToLoadReturns": "فشل تحميل صفحة الإرجاع",
+  "failedToSaveReturns": "فشل حفظ صفحة الإرجاع"
 }

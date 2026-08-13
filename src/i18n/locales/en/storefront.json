@@ -265,5 +265,9 @@
   "aboutLoadFailed": "Could not load the About page. Please try again later.",
   "aboutPlaceholderBadge": "Preview content",
   "aboutPlaceholderTitle": "Our Story",
-  "aboutPlaceholderContent": "We believe fashion should feel personal, confident, and easy.\n\nFrom everyday essentials to statement pieces, we curate collections that help you express your style with quality you can trust.\n\nOur mission is simple: bring you modern looks, fair prices, and a shopping experience that feels smooth from discovery to delivery.\n\nThank you for being part of our journey — we’re just getting started."
+  "aboutPlaceholderContent": "We believe fashion should feel personal, confident, and easy.\n\nFrom everyday essentials to statement pieces, we curate collections that help you express your style with quality you can trust.\n\nOur mission is simple: bring you modern looks, fair prices, and a shopping experience that feels smooth from discovery to delivery.\n\nThank you for being part of our journey — we’re just getting started.",
+  "returnsEmpty": "Returns policy content will appear here once it is published.",
+  "returnsPlaceholderBadge": "Preview content",
+  "returnsPlaceholderTitle": "Returns & Exchanges",
+  "returnsPlaceholderContent": "We want you to love what you ordered.\n\nYou can request a return within 14 days of delivery if the item is unused, in original condition, and with tags attached.\n\nHow to return:\n1. Open your order from your account dashboard.\n2. Submit a return or refund request with a short reason.\n3. Our team will review it and guide you through the next steps.\n\nPlease note: sale items and personal-care products may have special return rules. Shipping fees are non-refundable unless the item arrived damaged or incorrect."
 }

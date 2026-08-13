@@ -26,7 +26,7 @@ export const Footer = () => {
             {t("contactUs")}
           </Link>
           <Link
-            to="#"
+            to="/returns"
             className={cn("text-gray-300 hover:text-white transition-colors")}
           >
             {t("returns")}

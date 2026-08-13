@@ -41,6 +41,11 @@ export const AdminSidebar = ({ isOpen, onClose }) => {
       icon: "fa-envelope",
     },
     { label: t("aboutUs"), path: "/admin/about", icon: "fa-circle-info" },
+    {
+      label: t("returns"),
+      path: "/admin/returns",
+      icon: "fa-rotate-left",
+    },
     { label: t("siteSettings"), path: "/admin/settings", icon: "fa-gear" },
   ];
 
