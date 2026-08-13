@@ -1,9 +1,11 @@
 import { cn } from "../../../utils/cn";
 import { Input, Button } from "../../../components/ui";
 import { useTranslation } from "react-i18next";
+import { GoogleSignInButton } from "./GoogleSignInButton";
 
 export const LoginForm = ({
   handleLoginSubmit,
+  handleGoogleCredential,
   loginEmail,
   setLoginEmail,
   loginPassword,
@@ -60,6 +62,10 @@ export const LoginForm = ({
       <Button type="submit" disabled={isLoading} className={cn("w-full h-12")}>
         {isLoading ? t("signingIn") : t("signIn")}
       </Button>
+      <GoogleSignInButton
+        onCredential={handleGoogleCredential}
+        disabled={isLoading}
+      />
       {loginMsg.text && (
         <p
           className={cn(

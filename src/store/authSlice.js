@@ -69,6 +69,10 @@ export const loginAdminThunk = asThunk(
     ),
 );
 
+export const googleAuthThunk = asThunk("auth/googleAuth", ({ idToken }) =>
+  apiClient.post("/auth/google", { idToken }, { authScope: "none" }),
+);
+
 export const fetchProfileThunk = asThunk("auth/fetchProfile", async () =>
   toProfile(await apiClient.get("/profile")),
 );
@@ -256,6 +260,7 @@ const authSlice = createSlice({
           [
             loginUserThunk.fulfilled.type,
             registerUserThunk.fulfilled.type,
+            googleAuthThunk.fulfilled.type,
           ].includes(action.type),
         (state, action) => {
           state.status = "succeeded";
@@ -268,6 +273,7 @@ const authSlice = createSlice({
             loginUserThunk.pending.type,
             registerUserThunk.pending.type,
             loginAdminThunk.pending.type,
+            googleAuthThunk.pending.type,
             forgotPasswordThunk.pending.type,
             resetPasswordThunk.pending.type,
           ].includes(action.type),
@@ -291,6 +297,7 @@ const authSlice = createSlice({
             loginUserThunk.rejected.type,
             registerUserThunk.rejected.type,
             loginAdminThunk.rejected.type,
+            googleAuthThunk.rejected.type,
             forgotPasswordThunk.rejected.type,
             resetPasswordThunk.rejected.type,
           ].includes(action.type),

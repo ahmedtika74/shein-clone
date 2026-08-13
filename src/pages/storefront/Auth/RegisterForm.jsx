@@ -1,9 +1,11 @@
 import { cn } from "../../../utils/cn";
 import { Input, Button } from "../../../components/ui";
 import { useTranslation } from "react-i18next";
+import { GoogleSignInButton } from "./GoogleSignInButton";
 
 export const RegisterForm = ({
   handleRegisterSubmit,
+  handleGoogleCredential,
   regName,
   setRegName,
   regEmail,
@@ -65,6 +67,10 @@ export const RegisterForm = ({
       <Button type="submit" disabled={isLoading} className={cn("w-full h-12")}>
         {isLoading ? t("registering") : t("registerNow")}
       </Button>
+      <GoogleSignInButton
+        onCredential={handleGoogleCredential}
+        disabled={isLoading}
+      />
       {regMsg.text && (
         <p
           className={cn(

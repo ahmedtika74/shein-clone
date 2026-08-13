@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import {
   loginUserThunk,
   registerUserThunk,
+  googleAuthThunk,
   forgotPasswordThunk,
   fetchAddressesThunk,
   fetchProfileThunk,
@@ -100,6 +101,22 @@ export const useAuthForms = () => {
     }
   };
 
+  const handleGoogleCredential = async (idToken) => {
+    const setMessage = mode === "register" ? setRegMsg : setLoginMsg;
+    setMessage(emptyMessage);
+    if (!idToken) {
+      setMessage({ text: t("googleAuthFailed"), isError: true });
+      return;
+    }
+    try {
+      await dispatch(googleAuthThunk({ idToken })).unwrap();
+      syncAccountData();
+      navigate(redirectTo, { replace: true });
+    } catch (error) {
+      setMessage({ text: error || t("googleAuthFailed"), isError: true });
+    }
+  };
+
   return {
     mode,
     setMode,
@@ -122,5 +139,6 @@ export const useAuthForms = () => {
     setForgetEmail,
     forgetMsg,
     handleForgetSubmit,
+    handleGoogleCredential,
   };
 };
