@@ -250,5 +250,15 @@
   "nextSlide": "الشريحة التالية",
   "goToSlide": "الانتقال إلى الشريحة {{number}}",
   "close": "إغلاق",
-  "openMenu": "فتح القائمة"
+  "openMenu": "فتح القائمة",
+  "store": "متجرنا",
+  "contactIntro": "لديك سؤال؟ أرسل رسالة إلى {{site}} وسنعاود التواصل معك.",
+  "optional": "اختياري",
+  "contactSubject": "الموضوع",
+  "contactMessage": "الرسالة",
+  "contactMessagePlaceholder": "اكتب رسالتك هنا...",
+  "sendMessage": "إرسال الرسالة",
+  "sending": "جاري الإرسال...",
+  "contactSendSuccess": "تم إرسال رسالتك بنجاح. شكراً لك!",
+  "contactSendFailed": "تعذر إرسال الرسالة. يرجى المحاولة مرة أخرى."
 }

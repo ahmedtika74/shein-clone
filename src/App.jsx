@@ -41,6 +41,7 @@ import { CartPage } from "./pages/storefront/Cart";
 import { WishlistPage } from "./pages/storefront/WishlistPage";
 import { LoginPage } from "./pages/storefront/LoginPage";
 import { UserDashboardPage } from "./pages/storefront/UserDashboard";
+import { ContactPage } from "./pages/storefront/ContactPage";
 
 import { AdminLayout } from "./components/admin/AdminLayout";
 import { AdminLoginPage } from "./pages/admin/AdminLoginPage";
@@ -55,6 +56,7 @@ import { AdminPaymentMethodsPage } from "./pages/admin/AdminPaymentMethodsPage";
 import { AdminShippingRatesPage } from "./pages/admin/AdminShippingRatesPage";
 import { AdminSettingsPage } from "./pages/admin/AdminSettingsPage";
 import { AdminReportsPage } from "./pages/admin/AdminReports";
+import { AdminContactMessagesPage } from "./pages/admin/AdminContactMessagesPage";
 
 /** Public data every visitor needs before the shell can render. */
 const bootstrapThunks = [
@@ -151,6 +153,7 @@ export function App() {
               <Route path="cart" element={<CartPage />} />
               <Route path="wishlist" element={<WishlistPage />} />
               <Route path="login" element={<LoginPage />} />
+              <Route path="contact" element={<ContactPage />} />
               <Route
                 path="user-dashboard"
                 element={
@@ -185,6 +188,10 @@ export function App() {
               />
               <Route path="settings" element={<AdminSettingsPage />} />
               <Route path="reports" element={<AdminReportsPage />} />
+              <Route
+                path="contact-messages"
+                element={<AdminContactMessagesPage />}
+              />
             </Route>
 
             <Route path="*" element={<Navigate to="/" replace />} />

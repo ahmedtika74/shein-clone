@@ -73,7 +73,11 @@ const resolveAuthScope = (config) =>
 apiClient.interceptors.request.use((config) => {
   const scope = resolveAuthScope(config);
   const token =
-    scope === "admin" ? localStorage.getItem(ADMIN_TOKEN_KEY) : readUserToken();
+    scope === "none"
+      ? null
+      : scope === "admin"
+        ? localStorage.getItem(ADMIN_TOKEN_KEY)
+        : readUserToken();
 
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;

@@ -23,6 +23,8 @@ import {
   toPaymentMethodPayload,
   toProduct,
   toProductPayload,
+  toContactMessage,
+  toContactMessagePayload,
   toReview,
   toReviewPayload,
   toShippingRatePayload,
@@ -363,6 +365,48 @@ export const fetchRecentOrdersThunk = createAsyncThunk(
   ),
 );
 
+export const submitContactMessageThunk = createAsyncThunk(
+  "data/submitContactMessage",
+  withErrorMessage(async (form) =>
+    toContactMessage(
+      await apiClient.post("/contact-messages", toContactMessagePayload(form), {
+        authScope: "none",
+      }),
+    ),
+  ),
+);
+
+export const fetchContactMessagesThunk = createAsyncThunk(
+  "data/fetchContactMessages",
+  withErrorMessage(async (status) => {
+    const params = { PageNumber: 1, PageSize: ALL_ITEMS_PAGE_SIZE };
+    if (status && status !== "ALL") params.status = status;
+    return toList(
+      await apiClient.get("/contact-messages", { params, authScope: "admin" }),
+    ).map(toContactMessage);
+  }),
+);
+
+export const updateContactMessageStatusThunk = createAsyncThunk(
+  "data/updateContactMessageStatus",
+  withErrorMessage(async ({ id, status }) => {
+    await apiClient.patch(
+      `/contact-messages/${id}/status`,
+      { status },
+      { authScope: "admin" },
+    );
+    return { id, status };
+  }),
+);
+
+export const deleteContactMessageThunk = createAsyncThunk(
+  "data/deleteContactMessage",
+  withErrorMessage(async (id) => {
+    await apiClient.delete(`/contact-messages/${id}`, { authScope: "admin" });
+    return id;
+  }),
+);
+
 const emptySiteSettings = {
   logoUrl: "",
   siteName: "",
@@ -385,6 +429,7 @@ const initialState = {
   shippingRates: [],
   announcements: [],
   recentOrders: [],
+  contactMessages: [],
   dashboardSummary: null,
   freeShipping: { enabled: false, threshold: 0 },
   siteSettings: emptySiteSettings,
@@ -522,6 +567,20 @@ const dataSlice = createSlice({
       .addCase(fetchDashboardSummaryThunk.fulfilled, (state, action) => {
         state.dashboardSummary = action.payload;
       })
+      .addCase(fetchContactMessagesThunk.fulfilled, (state, action) => {
+        state.contactMessages = action.payload;
+      })
+      .addCase(updateContactMessageStatusThunk.fulfilled, (state, action) => {
+        const message = state.contactMessages.find(
+          (item) => String(item.id) === String(action.payload.id),
+        );
+        if (message) message.status = action.payload.status;
+      })
+      .addCase(deleteContactMessageThunk.fulfilled, (state, action) => {
+        state.contactMessages = state.contactMessages.filter(
+          (item) => String(item.id) !== String(action.payload),
+        );
+      })
       .addMatcher(isPending, (state) => {
         state.status = "loading";
         state.error = null;
@@ -555,6 +614,7 @@ export const selectPaymentMethods = (state) => state.data.paymentMethods;
 export const selectShippingRates = (state) => state.data.shippingRates;
 export const selectAnnouncements = (state) => state.data.announcements;
 export const selectRecentOrders = (state) => state.data.recentOrders;
+export const selectContactMessages = (state) => state.data.contactMessages;
 export const selectDashboardSummary = (state) => state.data.dashboardSummary;
 export const selectFreeShipping = (state) => state.data.freeShipping;
 export const selectSiteSettings = (state) => state.data.siteSettings;

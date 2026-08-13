@@ -381,6 +381,30 @@ export const toReviewPayload = (form) => ({
   comment: form.comment ?? "",
 });
 
+const normalizeContactStatus = (status) => {
+  const value = String(status || "Pending").toLowerCase();
+  return value === "completed" ? "Completed" : "Pending";
+};
+
+export const toContactMessage = (dto) => ({
+  id: dto?.id,
+  name: dto?.name ?? "",
+  email: dto?.email ?? "",
+  phone: dto?.phone ?? "",
+  subject: dto?.subject ?? "",
+  message: dto?.message ?? "",
+  status: normalizeContactStatus(dto?.status),
+  createdAt: dto?.createdAt ?? null,
+});
+
+export const toContactMessagePayload = (form) => ({
+  name: form.name?.trim() ?? "",
+  email: form.email?.trim() ?? "",
+  phone: form.phone?.trim() ?? "",
+  subject: form.subject?.trim() ?? "",
+  message: form.message?.trim() ?? "",
+});
+
 /** Matches OrderCreateDto. */
 export const toOrderPayload = ({
   customerName,

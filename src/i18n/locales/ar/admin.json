@@ -319,5 +319,15 @@
   "failedToDeleteOffer": "فشل حذف العرض",
   "enterValidThreshold": "أدخل حداً صالحاً",
   "duplicateVariantKeys": "لونان يشتركان في نفس الاسم الإنجليزي (أو مقاسان بنفس الاسم). مفاتيح المخزون يجب أن تكون فريدة — غيّر اسم اللون/المقاس (مثل Black / Black 2).",
-  "uncategorized": "بدون فئة"
+  "uncategorized": "بدون فئة",
+  "contactMessages": "الرسائل",
+  "contactMessagesHint": "الرسائل المرسلة من صفحة اتصل بنا.",
+  "noContactMessages": "لا توجد رسائل.",
+  "allStatuses": "الكل",
+  "markCompleted": "تعيين كمكتمل",
+  "markPending": "تعيين كقيد الانتظار",
+  "confirmDeleteMessage": "هل أنت متأكد من حذف هذه الرسالة؟ لا يمكن التراجع عن هذا الإجراء.",
+  "failedToLoadMessages": "فشل تحميل الرسائل",
+  "failedToUpdateMessageStatus": "فشل تحديث حالة الرسالة",
+  "failedToDeleteMessage": "فشل حذف الرسالة"
 }

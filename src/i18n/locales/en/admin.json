@@ -319,5 +319,15 @@
   "failedToDeleteOffer": "Failed to delete offer",
   "enterValidThreshold": "Enter a valid threshold",
   "duplicateVariantKeys": "Two colors share the same English name (or two sizes share a name). Stock keys must be unique — rename the color/size (e.g. Black / Black 2).",
-  "uncategorized": "Uncategorized"
+  "uncategorized": "Uncategorized",
+  "contactMessages": "Messages",
+  "contactMessagesHint": "Messages submitted from the Contact Us page.",
+  "noContactMessages": "No contact messages found.",
+  "allStatuses": "All",
+  "markCompleted": "Mark completed",
+  "markPending": "Mark pending",
+  "confirmDeleteMessage": "Are you sure you want to delete this message? This cannot be undone.",
+  "failedToLoadMessages": "Failed to load messages",
+  "failedToUpdateMessageStatus": "Failed to update message status",
+  "failedToDeleteMessage": "Failed to delete message"
 }

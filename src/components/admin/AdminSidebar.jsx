@@ -35,6 +35,11 @@ export const AdminSidebar = ({ isOpen, onClose }) => {
       icon: "fa-truck",
     },
     { label: t("orders"), path: "/admin/orders", icon: "fa-cart-shopping" },
+    {
+      label: t("contactMessages"),
+      path: "/admin/contact-messages",
+      icon: "fa-envelope",
+    },
     { label: t("siteSettings"), path: "/admin/settings", icon: "fa-gear" },
   ];
 
