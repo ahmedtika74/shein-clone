@@ -4,23 +4,31 @@ import { cn } from "../../../utils/cn";
 import { Pagination } from "../../../components/common/Pagination";
 import { Input, Button } from "../../../components/ui";
 import { getLocalizedString } from "../../../utils/localization";
+import { getImageUrl } from "../../../utils/getImageUrl";
+import { formatPrice } from "../../../utils/formatPrice";
+import { getTotalStock } from "../../../utils/variants";
+
+const PRODUCTS_PER_PAGE = 10;
 
 export const ProductsTable = ({ products, categories, onEdit, onDelete }) => {
   const { t, i18n } = useTranslation(["admin", "common"]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterCategory, setFilterCategory] = useState("ALL");
+  const [filterCategoryId, setFilterCategoryId] = useState("ALL");
   const [currentPage, setCurrentPage] = useState(1);
-  const productsPerPage = 10;
 
-  const filteredProducts = products.filter((p) => {
-    const localizedName = getLocalizedString(p, "name", i18n.language) || "";
+  const filteredProducts = products.filter((product) => {
+    const localizedName = getLocalizedString(product, "name", i18n.language);
     const matchesSearch = localizedName
       .toLowerCase()
       .includes(searchQuery.toLowerCase());
     const matchesCategory =
-      filterCategory === "ALL" || p.category === filterCategory;
+      filterCategoryId === "ALL" ||
+      String(product.categoryId) === filterCategoryId;
+
     return matchesSearch && matchesCategory;
   });
+
+  const productsPerPage = PRODUCTS_PER_PAGE;
 
   const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
   const currentProducts = filteredProducts.slice(
@@ -53,9 +61,10 @@ export const ProductsTable = ({ products, categories, onEdit, onDelete }) => {
           />
         </div>
         <select
-          value={filterCategory}
+          aria-label={t("category")}
+          value={filterCategoryId}
           onChange={(e) => {
-            setFilterCategory(e.target.value);
+            setFilterCategoryId(e.target.value);
             setCurrentPage(1);
           }}
           className={cn(
@@ -63,9 +72,9 @@ export const ProductsTable = ({ products, categories, onEdit, onDelete }) => {
           )}
         >
           <option value="ALL">{t("allCategories")}</option>
-          {categories.map((c) => (
-            <option key={c.id} value={c.name}>
-              {c.name}
+          {categories.map((category) => (
+            <option key={category.id} value={String(category.id)}>
+              {getLocalizedString(category, "name", i18n.language)}
             </option>
           ))}
         </select>
@@ -115,21 +124,13 @@ export const ProductsTable = ({ products, categories, onEdit, onDelete }) => {
                 </tr>
               ) : (
                 currentProducts.map((p) => {
-                  const mainImg =
-                    p.images?.[p.mainIndex || 0] || p.img || "/images/top.jpg";
-
-                  const totalStock = p.variantsStock
-                    ? Object.values(p.variantsStock).reduce(
-                        (acc, curr) => acc + curr,
-                        0,
-                      )
-                    : 0;
+                  const totalStock = getTotalStock(p);
 
                   return (
                     <tr key={p.id} className={cn("hover:bg-gray-50")}>
                       <td className={cn("p-4 whitespace-nowrap")}>
                         <img
-                          src={mainImg}
+                          src={getImageUrl(p.img)}
                           alt={getLocalizedString(p, "name", i18n.language)}
                           className={cn(
                             "w-17.5 h-17.5 object-cover rounded-xl border",
@@ -148,21 +149,22 @@ export const ProductsTable = ({ products, categories, onEdit, onDelete }) => {
                           "p-4 text-[#e60023] font-bold whitespace-nowrap",
                         )}
                       >
-                        {p.newPrice}
+                        {formatPrice(p.price, t)}
                       </td>
                       <td
                         className={cn(
                           "p-4 text-gray-400 line-through whitespace-nowrap",
                         )}
                       >
-                        {p.oldPrice || "-"}
+                        {p.oldPrice == null ? "-" : formatPrice(p.oldPrice, t)}
                       </td>
                       <td
                         className={cn(
                           "p-4 text-gray-500 font-medium whitespace-nowrap",
                         )}
                       >
-                        {p.category || "Uncategorized"}
+                        {getLocalizedString(p, "categoryName", i18n.language) ||
+                          t("uncategorized")}
                       </td>
                       <td
                         className={cn(
@@ -185,7 +187,8 @@ export const ProductsTable = ({ products, categories, onEdit, onDelete }) => {
                             className={cn(
                               "w-10 h-10 rounded-full bg-[#111] hover:bg-[#e60023]",
                             )}
-                            title="Edit Product"
+                            title={t("edit")}
+                            aria-label={t("edit")}
                           >
                             <i className={cn("fa-solid fa-pen text-xs")}></i>
                           </Button>
@@ -196,7 +199,8 @@ export const ProductsTable = ({ products, categories, onEdit, onDelete }) => {
                             className={cn(
                               "w-10 h-10 rounded-full bg-[#111] hover:bg-red-700",
                             )}
-                            title="Delete Product"
+                            title={t("delete")}
+                            aria-label={t("delete")}
                           >
                             <i className={cn("fa-solid fa-trash text-xs")}></i>
                           </Button>

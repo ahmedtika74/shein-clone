@@ -2,6 +2,7 @@ import { cn } from "../../../utils/cn";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { Button, Modal } from "../../../components/ui";
+import { getImageUrl } from "../../../utils/getImageUrl";
 
 export const OrderExpandedDetails = ({ order }) => {
   const { t: tCommon } = useTranslation("common");
@@ -68,7 +69,7 @@ export const OrderExpandedDetails = ({ order }) => {
               {order.transactionNumber}
             </li>
           )}
-          {order.transactionScreenshot && (
+          {(order.transactionScreenshotUrl || order.transactionScreenshot) && (
             <li className="mt-2">
               <span className={cn("font-semibold text-gray-800")}>
                 {t("screenshot")}
@@ -89,7 +90,10 @@ export const OrderExpandedDetails = ({ order }) => {
                   maxWidth="max-w-md"
                 >
                   <img
-                    src={order.transactionScreenshot}
+                    src={getImageUrl(
+                      order.transactionScreenshotUrl ||
+                        order.transactionScreenshot,
+                    )}
                     alt="Transaction"
                     className={cn(
                       "w-full h-auto rounded-lg object-contain bg-white",
@@ -132,10 +136,9 @@ export const OrderExpandedDetails = ({ order }) => {
         </ul>
       </div>
 
-      {order.refundReason &&
-        ["Refund Requested", "Refunded", "Refund Refused"].includes(
-          order.status,
-        ) && (
+      {["Refund Requested", "Refunded", "Refund Refused"].includes(
+        order.status,
+      ) && (
           <div
             className={cn(
               "md:col-span-2 bg-orange-50 p-4 rounded-lg border border-orange-100",
@@ -150,39 +153,47 @@ export const OrderExpandedDetails = ({ order }) => {
               {t("refundInformation")}
             </h4>
             <ul className={cn("text-orange-900 space-y-1 mt-2")}>
+              {order.refundReason && (
+                <li>
+                  <span className={cn("font-semibold")}>{t("reasonLabel")}</span>{" "}
+                  {order.refundReason}
+                </li>
+              )}
               <li>
-                <span className={cn("font-semibold")}>{t("reasonLabel")}</span>{" "}
-                {order.refundReason}
+                <span className={cn("font-semibold")}>{t("requestedOn")}</span>{" "}
+                {order.refundRequestedAt
+                  ? new Date(order.refundRequestedAt).toLocaleString()
+                  : t("na")}
               </li>
-              {order.refundRequestedAt && (
+              {order.status === "Refunded" && (
                 <li>
-                  <span className={cn("font-semibold")}>
-                    {t("requestedOn")}
+                  <span className={cn("font-semibold text-green-700")}>
+                    {t("refundedOn")}
                   </span>{" "}
-                  {new Date(order.refundRequestedAt).toLocaleString()}
+                  {order.refundedAt
+                    ? new Date(order.refundedAt).toLocaleString()
+                    : t("na")}
                 </li>
               )}
-              {order.refundedAt && order.status !== "Refund Requested" && (
-                <li>
-                  <span className={cn("font-semibold")}>{t("refundedOn")}</span>{" "}
-                  {new Date(order.refundedAt).toLocaleString()}
-                </li>
-              )}
-              {order.refusalReason && order.status !== "Refund Requested" && (
-                <li>
-                  <span className={cn("font-semibold text-red-600")}>
-                    {t("refusalReasonLabel")}
-                  </span>{" "}
-                  {order.refusalReason}
-                </li>
-              )}
-              {order.refusedAt && order.status !== "Refund Requested" && (
-                <li>
-                  <span className={cn("font-semibold text-red-600")}>
-                    {t("refusedOn")}
-                  </span>{" "}
-                  {new Date(order.refusedAt).toLocaleString()}
-                </li>
+              {order.status === "Refund Refused" && (
+                <>
+                  <li>
+                    <span className={cn("font-semibold text-red-600")}>
+                      {t("refusedOn")}
+                    </span>{" "}
+                    {order.refusedAt
+                      ? new Date(order.refusedAt).toLocaleString()
+                      : t("na")}
+                  </li>
+                  {order.refusalReason && (
+                    <li>
+                      <span className={cn("font-semibold text-red-600")}>
+                        {t("refusalReasonLabel")}
+                      </span>{" "}
+                      {order.refusalReason}
+                    </li>
+                  )}
+                </>
               )}
               {order.status === "Refund Requested" && (
                 <li>

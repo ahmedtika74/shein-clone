@@ -1,178 +1,133 @@
-import { useState, useMemo, useEffect } from "react";
-import { useTranslation } from "react-i18next";
+import { useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import {
   selectProducts,
-  selectOrders,
-  addReview,
-  removeReview,
-  editReview,
+  fetchReviewsThunk,
+  selectReviewsByProductId,
 } from "../../../store/dataSlice";
-import { selectUser, selectIsAdminLoggedIn } from "../../../store/authSlice";
 import { addToCart, selectCartItems } from "../../../store/cartSlice";
 import { selectIsInWishlist } from "../../../store/wishlistSlice";
+import { selectIsLoggedIn } from "../../../store/authSlice";
+import { features } from "../../../config/features";
+import {
+  findFirstInStockVariant,
+  getVariantImage,
+  getVariantPrice,
+  getVariantStock,
+  resolveColor,
+  resolveSize,
+} from "../../../utils/variants";
+
+const MAX_SUGGESTIONS = 4;
 
 export const useProductDetails = () => {
-  const { t } = useTranslation("common");
   const { id } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const products = useSelector(selectProducts);
-  const user = useSelector(selectUser);
-  const orders = useSelector(selectOrders);
-  const isAdmin = useSelector(selectIsAdminLoggedIn);
   const cartItems = useSelector(selectCartItems);
+  const isLoggedIn = useSelector(selectIsLoggedIn);
 
-  const product =
-    products.find((p) => String(p.id) === String(id)) || products[0];
+  const product = products.find((item) => String(item.id) === String(id));
   const isFav = useSelector(selectIsInWishlist(product?.id));
+  const reviews = useSelector(selectReviewsByProductId(product?.id));
+  const reviewsByProduct = useSelector((state) => state.data.reviewsByProduct);
+  const [reviewsLoading, setReviewsLoading] = useState(features.reviews);
 
-  const hasPurchasedProduct = useMemo(() => {
-    if (!user) return false;
-    return orders.some(
-      (order) =>
-        order.userEmail === user.email &&
-        order.items.some((item) => String(item.id) === String(product.id)),
+  useEffect(() => {
+    if (!features.reviews || !product?.id) {
+      setReviewsLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+    const cached = Object.prototype.hasOwnProperty.call(
+      reviewsByProduct,
+      String(product.id),
     );
-  }, [user, orders, product]);
+    // Show spinner only when this product has never been fetched yet.
+    setReviewsLoading(!cached);
+
+    dispatch(fetchReviewsThunk(product.id))
+      .unwrap()
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setReviewsLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+    // Intentionally depend on product.id only — cache check is for first paint of each product.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- avoid refetch loop when cache fills
+  }, [dispatch, product?.id]);
 
   const suggestedProducts = useMemo(() => {
     if (!product) return [];
+
     return products
       .filter(
-        (p) =>
-          p.category === product.category &&
-          String(p.id) !== String(product.id),
+        (candidate) =>
+          candidate.categoryId === product.categoryId &&
+          String(candidate.id) !== String(product.id),
       )
-      .slice(0, 4);
+      .slice(0, MAX_SUGGESTIONS);
   }, [products, product]);
 
-  // Image state
-  const imagesList =
-    product?.images && product.images.length > 0
-      ? product.images
-      : [product?.img || "/images/top.jpg"];
-  const [selectedImg, setSelectedImg] = useState(
-    imagesList[product?.mainIndex || 0] || imagesList[0],
-  );
+  const imagesList = product?.images?.length ? product.images : [];
 
-  // Variant state
-  const [selectedColor, setSelectedColor] = useState(
-    product?.colors?.[0] || { name: "Default" },
-  );
-  const [selectedSize, setSelectedSize] = useState(
-    product?.sizes?.[0] || { name: "M", priceAdjustment: 0 },
-  );
+  const [selectedImg, setSelectedImg] = useState("");
+  const [selectedColor, setSelectedColor] = useState(null);
+  const [selectedSize, setSelectedSize] = useState(null);
 
+  // Navigating between product pages reuses this hook, so reset per product.
   useEffect(() => {
     if (!product) return;
-    const images =
-      product.images && product.images.length > 0
-        ? product.images
-        : [product.img || "/images/top.jpg"];
-    setSelectedImg(images[product.mainIndex || 0] || images[0]);
-    setSelectedColor(product.colors?.[0] || { name: "Default" });
-    setSelectedSize(product.sizes?.[0] || { name: "M", priceAdjustment: 0 });
+
+    const { color: initialColor, size: initialSize } =
+      findFirstInStockVariant(product);
+    setSelectedColor(initialColor);
+    setSelectedSize(initialSize);
+    setSelectedImg(
+      getVariantImage(product, initialColor) ||
+        product.imageUrl ||
+        product.img ||
+        "",
+    );
   }, [product]);
 
-  // Price computation
-  const baseNumeric = product?.numericPrice || 0;
-  const activePriceNumeric =
-    (selectedColor?.price ?? baseNumeric) +
-    (selectedSize?.priceAdjustment || 0);
-  const activePriceStr = `${t("egp")} ${activePriceNumeric}`;
+  const color = resolveColor(product, selectedColor);
+  const size = resolveSize(product, selectedSize);
 
-  const cName = selectedColor?.nameEn || selectedColor?.name || "Default";
-  const sName = selectedSize?.name || "Free Size";
-  const variantKey = `${cName}-${sName}`;
-  const totalVariantStock =
-    product?.variantsStock?.[variantKey] !== undefined
-      ? product.variantsStock[variantKey]
-      : 0;
+  const activePrice = getVariantPrice(product, color, size);
+  const variantStock = getVariantStock(product, color, size);
 
   const cartItem = cartItems.find(
     (item) =>
       String(item.id) === String(product?.id) &&
-      (item.color?.nameEn || item.color?.name || item.color) ===
-        (selectedColor?.nameEn || selectedColor?.name) &&
-      (item.size?.name || item.size) === selectedSize?.name,
+      item.colorName === (color.nameEn || color.name) &&
+      item.sizeName === size.name,
   );
 
-  const quantityInCart = cartItem ? cartItem.quantity : 0;
-  const currentVariantStock = Math.max(0, totalVariantStock - quantityInCart);
+  const currentVariantStock = Math.max(
+    0,
+    variantStock - (cartItem?.quantity ?? 0),
+  );
 
-  const isInCart = !!cartItem;
+  const selectColor = (nextColor) => {
+    setSelectedColor(nextColor);
+    setSelectedImg(getVariantImage(product, nextColor));
+  };
 
   const handleAdd = () => {
-    if (isInCart) {
+    if (cartItem) {
       navigate("/cart");
-    } else {
-      dispatch(addToCart(product, selectedColor, selectedSize));
+      return;
     }
-  };
+    if (currentVariantStock <= 0) return;
 
-  // Review state
-  const [reviewRating, setReviewRating] = useState(5);
-  const [reviewComment, setReviewComment] = useState("");
-  const [reviewSubmitted, setReviewSubmitted] = useState(false);
-  const [editingReviewId, setEditingReviewId] = useState(null);
-  const [editRating, setEditRating] = useState(5);
-  const [editComment, setEditComment] = useState("");
-  const [deleteReviewId, setDeleteReviewId] = useState(null);
-
-  const handleReviewSubmit = (e) => {
-    e.preventDefault();
-    if (!reviewComment.trim()) return;
-    dispatch(
-      addReview({
-        productId: product.id,
-        review: {
-          id: crypto.randomUUID(),
-          userEmail: user.email,
-          userName: user.name || user.email || "Customer",
-          rating: reviewRating,
-          comment: reviewComment,
-          date: new Date().toLocaleDateString(),
-        },
-      }),
-    );
-    setReviewComment("");
-    setReviewRating(5);
-    setReviewSubmitted(true);
-    setTimeout(() => setReviewSubmitted(false), 3000);
-  };
-
-  const handleEditClick = (rev) => {
-    setEditingReviewId(rev.id);
-    setEditRating(rev.rating);
-    setEditComment(rev.comment);
-  };
-
-  const handleSaveEdit = (e) => {
-    e.preventDefault();
-    dispatch(
-      editReview({
-        productId: product.id,
-        reviewId: editingReviewId,
-        rating: editRating,
-        comment: editComment,
-      }),
-    );
-    setEditingReviewId(null);
-  };
-
-  const handleDeleteReview = (reviewId) => {
-    setDeleteReviewId(reviewId);
-  };
-
-  const confirmDeleteReview = () => {
-    if (deleteReviewId) {
-      dispatch(
-        removeReview({ productId: product.id, reviewId: deleteReviewId }),
-      );
-      setDeleteReviewId(null);
-    }
+    dispatch(addToCart(product, color, size));
   };
 
   return {
@@ -180,38 +135,19 @@ export const useProductDetails = () => {
     imagesList,
     selectedImg,
     setSelectedImg,
-    selectedColor,
-    setSelectedColor,
-    selectedSize,
+    selectedColor: color,
+    selectColor,
+    selectedSize: size,
     setSelectedSize,
-    activePriceStr,
-    isInCart,
+    activePrice,
+    isInCart: Boolean(cartItem),
     isFav,
+    isLoggedIn,
     handleAdd,
     suggestedProducts,
-    hasPurchasedProduct,
-    user,
-    isAdmin,
     currentVariantStock,
-    // Review state & handlers
-    reviewRating,
-    setReviewRating,
-    reviewComment,
-    setReviewComment,
-    reviewSubmitted,
-    editingReviewId,
-    setEditingReviewId,
-    editRating,
-    setEditRating,
-    editComment,
-    setEditComment,
-    deleteReviewId,
-    setDeleteReviewId,
-    handleReviewSubmit,
-    handleEditClick,
-    handleSaveEdit,
-    handleDeleteReview,
-    confirmDeleteReview,
+    reviews,
+    reviewsLoading,
     dispatch,
   };
 };

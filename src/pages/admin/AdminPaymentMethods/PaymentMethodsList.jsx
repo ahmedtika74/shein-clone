@@ -2,6 +2,7 @@ import { cn } from "../../../utils/cn";
 import { Button, Input, Card, CardContent } from "../../../components/ui";
 import { useTranslation } from "react-i18next";
 import { getLocalizedString } from "../../../utils/localization";
+import { getImageUrl } from "../../../utils/getImageUrl";
 
 export const PaymentMethodsList = ({
   paymentMethods,
@@ -26,10 +27,16 @@ export const PaymentMethodsList = ({
   handleSaveEdit,
   handleCancelEdit,
   handleDelete,
+  isLoading,
+  isUploading,
+  formError,
 }) => {
   const { t, i18n } = useTranslation("admin");
   return (
     <div className={cn("space-y-4")}>
+      {formError && (
+        <p className={cn("text-sm text-red-600 font-medium")}>{formError}</p>
+      )}
       {paymentMethods.map((method) => (
         <Card key={method.id} className={cn("bg-gray-50 border-gray-200")}>
           <CardContent className={cn("p-4")}>
@@ -70,7 +77,7 @@ export const PaymentMethodsList = ({
                   {editImg ? (
                     <div className={cn("relative w-12 h-12 group shrink-0")}>
                       <img
-                        src={editImg}
+                        src={getImageUrl(editImg)}
                         alt="Preview"
                         className={cn(
                           "w-12 h-12 object-contain rounded-md border border-gray-200 bg-white p-1",
@@ -130,9 +137,12 @@ export const PaymentMethodsList = ({
                             htmlFor={`edit-payment-img-${method.id}`}
                             className={cn(
                               "inline-flex items-center justify-center bg-gray-800 text-white px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer hover:bg-gray-700 transition-colors whitespace-nowrap h-[32px]",
+                              isUploading && "opacity-60 pointer-events-none",
                             )}
                           >
-                            {t("chooseFile", { defaultValue: "Choose File" })}
+                            {isUploading
+                              ? t("uploading", { defaultValue: "Uploading..." })
+                              : t("chooseFile", { defaultValue: "Choose File" })}
                           </label>
                         </div>
                       ) : (
@@ -142,9 +152,7 @@ export const PaymentMethodsList = ({
                             onChange={(e) =>
                               setEditImageInputUrl(e.target.value)
                             }
-                            placeholder={t("imageUrlPlaceholder", {
-                              defaultValue: "Image URL...",
-                            })}
+                            placeholder="/products/example.jpg"
                             className={cn("flex-1 min-w-0 !p-1.5 !text-xs")}
                           />
                           <Button
@@ -168,8 +176,10 @@ export const PaymentMethodsList = ({
                   )}
 
                   <div className={cn("flex items-center gap-2 ms-auto")}>
-                    <Button onClick={handleSaveEdit}>
-                      {t("save", { defaultValue: "Save" })}
+                    <Button onClick={handleSaveEdit} disabled={isLoading}>
+                      {isLoading
+                        ? t("saving")
+                        : t("save", { defaultValue: "Save" })}
                     </Button>
                     <Button variant="secondary" onClick={handleCancelEdit}>
                       {t("cancel", { defaultValue: "Cancel" })}
@@ -180,10 +190,10 @@ export const PaymentMethodsList = ({
             ) : (
               <div className={cn("flex items-center justify-between")}>
                 <div className={cn("flex items-center gap-4")}>
-                  {method.img && (
+                  {method.imageUrl && (
                     <img
-                      src={method.img}
-                      alt={method.name}
+                      src={getImageUrl(method.imageUrl)}
+                      alt={getLocalizedString(method, "name", i18n.language)}
                       className={cn(
                         "w-12 h-12 object-contain rounded-md border border-gray-200 bg-white p-1",
                       )}

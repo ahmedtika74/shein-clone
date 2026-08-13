@@ -2,12 +2,11 @@ import { cn } from "../../../utils/cn";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { Card, CardContent, Button, Input } from "../../../components/ui";
-import {
-  updateLeftSideCard,
-  updateRightSideCard,
-} from "../../../store/dataSlice";
+import { updateSideCardThunk } from "../../../store/dataSlice";
 import { useTranslation } from "react-i18next";
 import { getLocalizedString } from "../../../utils/localization";
+import { getImageUrl } from "../../../utils/getImageUrl";
+import { uploadMedia, MediaUsageCategory } from "../../../services/mediaUpload";
 
 const SideCardEditor = ({ card, index, side }) => {
   const { t, i18n } = useTranslation("admin");
@@ -16,28 +15,59 @@ const SideCardEditor = ({ card, index, side }) => {
   const [titleAr, setTitleAr] = useState(card.titleAr || "");
   const [actionTextEn, setActionTextEn] = useState(card.actionTextEn || "");
   const [actionTextAr, setActionTextAr] = useState(card.actionTextAr || "");
-  const [img, setImg] = useState(card.img);
+  const [imageUrl, setImageUrl] = useState(card.imageUrl || "");
   const [link, setLink] = useState(card.link || "");
   const [isEditing, setIsEditing] = useState(false);
+  const [error, setError] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
   const [inputMode, setInputMode] = useState("upload");
+  const [isUploading, setIsUploading] = useState(false);
 
-  const handleFileUpload = (e) => {
-    const file = e.target.files[0];
+  const handleFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      setImg(ev.target.result);
-    };
-    reader.readAsDataURL(file);
+    setIsUploading(true);
+    setError("");
+    try {
+      const url = await uploadMedia(file, MediaUsageCategory.Hero);
+      if (!url) throw new Error(t("uploadFailed"));
+      setImageUrl(url);
+    } catch (err) {
+      setError(err?.message || t("uploadFailed"));
+    } finally {
+      setIsUploading(false);
+    }
   };
 
-  const handleSave = () => {
-    const updated = { titleEn, titleAr, actionTextEn, actionTextAr, img, link };
-    if (side === "left") dispatch(updateLeftSideCard({ index, card: updated }));
-    else dispatch(updateRightSideCard({ index, card: updated }));
-    setIsEditing(false);
+  const handleSave = async () => {
+    setError("");
+    setIsSaving(true);
+    // API slots are 1-based; fall back to list index + 1 when slot is missing.
+    const slot = Number(card.slot) > 0 ? Number(card.slot) : index + 1;
+    try {
+      await dispatch(
+        updateSideCardThunk({
+          position: side,
+          slot,
+          card: {
+            titleEn,
+            titleAr,
+            actionTextEn,
+            actionTextAr,
+            imageUrl,
+            link,
+          },
+        }),
+      ).unwrap();
+      setIsEditing(false);
+    } catch (err) {
+      setError(err || t("failedToSaveCard"));
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   if (!isEditing) {
@@ -45,8 +75,8 @@ const SideCardEditor = ({ card, index, side }) => {
       <Card className={cn("p-0 overflow-hidden shadow-xs")}>
         <CardContent className={cn("p-4")}>
           <img
-            src={card.img}
-            alt={card.title}
+            src={getImageUrl(card.imageUrl)}
+            alt={getLocalizedString(card, "title", i18n.language)}
             className={cn("w-full h-32 object-cover rounded-lg mb-3")}
           />
           <h4 className={cn("font-bold text-sm text-gray-900")}>
@@ -61,7 +91,16 @@ const SideCardEditor = ({ card, index, side }) => {
           <Button
             variant="outline"
             className={cn("w-full h-9 text-xs")}
-            onClick={() => setIsEditing(true)}
+            onClick={() => {
+              setTitleEn(card.titleEn || "");
+              setTitleAr(card.titleAr || "");
+              setActionTextEn(card.actionTextEn || "");
+              setActionTextAr(card.actionTextAr || "");
+              setImageUrl(card.imageUrl || "");
+              setLink(card.link || "");
+              setError("");
+              setIsEditing(true);
+            }}
           >
             {t("editCard")}
           </Button>
@@ -144,22 +183,25 @@ const SideCardEditor = ({ card, index, side }) => {
                 htmlFor={`card-img-upload-${side}-${index}`}
                 className={cn(
                   "inline-flex items-center justify-center bg-black text-white px-3 py-2 rounded-lg text-xs font-bold cursor-pointer hover:bg-gray-800 transition-colors whitespace-nowrap h-9",
+                  isUploading && "opacity-60 pointer-events-none",
                 )}
               >
                 <i className={cn("fa-solid fa-upload me-2")}></i>{" "}
-                {t("chooseFile")}
+                {isUploading
+                  ? t("uploading", { defaultValue: "Uploading..." })
+                  : t("chooseFile")}
               </label>
             </div>
           ) : (
             <Input
-              value={img}
-              onChange={(e) => setImg(e.target.value)}
-              placeholder={t("imageModeUrl")}
+              value={imageUrl}
+              onChange={(e) => setImageUrl(e.target.value)}
+              placeholder="/products/CasualJeans.jpg"
             />
           )}
-          {img && (
+          {imageUrl && (
             <img
-              src={img}
+              src={getImageUrl(imageUrl)}
               alt={t("preview")}
               className={cn(
                 "w-full h-20 object-cover rounded-lg mt-2 border border-gray-200",
@@ -173,9 +215,16 @@ const SideCardEditor = ({ card, index, side }) => {
           onChange={(e) => setLink(e.target.value)}
           placeholder="/products?category=..."
         />
+        {error && (
+          <p className={cn("text-xs text-red-600 font-medium")}>{error}</p>
+        )}
         <div className={cn("flex gap-2 mt-4 pt-2 border-t border-gray-200")}>
-          <Button onClick={handleSave} className={cn("flex-1 h-9 text-xs")}>
-            {t("save")}
+          <Button
+            onClick={handleSave}
+            disabled={isSaving || isUploading}
+            className={cn("flex-1 h-9 text-xs")}
+          >
+            {isSaving ? t("saving") : t("save")}
           </Button>
           <Button
             variant="secondary"

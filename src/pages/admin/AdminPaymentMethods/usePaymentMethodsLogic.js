@@ -1,15 +1,23 @@
 import { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
+import { useTranslation } from "react-i18next";
 import {
   selectPaymentMethods,
-  addPaymentMethod,
-  removePaymentMethod,
-  updatePaymentMethod,
+  createPaymentMethodThunk,
+  deletePaymentMethodThunk,
+  updatePaymentMethodThunk,
 } from "../../../store/dataSlice";
+import {
+  uploadMedia,
+  MediaUsageCategory,
+} from "../../../services/mediaUpload";
 
 export const usePaymentMethodsLogic = () => {
+  const { t } = useTranslation("admin");
   const dispatch = useDispatch();
   const paymentMethods = useSelector(selectPaymentMethods);
+  const status = useSelector((state) => state.data.status);
+  const isLoading = status === "loading";
 
   const [newMethodNameEn, setNewMethodNameEn] = useState("");
   const [newMethodNameAr, setNewMethodNameAr] = useState("");
@@ -17,43 +25,63 @@ export const usePaymentMethodsLogic = () => {
   const [newMethodDetailsAr, setNewMethodDetailsAr] = useState("");
   const [newMethodImg, setNewMethodImg] = useState("");
   const [imageInputUrl, setImageInputUrl] = useState("");
+  const [inputMode, setInputMode] = useState("url");
+  const [formError, setFormError] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
 
-  const handleFileUpload = (e, setImgCallback) => {
-    const file = e.target.files[0];
+  const handleFileUpload = async (e, setImgCallback) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      setImgCallback(ev.target.result);
-    };
-    reader.readAsDataURL(file);
+
+    setIsUploading(true);
+    setFormError("");
+    try {
+      const url = await uploadMedia(file, MediaUsageCategory.PaymentMethod);
+      if (!url) throw new Error(t("uploadFailed"));
+      setImgCallback(url);
+    } catch (err) {
+      setFormError(err?.message || t("uploadFailed"));
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const handleAddUrl = (url, setImgCallback, setUrlCallback) => {
     if (url.trim()) {
       setImgCallback(url.trim());
       setUrlCallback("");
+      setFormError("");
     }
   };
 
-  const handleAdd = (e) => {
+  const resetAddForm = () => {
+    setNewMethodNameEn("");
+    setNewMethodNameAr("");
+    setNewMethodDetailsEn("");
+    setNewMethodDetailsAr("");
+    setNewMethodImg("");
+    setImageInputUrl("");
+  };
+
+  const handleAdd = async (e) => {
     e.preventDefault();
-    if (newMethodNameEn.trim() && newMethodNameAr.trim()) {
-      dispatch(
-        addPaymentMethod({
-          id: crypto.randomUUID(),
+    setFormError("");
+    if (!newMethodNameEn.trim() || !newMethodNameAr.trim()) return;
+
+    try {
+      await dispatch(
+        createPaymentMethodThunk({
           nameEn: newMethodNameEn.trim(),
           nameAr: newMethodNameAr.trim(),
           detailsEn: newMethodDetailsEn.trim(),
           detailsAr: newMethodDetailsAr.trim(),
-          img: newMethodImg,
+          imageUrl: newMethodImg || "",
         }),
-      );
-      setNewMethodNameEn("");
-      setNewMethodNameAr("");
-      setNewMethodDetailsEn("");
-      setNewMethodDetailsAr("");
-      setNewMethodImg("");
-      setImageInputUrl("");
+      ).unwrap();
+      resetAddForm();
+    } catch (err) {
+      setFormError(err || t("failedToSavePaymentMethod"));
     }
   };
 
@@ -64,45 +92,60 @@ export const usePaymentMethodsLogic = () => {
   const [editDetailsAr, setEditDetailsAr] = useState("");
   const [editImg, setEditImg] = useState("");
   const [editImageInputUrl, setEditImageInputUrl] = useState("");
-  const [inputMode, setInputMode] = useState("upload");
-  const [editInputMode, setEditInputMode] = useState("upload");
+  const [editInputMode, setEditInputMode] = useState("url");
 
   const handleEdit = (method) => {
     setEditingId(method.id);
-    setEditNameEn(method.nameEn || method.name || "");
-    setEditNameAr(method.nameAr || method.name || "");
-    setEditDetailsEn(method.detailsEn || method.details || "");
-    setEditDetailsAr(method.detailsAr || method.details || "");
-    setEditImg(method.img || "");
+    setEditNameEn(method.nameEn || "");
+    setEditNameAr(method.nameAr || "");
+    setEditDetailsEn(method.detailsEn || "");
+    setEditDetailsAr(method.detailsAr || "");
+    setEditImg(method.imageUrl || "");
     setEditImageInputUrl("");
+    setFormError("");
   };
 
-  const handleSaveEdit = () => {
-    if (editNameEn.trim() && editNameAr.trim()) {
-      dispatch(
-        updatePaymentMethod({
+  const handleSaveEdit = async () => {
+    setFormError("");
+    if (!editNameEn.trim() || !editNameAr.trim()) return;
+
+    try {
+      await dispatch(
+        updatePaymentMethodThunk({
           id: editingId,
           nameEn: editNameEn.trim(),
           nameAr: editNameAr.trim(),
           detailsEn: editDetailsEn.trim(),
           detailsAr: editDetailsAr.trim(),
-          img: editImg,
+          imageUrl: editImg || "",
         }),
-      );
+      ).unwrap();
       setEditingId(null);
+    } catch (err) {
+      setFormError(err || t("failedToUpdatePaymentMethod"));
     }
   };
 
   const handleCancelEdit = () => {
     setEditingId(null);
+    setFormError("");
   };
 
-  const handleDelete = (id) => {
-    dispatch(removePaymentMethod(id));
+  const handleDelete = async (id) => {
+    setFormError("");
+    try {
+      await dispatch(deletePaymentMethodThunk(id)).unwrap();
+      if (editingId === id) setEditingId(null);
+    } catch (err) {
+      setFormError(err || t("failedToDeletePaymentMethod"));
+    }
   };
 
   return {
     paymentMethods,
+    isLoading,
+    isUploading,
+    formError,
     newMethodNameEn,
     setNewMethodNameEn,
     newMethodNameAr,

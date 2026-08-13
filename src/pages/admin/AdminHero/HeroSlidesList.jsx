@@ -1,8 +1,14 @@
 import { cn } from "../../../utils/cn";
 import { Card, CardContent, Button } from "../../../components/ui";
 import { useTranslation } from "react-i18next";
+import { getImageUrl } from "../../../utils/getImageUrl";
 
-export const HeroSlidesList = ({ heroSlides, handleDeleteSlide }) => {
+export const HeroSlidesList = ({
+  heroSlides,
+  handleEditSlide,
+  handleDeleteSlide,
+  isLoading,
+}) => {
   const { t } = useTranslation("admin");
   return (
     <div
@@ -17,7 +23,7 @@ export const HeroSlidesList = ({ heroSlides, handleDeleteSlide }) => {
         >
           <CardContent className={cn("p-4")}>
             <img
-              src={slide.img || slide}
+              src={getImageUrl(slide.imageUrl)}
               alt={`Slide ${index + 1}`}
               className={cn("w-full h-48 object-cover rounded-xl")}
             />
@@ -27,27 +33,41 @@ export const HeroSlidesList = ({ heroSlides, handleDeleteSlide }) => {
                   {t("slideHash")}
                   {index + 1}
                 </span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleDeleteSlide(index)}
-                  className={cn("text-red-600")}
-                >
-                  {t("delete")}
-                </Button>
+                <div className={cn("flex gap-1")}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    disabled={isLoading}
+                    onClick={() => handleEditSlide(slide)}
+                  >
+                    {t("edit")}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    disabled={isLoading}
+                    onClick={() => handleDeleteSlide(slide.id)}
+                    className={cn("text-red-600")}
+                  >
+                    {t("delete")}
+                  </Button>
+                </div>
               </div>
-              {(slide.link || slide.link === "") && (
-                <p className={cn("text-[10px] text-gray-500 truncate")}>
-                  {t("linkLabel")}{" "}
-                  <span className={cn("text-blue-500")}>
-                    {slide.link || t("none")}
-                  </span>
-                </p>
-              )}
+              <p className={cn("text-[10px] text-gray-500 truncate")}>
+                {t("linkLabel")}{" "}
+                <span className={cn("text-blue-500")}>
+                  {slide.link || t("none")}
+                </span>
+              </p>
             </div>
           </CardContent>
         </Card>
       ))}
+      {heroSlides.length === 0 && (
+        <p className={cn("text-gray-500 col-span-full text-center py-4")}>
+          {t("noHeroSlides")}
+        </p>
+      )}
     </div>
   );
 };

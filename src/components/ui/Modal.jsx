@@ -9,7 +9,6 @@ export const Modal = ({
   className,
   maxWidth = "max-w-md",
 }) => {
-  // Prevent body scrolling when modal is open
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -25,7 +24,6 @@ export const Modal = ({
 
   return (
     <div className={cn("fixed inset-0 z-50 flex items-center justify-center")}>
-      {/* Backdrop */}
       <div
         className={cn(
           "absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity cursor-pointer",
@@ -33,7 +31,6 @@ export const Modal = ({
         onClick={onClose}
       />
 
-      {/* Modal Content */}
       <div
         className={cn(
           "bg-white rounded-2xl shadow-xl w-full mx-4 relative z-10 animate-fade-in-up",

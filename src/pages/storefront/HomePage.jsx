@@ -1,5 +1,5 @@
 import { cn } from "../../utils/cn";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import {
   selectProducts,
@@ -11,6 +11,7 @@ import { Categories } from "../../components/storefront/Categories";
 import { ProductCard } from "../../components/storefront/ProductCard";
 import { useTranslation } from "react-i18next";
 import { getLocalizedString } from "../../utils/localization";
+import { SALE_CATEGORY } from "../../components/storefront/useCategoryNav";
 
 export const HomePage = () => {
   const { t, i18n } = useTranslation("storefront");
@@ -19,45 +20,39 @@ export const HomePage = () => {
   const [searchParams] = useSearchParams();
 
   const activeCategory = searchParams.get("category");
-  const activeSearch = searchParams.get("search");
+  const activeSearch = searchParams.get("search")?.trim().toLowerCase() ?? "";
 
-  const activeCategoryObj = categories?.find(
-    (c) => c.nameEn === activeCategory,
+  const activeCategoryObj = categories.find(
+    (category) => String(category.id) === activeCategory,
   );
   const activeCategoryDisplay = activeCategoryObj
     ? getLocalizedString(activeCategoryObj, "name", i18n.language)
     : activeCategory;
 
-  const topSellingProducts = useSelector(selectTopSellingProducts) || [];
+  const topSellingProducts = useSelector(selectTopSellingProducts);
 
-  const filteredProducts = (products || []).filter((product) => {
-    let matchesCategory = true;
-    if (
-      activeCategory &&
-      activeCategory !== "ALL" &&
-      activeCategory !== "NEW IN" &&
-      activeCategory !== "SALE"
-    ) {
-      matchesCategory =
-        product.category?.toLowerCase() === activeCategory.toLowerCase();
-    } else if (activeCategory === "SALE") {
-      matchesCategory = !!product.oldPrice || !!product.offer;
+  const matchesCategory = (product) => {
+    if (!activeCategory) return true;
+    if (activeCategory === SALE_CATEGORY) {
+      return product.oldPrice > product.price || Boolean(product.offerBadge);
     }
+    return String(product.categoryId) === activeCategory;
+  };
 
-    let matchesSearch = true;
-    if (activeSearch) {
-      const searchTarget = activeSearch.toLowerCase();
-      const pNameEn = (product.nameEn || product.name || "").toLowerCase();
-      const pNameAr = (product.nameAr || product.name || "").toLowerCase();
+  const matchesSearch = (product) => {
+    if (!activeSearch) return true;
 
-      matchesSearch =
-        pNameEn.includes(searchTarget) ||
-        pNameAr.includes(searchTarget) ||
-        product.category?.toLowerCase().includes(searchTarget);
-    }
+    return [
+      product.nameEn,
+      product.nameAr,
+      product.categoryNameEn,
+      product.categoryNameAr,
+    ].some((field) => field.toLowerCase().includes(activeSearch));
+  };
 
-    return matchesCategory && matchesSearch;
-  });
+  const filteredProducts = products.filter(
+    (product) => matchesCategory(product) && matchesSearch(product),
+  );
 
   return (
     <div>
@@ -109,14 +104,14 @@ export const HomePage = () => {
                 : t("recommendedForYou")}
           </h2>
           {(activeCategory || activeSearch) && (
-            <a
-              href="/"
+            <Link
+              to="/"
               className={cn(
                 "text-gray-900 font-bold hover:text-[#e60023] transition-colors text-sm md:text-base",
               )}
             >
               {t("clearFilters")}
-            </a>
+            </Link>
           )}
         </div>
 

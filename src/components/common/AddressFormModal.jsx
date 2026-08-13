@@ -3,6 +3,8 @@ import { useTranslation } from "react-i18next";
 import { cn } from "../../utils/cn";
 import { Modal } from "../ui/Modal";
 import { Button } from "../ui/Button";
+import { getLocalizedString } from "../../utils/localization";
+import { shippingRateValue } from "../../utils/shipping";
 
 export const AddressFormModal = ({
   isOpen,
@@ -11,7 +13,7 @@ export const AddressFormModal = ({
   shippingRates,
   initialAddress,
 }) => {
-  const { t } = useTranslation(["storefront", "common"]);
+  const { t, i18n } = useTranslation(["storefront", "common"]);
   const [address, setAddress] = useState({
     label: "",
     government: "",
@@ -82,8 +84,8 @@ export const AddressFormModal = ({
           >
             <option value="">{t("selectGovernment")}</option>
             {shippingRates.map((rate) => (
-              <option key={rate.id} value={rate.government}>
-                {rate.government}
+              <option key={rate.id} value={shippingRateValue(rate)}>
+                {getLocalizedString(rate, "government", i18n.language)}
               </option>
             ))}
           </select>

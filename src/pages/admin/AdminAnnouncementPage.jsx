@@ -3,9 +3,9 @@ import { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
   selectAnnouncements,
-  addAnnouncement,
-  updateAnnouncement,
-  removeAnnouncement,
+  createAnnouncementThunk,
+  updateAnnouncementThunk,
+  deleteAnnouncementThunk,
 } from "../../store/dataSlice";
 import { Card, CardContent, Input, Button, Modal } from "../../components/ui";
 import { useTranslation } from "react-i18next";
@@ -27,8 +27,7 @@ export const AdminAnnouncementPage = () => {
   const handleAdd = () => {
     if (!newTextEn.trim() || !newTextAr.trim()) return;
     dispatch(
-      addAnnouncement({
-        id: Date.now(),
+      createAnnouncementThunk({
         textEn: newTextEn.trim(),
         textAr: newTextAr.trim(),
         isActive: true,
@@ -40,7 +39,7 @@ export const AdminAnnouncementPage = () => {
   };
 
   const handleToggle = (ann) => {
-    dispatch(updateAnnouncement({ id: ann.id, isActive: !ann.isActive }));
+    dispatch(updateAnnouncementThunk({ ...ann, isActive: !ann.isActive }));
   };
 
   const handleStartEdit = (ann) => {
@@ -52,7 +51,7 @@ export const AdminAnnouncementPage = () => {
   const handleSaveEdit = () => {
     if (!editTextEn.trim() || !editTextAr.trim()) return;
     dispatch(
-      updateAnnouncement({
+      updateAnnouncementThunk({
         id: editingId,
         textEn: editTextEn.trim(),
         textAr: editTextAr.trim(),
@@ -65,7 +64,7 @@ export const AdminAnnouncementPage = () => {
   };
 
   const handleDelete = () => {
-    dispatch(removeAnnouncement(deleteId));
+    dispatch(deleteAnnouncementThunk(deleteId));
     setDeleteId(null);
     flashSaved();
   };
@@ -87,7 +86,6 @@ export const AdminAnnouncementPage = () => {
         <p className={cn("text-gray-500")}>{t("announcementSettingsDesc")}</p>
       </div>
 
-      {/* Add New Announcement */}
       <Card
         className={cn(
           "p-0 overflow-hidden shadow-sm border border-gray-100 mb-6",
@@ -123,7 +121,6 @@ export const AdminAnnouncementPage = () => {
         </CardContent>
       </Card>
 
-      {/* Announcements List */}
       <Card
         className={cn(
           "p-0 overflow-hidden shadow-sm border border-gray-100 mb-6",
@@ -157,7 +154,6 @@ export const AdminAnnouncementPage = () => {
                       : "border-gray-100 bg-gray-50 opacity-60",
                   )}
                 >
-                  {/* Toggle */}
                   <button
                     onClick={() => handleToggle(ann)}
                     className={cn(
@@ -175,7 +171,6 @@ export const AdminAnnouncementPage = () => {
                     />
                   </button>
 
-                  {/* Text */}
                   {editingId === ann.id ? (
                     <div className={cn("flex-1 flex gap-2")}>
                       <Input
@@ -217,7 +212,6 @@ export const AdminAnnouncementPage = () => {
                     </span>
                   )}
 
-                  {/* Actions */}
                   {editingId !== ann.id && (
                     <div className={cn("flex gap-1 shrink-0")}>
                       <Button
@@ -245,7 +239,6 @@ export const AdminAnnouncementPage = () => {
         </CardContent>
       </Card>
 
-      {/* Preview */}
       <Card
         className={cn("p-0 overflow-hidden shadow-sm border border-gray-100")}
       >
@@ -310,7 +303,6 @@ export const AdminAnnouncementPage = () => {
         </CardContent>
       </Card>
 
-      {/* Saved Toast */}
       {isSaved && (
         <div
           className={cn(
@@ -321,7 +313,6 @@ export const AdminAnnouncementPage = () => {
         </div>
       )}
 
-      {/* Delete Confirmation Modal */}
       <Modal
         isOpen={!!deleteId}
         onClose={() => setDeleteId(null)}

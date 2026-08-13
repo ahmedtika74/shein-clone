@@ -1,4 +1,5 @@
 import { cn } from "../../../utils/cn";
+import { getImageUrl } from "../../../utils/getImageUrl";
 
 export const ProductGallery = ({
   imagesList,
@@ -14,7 +15,7 @@ export const ProductGallery = ({
         )}
       >
         <img
-          src={selectedImg}
+          src={getImageUrl(selectedImg)}
           alt={productName}
           className={cn(
             "w-full h-full object-cover transition-all duration-300",
@@ -26,7 +27,7 @@ export const ProductGallery = ({
           {imagesList.map((imgUrl, idx) => (
             <img
               key={imgUrl || `img-${idx}`}
-              src={imgUrl}
+              src={getImageUrl(imgUrl)}
               alt={`Thumbnail ${idx + 1}`}
               onClick={() => setSelectedImg(imgUrl)}
               className={cn(

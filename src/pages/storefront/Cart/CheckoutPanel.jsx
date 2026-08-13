@@ -1,17 +1,32 @@
+import { useState } from "react";
+import { Link } from "react-router-dom";
 import { cn } from "../../../utils/cn";
 import { useTranslation } from "react-i18next";
 import { AddressFormModal } from "../../../components/common/AddressFormModal";
 import { Button, Input } from "../../../components/ui";
-import { addAddress } from "../../../store/authSlice";
+import { createAddressThunk } from "../../../store/authSlice";
 import { getLocalizedString } from "../../../utils/localization";
+import { getImageUrl } from "../../../utils/getImageUrl";
+import { findShippingRate } from "../../../utils/shipping";
+import { features } from "../../../config/features";
+import {
+  copyPaymentNumber,
+  extractPaymentLink,
+  extractPaymentNumber,
+  getPaymentDetailsText,
+  getPaymentMethodKind,
+  openPaymentLink,
+} from "../../../utils/paymentMethodActions";
+import {
+  uploadMedia,
+  MediaUsageCategory,
+} from "../../../services/mediaUpload";
 
 export const CheckoutPanel = ({
   dispatch,
   userAddresses,
   selectedAddressId,
   setSelectedAddressId,
-  guestAddress,
-  setGuestAddress,
   showAddressModal,
   setShowAddressModal,
   user,
@@ -44,9 +59,63 @@ export const CheckoutPanel = ({
   isCheckoutLoading,
 }) => {
   const { t, i18n } = useTranslation(["storefront", "common"]);
+  const [paymentActionMsg, setPaymentActionMsg] = useState({
+    text: "",
+    isError: false,
+  });
+  const [isUploadingScreenshot, setIsUploadingScreenshot] = useState(false);
+  const [screenshotError, setScreenshotError] = useState("");
+
+  const handleScreenshotUpload = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+
+    setIsUploadingScreenshot(true);
+    setScreenshotError("");
+    try {
+      const url = await uploadMedia(file, MediaUsageCategory.Transaction);
+      if (!url) throw new Error(t("uploadFailed", { ns: "common" }));
+      setTransactionScreenshot(url);
+    } catch (err) {
+      setScreenshotError(err?.message || t("uploadFailed", { ns: "common" }));
+    } finally {
+      setIsUploadingScreenshot(false);
+    }
+  };
+
+  const runPaymentAction = async (method) => {
+    const kind = getPaymentMethodKind(method);
+    const details = getPaymentDetailsText(method, i18n.language);
+    setPaymentActionMsg({ text: "", isError: false });
+
+    if (kind === "instapay") {
+      const opened = openPaymentLink(details);
+      setPaymentActionMsg({
+        text: opened ? t("instapayOpened") : t("instapayLinkMissing"),
+        isError: !opened,
+      });
+      return;
+    }
+
+    if (kind === "vfcash") {
+      const number = await copyPaymentNumber(details);
+      setPaymentActionMsg({
+        text: number
+          ? t("vfCashNumberCopied", { number })
+          : t("vfCashNumberMissing"),
+        isError: !number,
+      });
+    }
+  };
+
+  const handleSelectPaymentMethod = (method) => {
+    setSelectedPaymentMethod(method.nameEn || method.name);
+    runPaymentAction(method);
+  };
+
   return (
     <div className={cn("w-full lg:w-[450px]")}>
-      {/* Address & Payment Form */}
       <div
         className={cn(
           "bg-white p-6 rounded-[10px] shadow-[0_2px_10px_#ddd] border border-gray-100 mb-6",
@@ -91,20 +160,15 @@ export const CheckoutPanel = ({
                     {addr.street}, {addr.city}
                   </div>
                   <div className={cn("text-gray-600")}>
-                    {shippingRates.find(
-                      (r) =>
-                        (r.governmentEn || r.government) === addr.government,
-                    )
-                      ? getLocalizedString(
-                          shippingRates.find(
-                            (r) =>
-                              (r.governmentEn || r.government) ===
-                              addr.government,
-                          ),
-                          "government",
-                          i18n.language,
-                        )
-                      : addr.government}
+                    {(() => {
+                      const rate = findShippingRate(
+                        shippingRates,
+                        addr.government,
+                      );
+                      return rate
+                        ? getLocalizedString(rate, "government", i18n.language)
+                        : addr.government;
+                    })()}
                   </div>
                   <div className={cn("text-gray-600 mt-1")}>
                     <i className={cn("fa-solid fa-phone text-xs me-1")}></i>{" "}
@@ -114,7 +178,7 @@ export const CheckoutPanel = ({
               </label>
             ))}
 
-            {userAddresses.length < 3 && (
+            {features.savedAddresses && userAddresses.length < 3 && (
               <Button
                 onClick={() => setShowAddressModal(true)}
                 variant="secondary"
@@ -124,68 +188,37 @@ export const CheckoutPanel = ({
               </Button>
             )}
 
-            <AddressFormModal
-              isOpen={showAddressModal}
-              onClose={() => setShowAddressModal(false)}
-              onSave={(newAddr) => dispatch(addAddress(newAddr))}
-              shippingRates={shippingRates}
-              initialAddress={null}
-            />
+            {features.savedAddresses && (
+              <AddressFormModal
+                isOpen={showAddressModal}
+                onClose={() => setShowAddressModal(false)}
+                onSave={(newAddr) => dispatch(createAddressThunk(newAddr))}
+                shippingRates={shippingRates}
+                initialAddress={null}
+              />
+            )}
           </div>
         ) : (
-          <div className={cn("space-y-4")}>
-            <select
-              value={guestAddress.government}
-              onChange={(e) =>
-                setGuestAddress({ ...guestAddress, government: e.target.value })
-              }
+          <div
+            className={cn(
+              "rounded-xl border border-amber-200 bg-amber-50 p-5 text-center space-y-3",
+            )}
+          >
+            <p className={cn("text-sm text-amber-900 font-medium")}>
+              {t("loginToCheckout")}
+            </p>
+            <Link
+              to="/login"
+              state={{ from: "/cart" }}
               className={cn(
-                "w-full p-3 border border-gray-300 rounded-[10px] focus:outline-none focus:border-black",
+                "inline-flex items-center justify-center w-full h-11 bg-black text-white font-bold rounded-lg hover:bg-gray-900 transition-colors",
               )}
             >
-              <option value="">{t("selectGovernment")}</option>
-              {shippingRates.map((rate) => (
-                <option
-                  key={rate.id}
-                  value={rate.governmentEn || rate.government}
-                >
-                  {getLocalizedString(rate, "government", i18n.language)}
-                </option>
-              ))}
-            </select>
-            <input
-              type="text"
-              placeholder={t("city")}
-              value={guestAddress.city}
-              onChange={(e) =>
-                setGuestAddress({ ...guestAddress, city: e.target.value })
-              }
-              className={cn(
-                "w-full p-3 border border-gray-300 rounded-[10px] focus:outline-none focus:border-black",
-              )}
-            />
-            <input
-              type="text"
-              placeholder={t("streetAddressPlaceholder")}
-              value={guestAddress.street}
-              onChange={(e) =>
-                setGuestAddress({ ...guestAddress, street: e.target.value })
-              }
-              className={cn(
-                "w-full p-3 border border-gray-300 rounded-[10px] focus:outline-none focus:border-black",
-              )}
-            />
-            <input
-              type="text"
-              placeholder={t("phone")}
-              value={guestAddress.phone}
-              onChange={(e) =>
-                setGuestAddress({ ...guestAddress, phone: e.target.value })
-              }
-              className={cn(
-                "w-full p-3 border border-gray-300 rounded-[10px] focus:outline-none focus:border-black",
-              )}
-            />
+              {t("loginToContinue")}
+            </Link>
+            <p className={cn("text-xs text-gray-500")}>
+              {t("canBrowseCartAsGuest")}
+            </p>
           </div>
         )}
 
@@ -194,50 +227,97 @@ export const CheckoutPanel = ({
         </h2>
         <div className={cn("space-y-3")}>
           {paymentMethods.length > 0 ? (
-            paymentMethods.map((method) => (
-              <label
-                key={method.id}
-                className={cn(
-                  "flex items-start gap-3 cursor-pointer p-3 border border-gray-200 rounded-[10px] hover:border-black transition-colors",
-                )}
-              >
-                <input
-                  type="radio"
-                  name="paymentMethod"
-                  value={method.nameEn || method.name}
-                  checked={
-                    selectedPaymentMethod === (method.nameEn || method.name)
-                  }
-                  onChange={(e) => setSelectedPaymentMethod(e.target.value)}
-                  className={cn("w-4 h-4 accent-black mt-1")}
-                />
-                {method.img && (
-                  <img
-                    src={method.img}
-                    alt={method.name}
-                    className={cn(
-                      "w-10 h-10 object-contain rounded border border-gray-200 bg-white",
-                    )}
-                  />
-                )}
-                <div className={cn("flex flex-col flex-1")}>
-                  <span className={cn("text-gray-900 font-bold block")}>
-                    {getLocalizedString(method, "name", i18n.language)}
-                  </span>
-                  {(method.detailsEn || method.detailsAr || method.details) && (
-                    <span className={cn("text-sm text-gray-500 mt-1 block")}>
-                      {getLocalizedString(method, "details", i18n.language)}
-                    </span>
+            paymentMethods.map((method) => {
+              const methodKey = method.nameEn || method.name;
+              const kind = getPaymentMethodKind(method);
+              const details = getPaymentDetailsText(method, i18n.language);
+              const isSelected = selectedPaymentMethod === methodKey;
+              const isWallet = kind === "instapay" || kind === "vfcash";
+
+              return (
+                <label
+                  key={method.id}
+                  className={cn(
+                    "flex items-start gap-3 cursor-pointer p-3 border border-gray-200 rounded-[10px] hover:border-black transition-colors",
+                    isSelected && "border-black bg-gray-50",
                   )}
-                  {((method.nameEn || method.name || "")
-                    .toLowerCase()
-                    .includes("instapay") ||
-                    (method.nameEn || method.name || "")
-                      .toLowerCase()
-                      .includes("vodafone")) &&
-                    selectedPaymentMethod ===
-                      (method.nameEn || method.name) && (
+                >
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value={methodKey}
+                    checked={isSelected}
+                    onChange={() => handleSelectPaymentMethod(method)}
+                    className={cn("w-4 h-4 accent-black mt-1")}
+                  />
+                  {method.imageUrl && (
+                    <img
+                      src={getImageUrl(method.imageUrl)}
+                      alt={getLocalizedString(method, "name", i18n.language)}
+                      className={cn(
+                        "w-10 h-10 object-contain rounded border border-gray-200 bg-white",
+                      )}
+                    />
+                  )}
+                  <div className={cn("flex flex-col flex-1")}>
+                    <span className={cn("text-gray-900 font-bold block")}>
+                      {getLocalizedString(method, "name", i18n.language)}
+                    </span>
+                    {details && (
+                      <span className={cn("text-sm text-gray-500 mt-1 block break-all")}>
+                        {kind === "vfcash"
+                          ? extractPaymentNumber(details) || details
+                          : kind === "instapay"
+                            ? extractPaymentLink(details) || details
+                            : details}
+                      </span>
+                    )}
+
+                    {isSelected && isWallet && (
                       <div className={cn("mt-3 space-y-2")}>
+                        {kind === "instapay" && (
+                          <Button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              runPaymentAction(method);
+                            }}
+                            className={cn(
+                              "w-full h-9 text-xs bg-[#6c2bd9] hover:bg-[#5a23b5]",
+                            )}
+                          >
+                            <i className="fa-solid fa-arrow-up-right-from-square me-2"></i>
+                            {t("openInstapay")}
+                          </Button>
+                        )}
+                        {kind === "vfcash" && (
+                          <Button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              runPaymentAction(method);
+                            }}
+                            className={cn(
+                              "w-full h-9 text-xs bg-[#e60012] hover:bg-[#c40010]",
+                            )}
+                          >
+                            <i className="fa-regular fa-copy me-2"></i>
+                            {t("copyVfCashNumber")}
+                          </Button>
+                        )}
+                        {paymentActionMsg.text && (
+                          <p
+                            className={cn(
+                              "text-xs font-bold",
+                              paymentActionMsg.isError
+                                ? "text-red-600"
+                                : "text-green-600",
+                            )}
+                          >
+                            {paymentActionMsg.text}
+                          </p>
+                        )}
+
                         <Input
                           placeholder={t("transactionNumber")}
                           value={transactionNumber}
@@ -254,24 +334,20 @@ export const CheckoutPanel = ({
                           <label
                             className={cn(
                               "cursor-pointer bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs px-3 py-2 rounded-lg font-bold transition-colors border border-gray-200 inline-block",
+                              isUploadingScreenshot &&
+                                "opacity-60 pointer-events-none",
                             )}
                           >
                             <i className="fa-solid fa-image me-1"></i>{" "}
-                            {t("uploadScreenshot")}
+                            {isUploadingScreenshot
+                              ? t("uploading", { defaultValue: "Uploading..." })
+                              : t("uploadScreenshot")}
                             <input
                               type="file"
                               accept="image/*"
                               className="hidden"
-                              onChange={(e) => {
-                                const file = e.target.files[0];
-                                if (file) {
-                                  const reader = new FileReader();
-                                  reader.onloadend = () => {
-                                    setTransactionScreenshot(reader.result);
-                                  };
-                                  reader.readAsDataURL(file);
-                                }
-                              }}
+                              disabled={isUploadingScreenshot}
+                              onChange={handleScreenshotUpload}
                             />
                           </label>
                           {transactionScreenshot && (
@@ -300,11 +376,17 @@ export const CheckoutPanel = ({
                             </div>
                           )}
                         </div>
+                        {screenshotError && (
+                          <p className={cn("text-xs text-red-600 font-medium")}>
+                            {screenshotError}
+                          </p>
+                        )}
                       </div>
                     )}
-                </div>
-              </label>
-            ))
+                  </div>
+                </label>
+              );
+            })
           ) : (
             <p className={cn("text-sm text-red-500")}>
               {t("noPaymentMethods")}
@@ -312,7 +394,6 @@ export const CheckoutPanel = ({
           )}
         </div>
       </div>
-      {/* Order Summary */}
       <div
         className={cn(
           "bg-white p-6 rounded-[10px] shadow-[0_2px_10px_#ddd] border border-gray-100 sticky top-6",
@@ -431,13 +512,15 @@ export const CheckoutPanel = ({
         <div className={cn("flex justify-between mb-3 text-gray-600")}>
           <span>{t("shipping")}</span>
           <span className={cn("font-semibold")}>
-            {baseShippingCost === 0 ? (
+            {!selectedRate ? (
               t("chooseAddressFirst")
             ) : isFreeShippingEligible ? (
               <span className={cn("text-green-600")}>
-                <span className={cn("line-through text-gray-400 me-2")}>
-                  {t("egp")} {baseShippingCost.toFixed(2)}
-                </span>
+                {baseShippingCost > 0 && (
+                  <span className={cn("line-through text-gray-400 me-2")}>
+                    {t("egp")} {baseShippingCost.toFixed(2)}
+                  </span>
+                )}
                 {t("free")}
               </span>
             ) : (
@@ -476,15 +559,28 @@ export const CheckoutPanel = ({
             {checkoutError}
           </div>
         )}
-        <button
-          onClick={handleCheckout}
-          disabled={isCheckoutLoading}
-          className={cn(
-            "checkout w-full h-13.75 bg-black text-white font-bold text-lg rounded-xl hover:bg-gray-900 transition-all cursor-pointer mt-4 disabled:opacity-50",
-          )}
-        >
-          {isCheckoutLoading ? t("placingOrder") : t("placeOrder")}
-        </button>
+        {user ? (
+          <button
+            type="button"
+            onClick={handleCheckout}
+            disabled={isCheckoutLoading}
+            className={cn(
+              "checkout w-full h-13.75 bg-black text-white font-bold text-lg rounded-xl hover:bg-gray-900 transition-all cursor-pointer mt-4 disabled:opacity-50",
+            )}
+          >
+            {isCheckoutLoading ? t("placingOrder") : t("placeOrder")}
+          </button>
+        ) : (
+          <Link
+            to="/login"
+            state={{ from: "/cart" }}
+            className={cn(
+              "checkout flex items-center justify-center w-full h-13.75 bg-black text-white font-bold text-lg rounded-xl hover:bg-gray-900 transition-all mt-4",
+            )}
+          >
+            {t("loginToContinue")}
+          </Link>
+        )}
       </div>
     </div>
   );

@@ -1,6 +1,10 @@
+import { useState } from "react";
 import { cn } from "../../../utils/cn";
 import { useTranslation } from "react-i18next";
-import { updateOrderStatusThunk } from "../../../store/dataSlice";
+import {
+  updateOrderStatusThunk,
+  fetchMyOrdersThunk,
+} from "../../../store/dataSlice";
 import { Modal } from "../../../components/ui/Modal";
 
 export const CancelOrderModal = ({
@@ -9,6 +13,28 @@ export const CancelOrderModal = ({
   dispatch,
 }) => {
   const { t } = useTranslation(["storefront", "common"]);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleCancel = async () => {
+    setError("");
+    setLoading(true);
+    try {
+      await dispatch(
+        updateOrderStatusThunk({
+          orderId: cancelOrderId,
+          status: "Cancelled",
+        }),
+      ).unwrap();
+      dispatch(fetchMyOrdersThunk());
+      setCancelOrderId(null);
+    } catch (err) {
+      setError(err || t("genericErrorMessage"));
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Modal
       isOpen={!!cancelOrderId}
@@ -25,19 +51,15 @@ export const CancelOrderModal = ({
           <i className={cn("fa-solid fa-triangle-exclamation text-3xl")}></i>
         </div>
         <p className={cn("text-gray-500 mb-8")}>{t("cancelOrderConfirm")}</p>
+        {error && (
+          <p className={cn("text-red-600 text-sm font-medium mb-4")}>{error}</p>
+        )}
         <div className={cn("flex flex-col gap-3")}>
           <button
-            onClick={() => {
-              dispatch(
-                updateOrderStatusThunk({
-                  orderId: cancelOrderId,
-                  status: "Cancelled",
-                }),
-              );
-              setCancelOrderId(null);
-            }}
+            onClick={handleCancel}
+            disabled={loading}
             className={cn(
-              "w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-md cursor-pointer",
+              "w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-md cursor-pointer disabled:opacity-50",
             )}
           >
             {t("yesCancelOrder")}

@@ -27,7 +27,6 @@ export const AdminLayout = () => {
       />
 
       <div className={cn("flex-1 flex flex-col min-w-0 h-screen")}>
-        {/* Mobile Header */}
         <div
           className={cn(
             "md:hidden flex items-center justify-between bg-[#111] text-white p-4 sticky top-0 z-40",
@@ -59,7 +58,6 @@ export const AdminLayout = () => {
         </main>
       </div>
 
-      {/* Mobile Overlay */}
       {isSidebarOpen && (
         <div
           className={cn(

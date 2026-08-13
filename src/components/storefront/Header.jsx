@@ -7,6 +7,7 @@ import { selectCartCount } from "../../store/cartSlice";
 import { selectWishlistCount } from "../../store/wishlistSlice";
 import { selectSiteSettings } from "../../store/dataSlice";
 import { LanguageSwitcher } from "../common/LanguageSwitcher";
+import { getImageUrl } from "../../utils/getImageUrl";
 
 export const Header = ({ searchQuery, setSearchQuery, setIsDrawerOpen }) => {
   const { t } = useTranslation(["storefront", "common"]);
@@ -31,7 +32,6 @@ export const Header = ({ searchQuery, setSearchQuery, setIsDrawerOpen }) => {
         "w-[95%] max-w-7xl mx-auto flex justify-between items-center py-4 bg-transparent relative",
       )}
     >
-      {/* Mobile Hamburger Menu */}
       <button
         onClick={() => setIsDrawerOpen(true)}
         className={cn(
@@ -41,7 +41,6 @@ export const Header = ({ searchQuery, setSearchQuery, setIsDrawerOpen }) => {
         <i className={cn("fa-solid fa-bars")}></i>
       </button>
 
-      {/* Logo / Site Name */}
       <div
         className={cn(
           "logo flex-shrink-0 absolute md:static start-1/2 -translate-x-1/2 md:translate-x-0 z-10",
@@ -50,7 +49,7 @@ export const Header = ({ searchQuery, setSearchQuery, setIsDrawerOpen }) => {
         <Link to="/">
           {siteSettings.type === "logo" ? (
             <img
-              src={siteSettings.logoUrl}
+              src={getImageUrl(siteSettings.logoUrl)}
               alt={siteSettings.siteName}
               className={cn("w-[90px] md:w-[100px] object-contain")}
             />
@@ -66,7 +65,6 @@ export const Header = ({ searchQuery, setSearchQuery, setIsDrawerOpen }) => {
         </Link>
       </div>
 
-      {/* Search Bar */}
       <form
         onSubmit={handleSearchSubmit}
         className={cn(
@@ -102,12 +100,9 @@ export const Header = ({ searchQuery, setSearchQuery, setIsDrawerOpen }) => {
         )}
       </form>
 
-      {/* Icons & Actions */}
       <div className={cn("icons hidden md:flex items-center gap-2")}>
-        {/* Language Switcher */}
         <LanguageSwitcher />
 
-        {/* Wishlist Icon */}
         <Link
           to="/wishlist"
           className={cn(
@@ -124,10 +119,11 @@ export const Header = ({ searchQuery, setSearchQuery, setIsDrawerOpen }) => {
               {wishlistCount}
             </span>
           )}
-          <span className={cn("text-[10px] font-medium mt-0.5")}>{t("wishlist")}</span>
+          <span className={cn("text-[10px] font-medium mt-0.5")}>
+            {t("wishlist")}
+          </span>
         </Link>
 
-        {/* Cart Shopping Icon */}
         <Link
           to="/cart"
           className={cn(
@@ -144,10 +140,11 @@ export const Header = ({ searchQuery, setSearchQuery, setIsDrawerOpen }) => {
               {cartCount}
             </span>
           )}
-          <span className={cn("text-[10px] font-medium mt-0.5")}>{t("cart")}</span>
+          <span className={cn("text-[10px] font-medium mt-0.5")}>
+            {t("cart")}
+          </span>
         </Link>
 
-        {/* User Account */}
         {isLoggedIn ? (
           <div className={cn("flex items-center gap-2 me-2")}>
             <Link
@@ -174,7 +171,9 @@ export const Header = ({ searchQuery, setSearchQuery, setIsDrawerOpen }) => {
             )}
           >
             <i className={cn("fa-regular fa-user text-xl")}></i>
-            <span className={cn("text-[10px] font-medium mt-0.5")}>{t("login")}</span>
+            <span className={cn("text-[10px] font-medium mt-0.5")}>
+              {t("login")}
+            </span>
           </Link>
         )}
       </div>

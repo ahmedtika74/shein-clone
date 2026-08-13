@@ -23,14 +23,14 @@ export const OffersList = ({ offers, handleEdit, handleDelete }) => {
               <Badge variant="brand">
                 {getLocalizedString(o, "discount", i18n.language)}
               </Badge>
-              {o.expDate && (
+              {o.expiryDate && (
                 <Badge
                   variant={
-                    new Date(o.expDate) < new Date() ? "error" : "success"
+                    new Date(o.expiryDate) < new Date() ? "error" : "success"
                   }
                   className={cn("text-[10px]")}
                 >
-                  {t("exp")} {o.expDate}
+                  {t("exp")} {String(o.expiryDate).slice(0, 10)}
                 </Badge>
               )}
             </div>

@@ -2,6 +2,7 @@ import { cn } from "../../utils/cn";
 import { OrderFilters } from "./AdminOrders/OrderFilters";
 import { OrdersTable } from "./AdminOrders/OrdersTable";
 import { useOrdersLogic } from "./AdminOrders/useOrdersLogic";
+import { LoadingSpinner } from "../../components/common/LoadingSpinner";
 import { useTranslation } from "react-i18next";
 
 export const AdminOrdersPage = () => {
@@ -16,7 +17,22 @@ export const AdminOrdersPage = () => {
         totalOrders={logic.orders.length}
       />
 
-      {logic.filteredOrders.length === 0 ? (
+      {logic.error && !logic.isLoading && (
+        <p className={cn("text-sm text-red-600 font-medium mb-4")}>
+          {logic.error}{" "}
+          <button
+            type="button"
+            onClick={logic.refreshOrders}
+            className={cn("underline font-bold cursor-pointer")}
+          >
+            {t("retry", { defaultValue: "Retry" })}
+          </button>
+        </p>
+      )}
+
+      {logic.isLoading ? (
+        <LoadingSpinner />
+      ) : logic.filteredOrders.length === 0 ? (
         <div
           className={cn(
             "bg-white p-12 rounded-[20px] shadow-[0_5px_20px_rgba(0,0,0,0.05)] text-center text-gray-500",

@@ -1,14 +1,24 @@
+import { useEffect } from "react";
 import { cn } from "../../utils/cn";
 import { useTranslation } from "react-i18next";
-import { useSelector } from "react-redux";
-import { selectOrders, selectProducts } from "../../store/dataSlice";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchOrdersThunk,
+  selectOrders,
+  selectProducts,
+} from "../../store/dataSlice";
 import { Card, CardContent, Badge } from "../../components/ui";
 import { formatPrice } from "../../utils/formatPrice";
 
 export const AdminDashboardPage = () => {
   const { t } = useTranslation(["admin", "common"]);
+  const dispatch = useDispatch();
   const orders = useSelector(selectOrders);
   const products = useSelector(selectProducts);
+
+  useEffect(() => {
+    dispatch(fetchOrdersThunk());
+  }, [dispatch]);
 
   const totalSales = orders.reduce(
     (sum, order) =>
@@ -27,7 +37,6 @@ export const AdminDashboardPage = () => {
       <div
         className={cn("cards grid grid-cols-1 md:grid-cols-3 gap-6.25 mb-10")}
       >
-        {/* Card 1: Orders */}
         <Card
           className={cn(
             "p-0 hover:-translate-y-1 transition-all shadow-[0_5px_20px_rgba(0,0,0,0.05)] rounded-[20px]",
@@ -50,7 +59,6 @@ export const AdminDashboardPage = () => {
           </CardContent>
         </Card>
 
-        {/* Card 2: Sales */}
         <Card
           className={cn(
             "p-0 hover:-translate-y-1 transition-all shadow-[0_5px_20px_rgba(0,0,0,0.05)] rounded-[20px]",
@@ -73,7 +81,6 @@ export const AdminDashboardPage = () => {
           </CardContent>
         </Card>
 
-        {/* Card 3: Products */}
         <Card
           className={cn(
             "p-0 hover:-translate-y-1 transition-all shadow-[0_5px_20px_rgba(0,0,0,0.05)] rounded-[20px]",
@@ -97,7 +104,6 @@ export const AdminDashboardPage = () => {
         </Card>
       </div>
 
-      {/* Recent Orders Overview Table */}
       <Card
         className={cn(
           "p-0 shadow-[0_5px_20px_rgba(0,0,0,0.05)] rounded-[20px]",

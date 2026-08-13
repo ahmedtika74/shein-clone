@@ -1,6 +1,7 @@
 import { cn } from "../../../utils/cn";
 import { Button, Input, Card, CardContent } from "../../../components/ui";
 import { useTranslation } from "react-i18next";
+import { getImageUrl } from "../../../utils/getImageUrl";
 
 export const PaymentMethodForm = ({
   handleAdd,
@@ -20,6 +21,9 @@ export const PaymentMethodForm = ({
   imageInputUrl,
   setImageInputUrl,
   handleAddUrl,
+  isLoading,
+  isUploading,
+  formError,
 }) => {
   const { t } = useTranslation("admin");
   return (
@@ -62,7 +66,7 @@ export const PaymentMethodForm = ({
             {newMethodImg ? (
               <div className={cn("relative w-16 h-16 group")}>
                 <img
-                  src={newMethodImg}
+                  src={getImageUrl(newMethodImg)}
                   alt="Preview"
                   className={cn(
                     "w-16 h-16 object-contain rounded-md border border-gray-200 bg-white p-1",
@@ -120,10 +124,13 @@ export const PaymentMethodForm = ({
                       htmlFor="add-payment-img"
                       className={cn(
                         "inline-flex items-center justify-center bg-black text-white px-4 py-2 rounded-lg text-sm font-bold cursor-pointer hover:bg-gray-800 transition-colors whitespace-nowrap h-[42px]",
+                        isUploading && "opacity-60 pointer-events-none",
                       )}
                     >
                       <i className={cn("fa-solid fa-upload me-2")}></i>
-                      {t("chooseFile", { defaultValue: "Choose File..." })}
+                      {isUploading
+                        ? t("uploading", { defaultValue: "Uploading..." })
+                        : t("chooseFile", { defaultValue: "Choose File..." })}
                     </label>
                   </div>
                 ) : (
@@ -131,9 +138,7 @@ export const PaymentMethodForm = ({
                     <Input
                       value={imageInputUrl}
                       onChange={(e) => setImageInputUrl(e.target.value)}
-                      placeholder={t("imageUrlPlaceholder", {
-                        defaultValue: "Image URL...",
-                      })}
+                      placeholder="/products/example.jpg"
                       className={cn("flex-1 min-w-0")}
                     />
                     <Button
@@ -155,8 +160,16 @@ export const PaymentMethodForm = ({
             )}
           </div>
 
-          <Button type="submit" className={cn("w-full h-11")}>
-            {t("addMethod")}
+          {formError && (
+            <p className={cn("text-sm text-red-600 font-medium")}>{formError}</p>
+          )}
+
+          <Button
+            type="submit"
+            disabled={isLoading}
+            className={cn("w-full h-11")}
+          >
+            {isLoading ? t("saving") : t("addMethod")}
           </Button>
         </form>
       </CardContent>

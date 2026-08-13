@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "../../../utils/cn";
-import { updateOrderStatusThunk } from "../../../store/dataSlice";
+import {
+  requestRefundThunk,
+  fetchMyOrdersThunk,
+} from "../../../store/dataSlice";
 import { Modal } from "../../../components/ui/Modal";
 import { Button } from "../../../components/ui/Button";
 
@@ -12,19 +15,30 @@ export const RefundRequestModal = ({
 }) => {
   const { t } = useTranslation(["storefront", "common"]);
   const [reason, setReason] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!reason.trim()) return;
 
-    dispatch(
-      updateOrderStatusThunk({
-        orderId: refundOrderId,
-        status: "Refund Requested",
-        refundReason: reason.trim(),
-      }),
-    );
-    setRefundOrderId(null);
+    setLoading(true);
+    setError("");
+    try {
+      await dispatch(
+        requestRefundThunk({
+          orderId: refundOrderId,
+          reason: reason.trim(),
+        }),
+      ).unwrap();
+      dispatch(fetchMyOrdersThunk());
+      setReason("");
+      setRefundOrderId(null);
+    } catch (err) {
+      setError(err || t("genericErrorMessage"));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -61,10 +75,14 @@ export const RefundRequestModal = ({
             )}
           ></textarea>
 
+          {error && (
+            <p className={cn("text-red-600 text-sm font-medium")}>{error}</p>
+          )}
+
           <div className={cn("flex flex-col gap-3 mt-2")}>
             <Button
               type="submit"
-              disabled={!reason.trim()}
+              disabled={!reason.trim() || loading}
               className={cn(
                 "w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed",
               )}

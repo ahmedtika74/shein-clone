@@ -1,25 +1,52 @@
 import { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
+import { useTranslation } from "react-i18next";
 import {
   selectOffers,
-  addOffer,
-  updateOffer,
-  removeOffer,
+  createOfferThunk,
+  updateOfferThunk,
+  deleteOfferThunk,
 } from "../../../store/dataSlice";
 
+const toDateInputValue = (value) => {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return String(value).slice(0, 10);
+  }
+  return date.toISOString().slice(0, 10);
+};
+
 export const useOffersLogic = () => {
+  const { t } = useTranslation("admin");
   const dispatch = useDispatch();
   const offers = useSelector(selectOffers);
+  const status = useSelector((state) => state.data.status);
+  const isLoading = status === "loading";
+
   const [editingId, setEditingId] = useState(null);
   const [titleEn, setTitleEn] = useState("");
   const [titleAr, setTitleAr] = useState("");
   const [discountValue, setDiscountValue] = useState("");
   const [discountType, setDiscountType] = useState("%");
   const [code, setCode] = useState("");
-  const [expDate, setExpDate] = useState("");
+  const [expiryDate, setExpiryDate] = useState("");
+  const [formError, setFormError] = useState("");
 
-  const handleSubmit = (e) => {
+  const resetForm = () => {
+    setEditingId(null);
+    setTitleEn("");
+    setTitleAr("");
+    setDiscountValue("");
+    setDiscountType("%");
+    setCode("");
+    setExpiryDate("");
+    setFormError("");
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setFormError("");
     if (!titleEn || !titleAr || !discountValue) return;
 
     const discountEn = `${discountValue}${discountType === "%" ? "% OFF" : " EGP OFF"}`;
@@ -33,48 +60,53 @@ export const useOffersLogic = () => {
       discountValue: Number(discountValue),
       discountType,
       code,
-      expDate,
+      expiryDate,
     };
 
-    if (editingId) {
-      dispatch(updateOffer({ id: editingId, ...offerData }));
-    } else {
-      dispatch(addOffer({ id: crypto.randomUUID(), ...offerData }));
+    try {
+      if (editingId) {
+        await dispatch(
+          updateOfferThunk({ id: editingId, ...offerData, isActive: true }),
+        ).unwrap();
+      } else {
+        // OfferCreateDto has no isActive (additionalProperties: false).
+        await dispatch(createOfferThunk(offerData)).unwrap();
+      }
+      resetForm();
+    } catch (err) {
+      setFormError(err || t("failedToSaveOffer"));
     }
-
-    resetForm();
   };
 
   const handleEdit = (offer) => {
     setEditingId(offer.id);
-    setTitleEn(offer.titleEn || offer.title || "");
-    setTitleAr(offer.titleAr || offer.title || "");
+    setTitleEn(offer.titleEn || "");
+    setTitleAr(offer.titleAr || "");
     setDiscountValue(
-      offer.discountValue || parseInt(offer.discountEn || offer.discount) || "",
+      offer.discountValue || parseInt(offer.discountEn, 10) || "",
     );
     setDiscountType(
-      offer.discountType || (offer.discount?.includes("EGP") ? "EGP" : "%"),
+      offer.discountType ||
+        (String(offer.discountEn || "").includes("EGP") ? "EGP" : "%"),
     );
     setCode(offer.code || "");
-    setExpDate(offer.expDate || "");
+    setExpiryDate(toDateInputValue(offer.expiryDate));
+    setFormError("");
   };
 
-  const resetForm = () => {
-    setEditingId(null);
-    setTitleEn("");
-    setTitleAr("");
-    setDiscountValue("");
-    setDiscountType("%");
-    setCode("");
-    setExpDate("");
-  };
-
-  const handleDelete = (id) => {
-    dispatch(removeOffer(id));
+  const handleDelete = async (id) => {
+    setFormError("");
+    try {
+      await dispatch(deleteOfferThunk(id)).unwrap();
+      if (editingId === id) resetForm();
+    } catch (err) {
+      setFormError(err || t("failedToDeleteOffer"));
+    }
   };
 
   return {
     offers,
+    isLoading,
     editingId,
     titleEn,
     setTitleEn,
@@ -86,8 +118,9 @@ export const useOffersLogic = () => {
     setDiscountType,
     code,
     setCode,
-    expDate,
-    setExpDate,
+    expiryDate,
+    setExpiryDate,
+    formError,
     handleSubmit,
     handleEdit,
     resetForm,

@@ -1,24 +1,19 @@
-import { cn } from "../../utils/cn";
+import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Link, useSearchParams } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { selectCategories } from "../../store/dataSlice";
-import { getLocalizedString } from "../../utils/localization";
+import { cn } from "../../utils/cn";
+import { useCategoryNav, categoryHref } from "./useCategoryNav";
+
+const ActiveUnderline = () => (
+  <span
+    className={cn(
+      "absolute bottom-0 start-0 w-full h-[3px] bg-black rounded-t-md",
+    )}
+  ></span>
+);
 
 export const Navbar = () => {
-  const { t, i18n } = useTranslation(["storefront", "common"]);
-  const [searchParams] = useSearchParams();
-  const currentCategory = searchParams.get("category");
-
-  const categories = useSelector(selectCategories);
-
-  const navItems = [
-    ...categories.map((c) => ({
-      label: getLocalizedString(c, "name", i18n.language).toUpperCase(),
-      category: c.name || c.nameEn,
-    })),
-    { label: t("sale"), category: "SALE", isSale: true },
-  ];
+  const { t } = useTranslation("storefront");
+  const { items, activeKey } = useCategoryNav();
 
   return (
     <nav
@@ -36,43 +31,30 @@ export const Navbar = () => {
             <Link
               to="/"
               className={cn(
-                `relative py-2 text-gray-500 hover:text-black transition-colors uppercase ${
-                  !currentCategory ? "text-black" : ""
-                }`,
+                "relative py-2 hover:text-black transition-colors uppercase",
+                activeKey ? "text-gray-500" : "text-black",
               )}
             >
-              ALL
-              {!currentCategory && (
-                <span
-                  className={cn(
-                    "absolute bottom-0 start-0 w-full h-[3px] bg-black rounded-t-md",
-                  )}
-                ></span>
-              )}
+              {t("all")}
+              {!activeKey && <ActiveUnderline />}
             </Link>
           </li>
-          {navItems.map((item) => (
-            <li key={item.label}>
+
+          {items.map((item) => (
+            <li key={item.key}>
               <Link
-                to={`/?category=${encodeURIComponent(item.category)}`}
+                to={categoryHref(item.key)}
                 className={cn(
-                  `relative py-2 transition-colors uppercase ${
-                    currentCategory === item.category
-                      ? "text-black"
-                      : item.isSale
-                        ? "text-red-500 hover:text-red-600"
-                        : "text-gray-500 hover:text-black"
-                  }`,
+                  "relative py-2 transition-colors uppercase",
+                  activeKey === item.key
+                    ? "text-black"
+                    : item.isSale
+                      ? "text-red-500 hover:text-red-600"
+                      : "text-gray-500 hover:text-black",
                 )}
               >
                 {item.label}
-                {currentCategory === item.category && (
-                  <span
-                    className={cn(
-                      "absolute bottom-0 start-0 w-full h-[3px] bg-black rounded-t-md",
-                    )}
-                  ></span>
-                )}
+                {activeKey === item.key && <ActiveUnderline />}
               </Link>
             </li>
           ))}

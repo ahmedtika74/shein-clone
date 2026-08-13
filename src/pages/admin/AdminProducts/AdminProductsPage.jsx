@@ -101,7 +101,7 @@ export const AdminProductsPage = () => {
           setIsModalOpen(false);
           form.resetForm();
         }}
-        title={form.editIndex === -1 ? t("addProduct") : t("editProduct")}
+        title={form.isEditing ? t("editProduct") : t("addProduct")}
         maxWidth="max-w-4xl"
       >
         <div className="max-h-[80vh] overflow-y-auto px-1">

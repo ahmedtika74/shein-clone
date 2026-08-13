@@ -8,7 +8,6 @@ import { useTranslation } from "react-i18next";
 import { useAuthForms } from "./Auth/useAuthForms";
 import { LoginForm } from "./Auth/LoginForm";
 import { RegisterForm } from "./Auth/RegisterForm";
-import { ForgotPasswordForm } from "./Auth/ForgotPasswordForm";
 
 export const LoginPage = () => {
   const { t } = useTranslation("storefront");
@@ -45,14 +44,11 @@ export const LoginPage = () => {
           </Link>
         </div>
 
-        {/* LOGIN */}
-        {logic.mode === "login" && <LoginForm {...logic} />}
-
-        {/* REGISTER */}
-        {logic.mode === "register" && <RegisterForm {...logic} />}
-
-        {/* FORGOT PASSWORD */}
-        {logic.mode === "forget" && <ForgotPasswordForm {...logic} />}
+        {logic.mode === "register" ? (
+          <RegisterForm {...logic} />
+        ) : (
+          <LoginForm {...logic} />
+        )}
       </div>
     </div>
   );

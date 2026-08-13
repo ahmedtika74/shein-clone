@@ -1,41 +1,44 @@
-import { cn } from "../../utils/cn";
-import { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate, Link, Navigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
+import { cn } from "../../utils/cn";
 import {
   loginAdminThunk,
-  selectAuthResult,
-  clearAuthResult,
   selectAuthStatus,
+  selectIsAdminLoggedIn,
 } from "../../store/authSlice";
 import { selectSiteSettings } from "../../store/dataSlice";
 import { Input, Button } from "../../components/ui";
+import { getImageUrl } from "../../utils/getImageUrl";
 
 export const AdminLoginPage = () => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [msg, setMsg] = useState("");
+  const { t } = useTranslation("admin");
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const authResult = useSelector(selectAuthResult);
-  const authStatus = useSelector(selectAuthStatus);
+
+  const isAdminLoggedIn = useSelector(selectIsAdminLoggedIn);
+  const isLoading = useSelector(selectAuthStatus) === "loading";
   const siteSettings = useSelector(selectSiteSettings);
-  const isLoading = authStatus === "loading";
 
-  useEffect(() => {
-    if (authResult) {
-      if (authResult.success) {
-        navigate("/admin/dashboard");
-      } else {
-        setMsg(authResult.message);
-      }
-      dispatch(clearAuthResult());
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+
+  if (isAdminLoggedIn) {
+    return <Navigate to="/admin/dashboard" replace />;
+  }
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setErrorMessage("");
+
+    try {
+      await dispatch(loginAdminThunk({ username, password })).unwrap();
+      navigate("/admin/dashboard", { replace: true });
+    } catch (error) {
+      setErrorMessage(error || t("loginFailed"));
     }
-  }, [authResult, navigate, dispatch]);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    dispatch(loginAdminThunk({ username, password }));
   };
 
   return (
@@ -51,9 +54,9 @@ export const AdminLoginPage = () => {
       >
         <div className={cn("text-center mb-8")}>
           <Link to="/">
-            {siteSettings.type === "logo" ? (
+            {siteSettings.logoUrl ? (
               <img
-                src={siteSettings.logoUrl}
+                src={getImageUrl(siteSettings.logoUrl)}
                 alt={siteSettings.siteName}
                 className={cn("w-30 mx-auto mb-4")}
               />
@@ -67,11 +70,11 @@ export const AdminLoginPage = () => {
               </div>
             )}
           </Link>
-          <h2 className={cn("text-2xl font-bold text-gray-900")}>
-            Admin Login
-          </h2>
+          <h1 className={cn("text-2xl font-bold text-gray-900")}>
+            {t("adminLogin")}
+          </h1>
           <p className={cn("text-xs text-gray-500 mt-1")}>
-            Please log in to access the {siteSettings.siteName} Admin Panel
+            {t("adminLoginSubtitle")}
           </p>
         </div>
 
@@ -83,11 +86,12 @@ export const AdminLoginPage = () => {
               )}
             ></i>
             <Input
-              label="Username"
+              label={t("username")}
               type="text"
-              placeholder="Enter Username"
+              autoComplete="username"
+              placeholder={t("enterUsername")}
               value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              onChange={(event) => setUsername(event.target.value)}
               className={cn("ps-11 h-12")}
             />
           </div>
@@ -99,11 +103,12 @@ export const AdminLoginPage = () => {
               )}
             ></i>
             <Input
-              label="Password"
+              label={t("password")}
               type="password"
-              placeholder="Enter Password"
+              autoComplete="current-password"
+              placeholder={t("enterPassword")}
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(event) => setPassword(event.target.value)}
               className={cn("ps-11 h-12")}
             />
           </div>
@@ -113,26 +118,27 @@ export const AdminLoginPage = () => {
             disabled={isLoading}
             className={cn("w-full py-3 h-12")}
           >
-            {isLoading ? "Signing in..." : "Sign In to Admin Panel"}
+            {isLoading ? t("signingIn") : t("signIn")}
           </Button>
 
-          {msg && (
+          {errorMessage && (
             <p
               className={cn("text-center text-xs font-bold text-red-600 mt-3")}
+              role="alert"
             >
-              {msg}
+              {errorMessage}
             </p>
           )}
         </form>
 
-        <div className={cn("mt-8 text-center border-t pt-4")}>
+        <div className={cn("mt-8 text-center border-t border-gray-200 pt-4")}>
           <Link
             to="/"
             className={cn(
               "text-xs font-bold text-gray-500 hover:text-black transition-colors",
             )}
           >
-            &larr; Back to Storefront
+            &larr; {t("backToStorefront")}
           </Link>
         </div>
       </div>

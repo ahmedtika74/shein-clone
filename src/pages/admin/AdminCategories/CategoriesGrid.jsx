@@ -2,6 +2,7 @@ import { cn } from "../../../utils/cn";
 import { Card, CardContent, Button } from "../../../components/ui";
 import { useTranslation } from "react-i18next";
 import { getLocalizedString } from "../../../utils/localization";
+import { getImageUrl } from "../../../utils/getImageUrl";
 
 export const CategoriesGrid = ({
   categories,
@@ -26,7 +27,7 @@ export const CategoriesGrid = ({
           <CardContent className={cn("p-5 flex items-center justify-between")}>
             <div className={cn("flex items-center gap-4")}>
               <img
-                src={cat.img}
+                src={getImageUrl(cat.imageUrl)}
                 alt={getLocalizedString(cat, "name", i18n.language)}
                 className={cn("w-16 h-16 rounded-full object-cover border")}
               />

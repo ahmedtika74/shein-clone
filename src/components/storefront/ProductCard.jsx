@@ -2,19 +2,44 @@ import { cn } from "../../utils/cn";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { addToCart, selectCartItems } from "../../store/cartSlice";
-import { toggleWishlist, selectIsInWishlist } from "../../store/wishlistSlice";
+import {
+  toggleWishlist,
+  toggleWishlistThunk,
+  selectIsInWishlist,
+} from "../../store/wishlistSlice";
+import { selectIsLoggedIn } from "../../store/authSlice";
 import { useTranslation } from "react-i18next";
 import { formatPrice } from "../../utils/formatPrice";
 import { getLocalizedString } from "../../utils/localization";
+import { getImageUrl } from "../../utils/getImageUrl";
+import {
+  getTotalStock,
+  getVariantKey,
+  getVariantStock,
+  resolveColor,
+  resolveSize,
+} from "../../utils/variants";
 
 export const ProductCard = ({ product }) => {
   const { t, i18n } = useTranslation(["storefront", "common"]);
   const dispatch = useDispatch();
   const isFavorite = useSelector(selectIsInWishlist(product.id));
+  const isLoggedIn = useSelector(selectIsLoggedIn);
   const navigate = useNavigate();
   const cartItems = useSelector(selectCartItems);
+
+  // Quick-add always uses the default variant, so "in cart" must match it too.
+  const defaultColor = resolveColor(product, null);
+  const defaultSize = resolveSize(product, null);
+  const defaultStock = getVariantStock(product, defaultColor, defaultSize);
+  const isOutOfStock = getTotalStock(product) <= 0;
+  // Default colour/size is empty but another variant has stock — send user to pick.
+  const needsVariantChoice = !isOutOfStock && defaultStock <= 0;
   const isInCart = cartItems.some(
-    (item) => String(item.id) === String(product.id),
+    (item) =>
+      String(item.id) === String(product.id) &&
+      getVariantKey({ nameEn: item.colorName }, { name: item.sizeName }) ===
+        getVariantKey(defaultColor, defaultSize),
   );
 
   const handleAddToCart = (e) => {
@@ -22,31 +47,28 @@ export const ProductCard = ({ product }) => {
     e.stopPropagation();
     if (isInCart) {
       navigate("/cart");
-    } else {
-      dispatch(addToCart(product));
+      return;
     }
+    if (needsVariantChoice) {
+      navigate(`/product/${product.id}`);
+      return;
+    }
+    dispatch(addToCart(product));
   };
 
   const handleToggleWishlist = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    dispatch(toggleWishlist(product));
+    if (isLoggedIn) dispatch(toggleWishlistThunk(product));
+    else dispatch(toggleWishlist(product));
   };
 
   const discountPercent =
-    product.oldPrice && product.newPrice
+    product.oldPrice > product.price
       ? Math.round(
-          ((parseFloat(product.oldPrice.replace(/[^0-9.]/g, "")) -
-            parseFloat(product.newPrice.replace(/[^0-9.]/g, ""))) /
-            parseFloat(product.oldPrice.replace(/[^0-9.]/g, ""))) *
-            100,
+          ((product.oldPrice - product.price) / product.oldPrice) * 100,
         )
-      : null;
-
-  const totalStock = product.variantsStock
-    ? Object.values(product.variantsStock).reduce((acc, curr) => acc + curr, 0)
-    : 0;
-  const isOutOfStock = totalStock <= 0;
+      : 0;
 
   return (
     <div
@@ -61,20 +83,21 @@ export const ProductCard = ({ product }) => {
       >
         <Link to={`/product/${product.id}`}>
           <img
-            src={product.img || (product.images && product.images[0])}
+            src={getImageUrl(product.img)}
             alt={getLocalizedString(product, "name", i18n.language)}
+            loading="lazy"
             className={cn(
               "w-full h-full object-cover transition-transform duration-400 group-hover:scale-108",
             )}
           />
         </Link>
-        {(discountPercent > 0 || product.offer) && !isOutOfStock && (
+        {(discountPercent > 0 || product.offerBadge) && !isOutOfStock && (
           <span
             className={cn(
               "discount absolute top-3 start-3 bg-[#e60023] text-white text-[12px] font-bold px-3 py-1 rounded-full shadow",
             )}
           >
-            {discountPercent > 0 ? `-${discountPercent}%` : product.offer}
+            {discountPercent > 0 ? `-${discountPercent}%` : product.offerBadge}
           </span>
         )}
         {isOutOfStock && (
@@ -91,7 +114,9 @@ export const ProductCard = ({ product }) => {
           className={cn(
             `heart absolute top-3 end-3 w-[42px] h-[42px] rounded-full flex items-center justify-center cursor-pointer text-[19px] z-10 shadow-[0_5px_15px_rgba(0,0,0,0.15)] transition-all duration-300 hover:scale-115 ${isFavorite ? "text-red-600 bg-[#fff0f0]" : "text-gray-700 bg-white hover:text-red-600"}`,
           )}
-          aria-label="Add to Wishlist"
+          aria-label={
+            isFavorite ? t("removeFromWishlist") : t("addToWishlist")
+          }
         >
           <i
             className={cn(`${isFavorite ? "fa-solid" : "fa-regular"} fa-heart`)}
@@ -123,9 +148,9 @@ export const ProductCard = ({ product }) => {
                 "new-price text-[#e60023] text-[15px] sm:text-[17px] md:text-[21px] font-bold leading-none",
               )}
             >
-              {formatPrice(product.newPrice, t)}
+              {formatPrice(product.price, t)}
             </span>
-            {product.oldPrice && (
+            {product.oldPrice > product.price && (
               <span
                 className={cn(
                   "old-price text-gray-400 line-through text-[11px] sm:text-xs md:text-sm",
@@ -154,7 +179,9 @@ export const ProductCard = ({ product }) => {
               ? t("outOfStock")
               : isInCart
                 ? t("addedToCart") + " ✓"
-                : t("addToCart")}
+                : needsVariantChoice
+                  ? t("selectOptions")
+                  : t("addToCart")}
           </button>
         </div>
       </div>

@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/api/:path*",
+      "destination": "https://woodencorner-001-site2.gtempurl.com/api/:path*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

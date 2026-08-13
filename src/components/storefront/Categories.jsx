@@ -4,10 +4,14 @@ import { useSelector } from "react-redux";
 import { selectCategories } from "../../store/dataSlice";
 import { useTranslation } from "react-i18next";
 import { getLocalizedString } from "../../utils/localization";
+import { getImageUrl } from "../../utils/getImageUrl";
+import { categoryHref } from "./useCategoryNav";
 
 export const Categories = () => {
   const { t, i18n } = useTranslation("storefront");
   const categories = useSelector(selectCategories);
+
+  if (categories.length === 0) return null;
 
   return (
     <section className={cn("w-[95%] max-w-7xl mx-auto my-15")}>
@@ -26,7 +30,7 @@ export const Categories = () => {
         {categories.map((cat) => (
           <Link
             key={cat.id}
-            to={`/?category=${encodeURIComponent(cat.name || cat.nameEn)}`}
+            to={categoryHref(String(cat.id))}
             className={cn(
               "category flex flex-col items-center cursor-pointer group text-center",
             )}
@@ -37,8 +41,9 @@ export const Categories = () => {
               )}
             >
               <img
-                src={cat.img}
+                src={getImageUrl(cat.imageUrl)}
                 alt={getLocalizedString(cat, "name", i18n.language)}
+                loading="lazy"
                 className={cn(
                   "w-full h-full object-cover transition-transform duration-400 group-hover:scale-108",
                 )}

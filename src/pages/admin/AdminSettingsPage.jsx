@@ -25,7 +25,6 @@ export const AdminSettingsPage = () => {
           <LogoUploader {...logic} />
           <SocialLinks {...logic} />
 
-          {/* Submit */}
           <div className={cn("pt-4 flex items-center gap-4")}>
             <button
               type="submit"

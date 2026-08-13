@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
+import { useTranslation } from "react-i18next";
 import {
   selectCategories,
   createCategoryThunk,
@@ -8,6 +9,7 @@ import {
 } from "../../../store/dataSlice";
 
 export const useCategoriesLogic = () => {
+  const { t } = useTranslation("admin");
   const dispatch = useDispatch();
   const categories = useSelector(selectCategories);
   const status = useSelector((state) => state.data.status);
@@ -17,70 +19,57 @@ export const useCategoriesLogic = () => {
   const [catNameEn, setCatNameEn] = useState("");
   const [catNameAr, setCatNameAr] = useState("");
   const [catImg, setCatImg] = useState("");
-  const [imageInputUrl, setImageInputUrl] = useState("");
-  const [inputMode, setInputMode] = useState("upload");
-
-  const handleFileUpload = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      setCatImg(ev.target.result);
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const handleAddUrl = () => {
-    if (imageInputUrl.trim()) {
-      setCatImg(imageInputUrl.trim());
-      setImageInputUrl("");
-    }
-  };
+  const [formError, setFormError] = useState("");
 
   const resetForm = () => {
     setEditId(null);
     setCatNameEn("");
     setCatNameAr("");
     setCatImg("");
-    setImageInputUrl("");
+    setFormError("");
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setFormError("");
     if (!catNameEn || !catNameAr) return;
 
-    if (editId) {
-      dispatch(
-        updateCategoryThunk({
-          id: editId,
-          nameEn: catNameEn,
-          nameAr: catNameAr,
-          img: catImg || "/images/dress.webp",
-        }),
-      );
-    } else {
-      dispatch(
-        createCategoryThunk({
-          nameEn: catNameEn,
-          nameAr: catNameAr,
-          img: catImg || "/images/dress.webp",
-        }),
-      );
-    }
+    const payload = {
+      nameEn: catNameEn,
+      nameAr: catNameAr,
+      imageUrl: catImg || "",
+    };
 
-    resetForm();
+    try {
+      if (editId) {
+        await dispatch(
+          updateCategoryThunk({ id: editId, ...payload }),
+        ).unwrap();
+      } else {
+        await dispatch(createCategoryThunk(payload)).unwrap();
+      }
+      resetForm();
+    } catch (err) {
+      setFormError(err || t("failedToSaveCategory"));
+    }
   };
 
   const handleEdit = (cat) => {
     setEditId(cat.id);
     setCatNameEn(cat.nameEn || "");
     setCatNameAr(cat.nameAr || "");
-    setCatImg(cat.img);
+    setCatImg(cat.imageUrl || "");
+    setFormError("");
   };
 
-  const handleDelete = (id) => {
-    dispatch(deleteCategoryThunk(id));
+  const handleDelete = async (id) => {
+    setFormError("");
+    try {
+      await dispatch(deleteCategoryThunk(id)).unwrap();
+      if (editId === id) resetForm();
+    } catch (err) {
+      setFormError(err || t("failedToDeleteCategory"));
+    }
   };
 
   return {
@@ -93,12 +82,7 @@ export const useCategoriesLogic = () => {
     setCatNameAr,
     catImg,
     setCatImg,
-    imageInputUrl,
-    setImageInputUrl,
-    inputMode,
-    setInputMode,
-    handleFileUpload,
-    handleAddUrl,
+    formError,
     handleSubmit,
     handleEdit,
     handleDelete,

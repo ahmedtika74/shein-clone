@@ -1,250 +1,155 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
+import { useTranslation } from "react-i18next";
 import {
-  formatProductData,
   createProductThunk,
   updateProductThunk,
 } from "../../../store/dataSlice";
 
+const emptyForm = {
+  nameEn: "",
+  nameAr: "",
+  descriptionEn: "",
+  descriptionAr: "",
+  price: "",
+  oldPrice: "",
+  categoryId: "",
+  offerId: "",
+  offerBadge: "",
+  mainIndex: 0,
+  images: [],
+  colors: [],
+  sizes: [],
+  variantsStock: {},
+};
+
+const newColor = () => ({
+  nameEn: "",
+  nameAr: "",
+  hex: "#000000",
+  imageUrl: "",
+  price: "",
+});
+
+const newSize = () => ({ name: "", priceAdjustment: 0 });
+
 export const useProductForm = (products, onSuccess) => {
   const dispatch = useDispatch();
+  const { t } = useTranslation("admin");
 
-  const [editIndex, setEditIndex] = useState(-1);
-  const [nameEn, setNameEn] = useState("");
-  const [nameAr, setNameAr] = useState("");
-  const [descriptionEn, setDescriptionEn] = useState("");
-  const [descriptionAr, setDescriptionAr] = useState("");
-  const [newPrice, setNewPrice] = useState("");
-  const [oldPrice, setOldPrice] = useState("");
-  const [mainIndex, setMainIndex] = useState(0);
-  const [selectedColors, setSelectedColors] = useState([]);
-  const [selectedSizes, setSelectedSizes] = useState([]);
-  const [category, setCategory] = useState("");
-  const [offer, setOffer] = useState("");
-  const [imagesBase64, setImagesBase64] = useState([]);
-  const [imageInputUrl, setImageInputUrl] = useState("");
-  const [inputMode, setInputMode] = useState("upload");
+  const [editingId, setEditingId] = useState(null);
+  const [form, setForm] = useState(emptyForm);
+  const [errorMessage, setErrorMessage] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
-  const [variantsStock, setVariantsStock] = useState({});
 
-  const handleFileUpload = (e) => {
-    const files = Array.from(e.target.files);
-    if (!files.length) return;
+  const setField = (field) => (value) =>
+    setForm((current) => ({ ...current, [field]: value }));
 
-    const fileReaders = files.map((file) => {
-      return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = (ev) => resolve(ev.target.result);
-        reader.readAsDataURL(file);
-      });
-    });
+  const updateListItem = (field, index, patch) =>
+    setForm((current) => ({
+      ...current,
+      [field]: current[field].map((item, i) =>
+        i === index ? { ...item, ...patch } : item,
+      ),
+    }));
 
-    Promise.all(fileReaders).then((results) => {
-      setImagesBase64((prev) => [...prev, ...results]);
-    });
-  };
+  const removeListItem = (field, index) =>
+    setForm((current) => ({
+      ...current,
+      [field]: current[field].filter((_, i) => i !== index),
+    }));
 
-  const handleAddUrl = () => {
-    if (imageInputUrl.trim()) {
-      setImagesBase64((prev) => [...prev, imageInputUrl.trim()]);
-      setImageInputUrl("");
-    }
+  const resetForm = () => {
+    setEditingId(null);
+    setForm(emptyForm);
+    setErrorMessage("");
   };
 
   const handleEdit = (index) => {
-    setEditIndex(index);
-    const p = products[index];
-    setNameEn(p.nameEn || "");
-    setNameAr(p.nameAr || "");
-    setDescriptionEn(p.descriptionEn || "");
-    setDescriptionAr(p.descriptionAr || "");
-    setNewPrice(p.newPrice || "");
-    setOldPrice(p.oldPrice || "");
-    setMainIndex(p.mainIndex || 0);
-    setSelectedColors(
-      Array.isArray(p.colors)
-        ? p.colors.map((c) =>
-            typeof c === "string"
-              ? { nameEn: c, nameAr: c, hex: "", image: "", price: "" }
-              : { ...c, price: c.price || "" },
-          )
-        : [],
-    );
-    setSelectedSizes(
-      Array.isArray(p.sizes)
-        ? p.sizes.map((s) =>
-            typeof s === "string"
-              ? { name: s, priceAdjustment: 0 }
-              : { ...s, priceAdjustment: s.priceAdjustment || 0 },
-          )
-        : [],
-    );
-    setCategory(p.category || "");
-    setOffer(p.offer || "");
-    setImagesBase64(p.images || [p.img || ""]);
-    setVariantsStock(p.variantsStock || {});
+    const product = products[index];
+    if (!product) return;
+
+    setEditingId(product.id);
+    setForm({
+      nameEn: product.nameEn,
+      nameAr: product.nameAr,
+      descriptionEn: product.descriptionEn,
+      descriptionAr: product.descriptionAr,
+      price: String(product.price ?? ""),
+      oldPrice: product.oldPrice == null ? "" : String(product.oldPrice),
+      // The select is keyed by id; the API also returns the name, which would
+      // silently reassign the product to category 1 when saved.
+      categoryId: product.categoryId == null ? "" : String(product.categoryId),
+      offerId: product.offerId == null ? "" : String(product.offerId),
+      offerBadge: product.offerBadge ?? "",
+      mainIndex: product.mainIndex,
+      images: [...product.images],
+      colors: product.colors.map((color) => ({
+        nameEn: color.nameEn ?? "",
+        nameAr: color.nameAr ?? "",
+        hex: color.hex || "#000000",
+        imageUrl: color.imageUrl ?? "",
+        price: color.price == null ? "" : String(color.price),
+      })),
+      sizes: product.sizes.map((size) => ({
+        name: size.name ?? "",
+        priceAdjustment: size.priceAdjustment ?? 0,
+      })),
+      variantsStock: { ...product.variantsStock },
+    });
   };
 
-  const handleAddColor = () => {
-    setSelectedColors([
-      ...selectedColors,
-      { nameEn: "", nameAr: "", hex: "#000000", image: "", price: "" },
-    ]);
-  };
+  const handleSave = async (event) => {
+    event.preventDefault();
+    setErrorMessage("");
 
-  const handleRemoveColor = (idx) => {
-    setSelectedColors(selectedColors.filter((_, i) => i !== idx));
-  };
-
-  const handleColorChange = (idx, field, value) => {
-    const updated = [...selectedColors];
-    updated[idx] = { ...updated[idx], [field]: value };
-    setSelectedColors(updated);
-  };
-
-  const handleAddSize = () => {
-    setSelectedSizes([...selectedSizes, { name: "", priceAdjustment: 0 }]);
-  };
-
-  const handleRemoveSize = (idx) => {
-    setSelectedSizes(selectedSizes.filter((_, i) => i !== idx));
-  };
-
-  const handleSizeChange = (idx, field, value) => {
-    const updated = [...selectedSizes];
-    updated[idx] = { ...updated[idx], [field]: value };
-    setSelectedSizes(updated);
-  };
-
-  const handleVariantStockChange = (variantKey, value) => {
-    setVariantsStock((prev) => ({
-      ...prev,
-      [variantKey]: value,
-    }));
-  };
-
-  const resetForm = () => {
-    setEditIndex(-1);
-    setNameEn("");
-    setNameAr("");
-    setDescriptionEn("");
-    setDescriptionAr("");
-    setNewPrice("");
-    setOldPrice("");
-    setMainIndex(0);
-    setSelectedColors([]);
-    setSelectedSizes([]);
-    setCategory("");
-    setOffer("");
-    setImagesBase64([]);
-    setImageInputUrl("");
-    setVariantsStock({});
-  };
-
-  const handleSave = (e) => {
-    e.preventDefault();
-    if (!nameEn || !nameAr || !newPrice) {
-      alert("Both English and Arabic Names and Price are required.");
+    if (!form.nameEn || !form.nameAr || !form.price) {
+      setErrorMessage(t("requiredFieldsMissing"));
+      return;
+    }
+    if (!form.categoryId) {
+      setErrorMessage(t("selectCategory"));
       return;
     }
 
-    const unformattedData = {
-      nameEn,
-      nameAr,
-      descriptionEn,
-      descriptionAr,
-      newPrice,
-      oldPrice,
-      images: imagesBase64.length > 0 ? imagesBase64 : ["/images/top.jpg"],
-      mainIndex: Number(mainIndex) || 0,
-      colors:
-        selectedColors.length > 0
-          ? selectedColors.map((c) => ({
-              ...c,
-              price: c.price ? Number(c.price) : null,
-            }))
-          : [
-              {
-                nameEn: "Default",
-                nameAr: "Default",
-                hex: "",
-                image: "",
-                price: null,
-              },
-            ],
-      sizes:
-        selectedSizes.length > 0
-          ? selectedSizes.map((s) => ({
-              ...s,
-              priceAdjustment: Number(s.priceAdjustment) || 0,
-            }))
-          : [{ name: "Free Size", priceAdjustment: 0 }],
-      category: category || "General",
-      offer,
-      variantsStock,
-    };
+    try {
+      await dispatch(
+        editingId === null
+          ? createProductThunk(form)
+          : updateProductThunk({ id: editingId, ...form }),
+      ).unwrap();
 
-    const formattedProduct = formatProductData(
-      unformattedData,
-      editIndex,
-      products,
-    );
-
-    if (editIndex === -1) {
-      dispatch(createProductThunk(formattedProduct));
-    } else {
-      dispatch(updateProductThunk(formattedProduct));
+      resetForm();
+      setShowSuccess(true);
+      onSuccess?.();
+      setTimeout(() => setShowSuccess(false), 3000);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (error) {
+      setErrorMessage(error || t("saveFailed"));
     }
-
-    resetForm();
-    setShowSuccess(true);
-    if (onSuccess) onSuccess();
-    setTimeout(() => setShowSuccess(false), 3000);
-    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return {
-    editIndex,
-    nameEn,
-    setNameEn,
-    nameAr,
-    setNameAr,
-    descriptionEn,
-    setDescriptionEn,
-    descriptionAr,
-    setDescriptionAr,
-    newPrice,
-    setNewPrice,
-    oldPrice,
-    setOldPrice,
-    mainIndex,
-    setMainIndex,
-    selectedColors,
-    selectedSizes,
-    category,
-    setCategory,
-    offer,
-    setOffer,
-    imagesBase64,
-    setImagesBase64,
-    imageInputUrl,
-    setImageInputUrl,
-    inputMode,
-    setInputMode,
+    form,
+    setField,
+    isEditing: editingId !== null,
+    errorMessage,
     showSuccess,
-    setShowSuccess,
-    variantsStock,
-    handleVariantStockChange,
-    handleFileUpload,
-    handleAddUrl,
-    handleEdit,
-    handleAddColor,
-    handleRemoveColor,
-    handleColorChange,
-    handleAddSize,
-    handleRemoveSize,
-    handleSizeChange,
     resetForm,
+    handleEdit,
     handleSave,
+
+    addColor: () => setField("colors")([...form.colors, newColor()]),
+    removeColor: (index) => removeListItem("colors", index),
+    changeColor: (index, field, value) =>
+      updateListItem("colors", index, { [field]: value }),
+
+    addSize: () => setField("sizes")([...form.sizes, newSize()]),
+    removeSize: (index) => removeListItem("sizes", index),
+    changeSize: (index, field, value) =>
+      updateListItem("sizes", index, { [field]: value }),
+
+    changeVariantStock: (variantKey, value) =>
+      setField("variantsStock")({ ...form.variantsStock, [variantKey]: value }),
   };
 };

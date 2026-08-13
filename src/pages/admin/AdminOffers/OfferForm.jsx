@@ -21,8 +21,10 @@ export const OfferForm = ({
   setDiscountType,
   code,
   setCode,
-  expDate,
-  setExpDate,
+  expiryDate,
+  setExpiryDate,
+  formError,
+  isLoading,
   handleSubmit,
   resetForm,
 }) => {
@@ -94,13 +96,25 @@ export const OfferForm = ({
           <Input
             label={t("expirationDateOptional")}
             type="date"
-            value={expDate}
-            onChange={(e) => setExpDate(e.target.value)}
+            value={expiryDate}
+            onChange={(e) => setExpiryDate(e.target.value)}
           />
 
+          {formError && (
+            <p className={cn("text-sm text-red-600 font-medium")}>{formError}</p>
+          )}
+
           <div className={cn("flex gap-4 pt-2")}>
-            <Button type="submit" className={cn("flex-1 h-11")}>
-              {editingId ? t("updateOffer") : t("saveOffer")}
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className={cn("flex-1 h-11")}
+            >
+              {isLoading
+                ? t("saving")
+                : editingId
+                  ? t("updateOffer")
+                  : t("saveOffer")}
             </Button>
             {editingId && (
               <Button

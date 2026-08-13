@@ -8,6 +8,8 @@ import {
   CardTitle,
 } from "../../../components/ui";
 import { useTranslation } from "react-i18next";
+import { ImageUrlField } from "../../../components/admin/ImageUrlField";
+import { MediaUsageCategory } from "../../../services/mediaUpload";
 
 export const CategoryForm = ({
   editId,
@@ -17,12 +19,7 @@ export const CategoryForm = ({
   setCatNameAr,
   catImg,
   setCatImg,
-  imageInputUrl,
-  setImageInputUrl,
-  inputMode,
-  setInputMode,
-  handleFileUpload,
-  handleAddUrl,
+  formError,
   handleSubmit,
   resetForm,
   isLoading,
@@ -63,108 +60,16 @@ export const CategoryForm = ({
             className={cn("h-11")}
           />
 
-          <div>
-            <label
-              className={cn(
-                "block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2",
-              )}
-            >
-              {t("categoryImage")}
-            </label>
+          <ImageUrlField
+            label={t("categoryImage")}
+            value={catImg}
+            onChange={setCatImg}
+            usageCategory={MediaUsageCategory.Category}
+          />
 
-            <div className={cn("flex flex-col gap-4")}>
-              {/* Image Preview */}
-              {catImg && (
-                <div className={cn("relative w-24 h-24 group")}>
-                  <img
-                    src={catImg}
-                    alt={t("categoryPreview")}
-                    className={cn(
-                      "w-24 h-24 object-cover rounded-xl border border-gray-200",
-                    )}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setCatImg("")}
-                    className={cn(
-                      "absolute -top-2 -end-2 bg-red-500 text-white w-6 h-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-xs cursor-pointer",
-                    )}
-                  >
-                    <i className={cn("fa-solid fa-times")}></i>
-                  </button>
-                </div>
-              )}
-
-              {/* Upload or Link */}
-              {!catImg && (
-                <div className={cn("flex flex-col gap-3")}>
-                  <div className={cn("flex bg-gray-100 p-1 rounded-lg w-fit")}>
-                    <button
-                      type="button"
-                      onClick={() => setInputMode("upload")}
-                      className={cn(
-                        "px-3 py-1.5 text-xs font-bold rounded-md transition-all cursor-pointer",
-                        inputMode === "upload"
-                          ? "bg-white text-black shadow-sm"
-                          : "text-gray-500 hover:text-gray-700",
-                      )}
-                    >
-                      {t("uploadFile")}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setInputMode("url")}
-                      className={cn(
-                        "px-3 py-1.5 text-xs font-bold rounded-md transition-all cursor-pointer",
-                        inputMode === "url"
-                          ? "bg-white text-black shadow-sm"
-                          : "text-gray-500 hover:text-gray-700",
-                      )}
-                    >
-                      {t("imageLink")}
-                    </button>
-                  </div>
-
-                  {inputMode === "upload" ? (
-                    <div>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleFileUpload}
-                        className={cn("hidden")}
-                        id="category-image-upload"
-                      />
-                      <label
-                        htmlFor="category-image-upload"
-                        className={cn(
-                          "inline-flex items-center justify-center bg-black text-white px-4 py-2 rounded-lg text-sm font-bold cursor-pointer hover:bg-gray-800 transition-colors whitespace-nowrap h-[42px]",
-                        )}
-                      >
-                        <i className={cn("fa-solid fa-upload me-2")}></i>
-                        {t("chooseFile")}
-                      </label>
-                    </div>
-                  ) : (
-                    <div className={cn("flex w-full gap-2 items-start")}>
-                      <Input
-                        value={imageInputUrl}
-                        onChange={(e) => setImageInputUrl(e.target.value)}
-                        placeholder={`${t("imageLink")}...`}
-                        className={cn("flex-1 min-w-0")}
-                      />
-                      <Button
-                        type="button"
-                        onClick={handleAddUrl}
-                        className={cn("h-[46px]")}
-                      >
-                        {t("addUrl")}
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
+          {formError && (
+            <p className={cn("text-sm text-red-600 font-medium")}>{formError}</p>
+          )}
 
           <div className={cn("flex gap-4 pt-4")}>
             <Button

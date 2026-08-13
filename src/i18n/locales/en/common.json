@@ -9,5 +9,10 @@
   "error": "An error occurred",
   "yes": "Yes",
   "no": "No",
-  "confirm": "Confirm"
+  "confirm": "Confirm",
+  "retry": "Try again",
+  "genericErrorMessage": "Something went wrong. Please try again.",
+  "connectionFailedTitle": "Cannot reach the store",
+  "connectionFailedMessage": "We could not load the store data. Check your connection and try again.",
+  "uploadFailed": "Upload failed"
 }

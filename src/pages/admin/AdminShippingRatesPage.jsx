@@ -17,6 +17,12 @@ export const AdminShippingRatesPage = () => {
 
       <FreeShippingToggle {...logic} />
 
+      {logic.formError && (
+        <p className={cn("text-sm text-red-600 font-medium mb-4")}>
+          {logic.formError}
+        </p>
+      )}
+
       <ShippingRateForm {...logic} />
 
       <ShippingRatesList {...logic} />

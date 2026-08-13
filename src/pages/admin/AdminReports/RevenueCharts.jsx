@@ -1,5 +1,7 @@
 import { cn } from "../../../utils/cn";
 import { useTranslation } from "react-i18next";
+import { getImageUrl } from "../../../utils/getImageUrl";
+
 export const RevenueCharts = ({ stats, filterMonth, filterProductId }) => {
   const { t } = useTranslation(["admin", "common"]);
   return (
@@ -8,7 +10,6 @@ export const RevenueCharts = ({ stats, filterMonth, filterProductId }) => {
         `grid grid-cols-1 ${filterMonth === "all" ? "lg:grid-cols-2" : "lg:grid-cols-1"} gap-8 mb-8`,
       )}
     >
-      {/* Time Based Revenue */}
       {filterMonth === "all" && (
         <div
           className={cn(
@@ -24,7 +25,6 @@ export const RevenueCharts = ({ stats, filterMonth, filterProductId }) => {
           <div
             className={cn("flex flex-col justify-center flex-grow gap-8 py-4")}
           >
-            {/* Daily */}
             <div>
               <div
                 className={cn("flex justify-between text-sm font-bold mb-2")}
@@ -50,7 +50,6 @@ export const RevenueCharts = ({ stats, filterMonth, filterProductId }) => {
               </div>
             </div>
 
-            {/* Monthly */}
             <div>
               <div
                 className={cn("flex justify-between text-sm font-bold mb-2")}
@@ -78,7 +77,6 @@ export const RevenueCharts = ({ stats, filterMonth, filterProductId }) => {
               </div>
             </div>
 
-            {/* Yearly */}
             <div>
               <div
                 className={cn("flex justify-between text-sm font-bold mb-2")}
@@ -109,7 +107,6 @@ export const RevenueCharts = ({ stats, filterMonth, filterProductId }) => {
         </div>
       )}
 
-      {/* Top Products List */}
       <div
         className={cn(
           "bg-white p-6 rounded-2xl shadow-[0_5px_20px_rgba(0,0,0,0.05)] border border-gray-100 flex flex-col h-full",
@@ -146,7 +143,7 @@ export const RevenueCharts = ({ stats, filterMonth, filterProductId }) => {
                   #{index + 1}
                 </div>
                 <img
-                  src={product.img}
+                  src={getImageUrl(product.img || product.imageUrl)}
                   alt={product.name}
                   className={cn(
                     "w-14 h-14 rounded-lg object-cover bg-gray-50 border border-gray-100 shadow-sm",
@@ -162,7 +159,6 @@ export const RevenueCharts = ({ stats, filterMonth, filterProductId }) => {
                     {product.name}
                   </h4>
 
-                  {/* Visual Progress Bar for Qty */}
                   <div
                     className={cn(
                       "w-full bg-gray-100 rounded-full h-1.5 overflow-hidden mb-1.5",
@@ -185,7 +181,8 @@ export const RevenueCharts = ({ stats, filterMonth, filterProductId }) => {
                       {product.quantity} {t("itemsSoldSuffix")}
                     </span>
                     <span className={cn("font-black text-gray-900")}>
-                      {t("egp", { ns: "common" })} {product.revenue.toFixed(2)}
+                      {t("egp", { ns: "common" })}{" "}
+                      {Number(product.revenue || 0).toFixed(2)}
                     </span>
                   </div>
                 </div>

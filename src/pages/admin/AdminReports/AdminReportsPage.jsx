@@ -1,6 +1,11 @@
-import { useSelector } from "react-redux";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { cn } from "../../../utils/cn";
-import { selectOrders, selectProducts } from "../../../store/dataSlice";
+import {
+  fetchOrdersThunk,
+  selectOrders,
+  selectProducts,
+} from "../../../store/dataSlice";
 import { useReportStats } from "./useReportStats";
 import { ReportsFilterBar } from "./ReportsFilterBar";
 import { StatsGrid } from "./StatsGrid";
@@ -8,9 +13,14 @@ import { RevenueCharts } from "./RevenueCharts";
 import { useTranslation } from "react-i18next";
 
 export const AdminReportsPage = () => {
+  const dispatch = useDispatch();
   const orders = useSelector(selectOrders);
   const products = useSelector(selectProducts);
   const { t } = useTranslation(["admin", "common"]);
+
+  useEffect(() => {
+    dispatch(fetchOrdersThunk());
+  }, [dispatch]);
 
   const reportState = useReportStats(orders, products);
 

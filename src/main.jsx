@@ -4,7 +4,6 @@ import { Provider } from "react-redux";
 import { store } from "./store/store";
 import { App } from "./App";
 import "./index.css";
-import "./services/mockApi";
 import "./i18n";
 
 createRoot(document.getElementById("root")).render(

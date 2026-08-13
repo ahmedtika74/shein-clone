@@ -19,6 +19,7 @@ export const ShippingRatesList = ({
   handleSaveEdit,
   handleCancelEdit,
   handleDelete,
+  isLoading,
 }) => {
   const { t, i18n } = useTranslation("admin");
   const { t: tCommon } = useTranslation("common");
@@ -77,9 +78,12 @@ export const ShippingRatesList = ({
                   >
                     <Button
                       onClick={handleSaveEdit}
+                      disabled={isLoading}
                       className={cn("flex-1 sm:flex-none")}
                     >
-                      {t("save", { defaultValue: "Save" })}
+                      {isLoading
+                        ? t("saving")
+                        : t("save", { defaultValue: "Save" })}
                     </Button>
                     <Button
                       onClick={handleCancelEdit}
@@ -109,7 +113,7 @@ export const ShippingRatesList = ({
                 </div>
                 <div className={cn("flex items-center gap-4")}>
                   <span className={cn("font-semibold text-[#e60023]")}>
-                    {tCommon("egp")} {rate.price.toFixed(2)}
+                    {tCommon("egp")} {Number(rate.price || 0).toFixed(2)}
                   </span>
                   <div className={cn("flex gap-2")}>
                     <Button

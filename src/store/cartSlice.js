@@ -1,17 +1,33 @@
 import { createSlice, createSelector } from "@reduxjs/toolkit";
+import { loadJson } from "../utils/storage";
+import {
+  getVariantImage,
+  getVariantOldPrice,
+  getVariantPrice,
+  getVariantStock,
+  resolveColor,
+  resolveSize,
+} from "../utils/variants";
 
-const loadFromStorage = (key, fallback) => {
-  try {
-    const saved = localStorage.getItem(key);
-    return saved ? JSON.parse(saved) : fallback;
-  } catch {
-    return fallback;
-  }
-};
+/**
+ * Cart lines are stored flat (colour and size as plain names) so they map
+ * straight onto OrderItemCreateDto and compare reliably for line identity.
+ */
+const isValidLine = (line) =>
+  line &&
+  line.id !== undefined &&
+  typeof line.colorName === "string" &&
+  typeof line.sizeName === "string" &&
+  Number.isFinite(line.price);
 
 const initialState = {
-  items: loadFromStorage("cart", []),
+  items: loadJson("cart", []).filter(isValidLine),
 };
+
+const isSameLine = (line, { id, colorName, sizeName }) =>
+  String(line.id) === String(id) &&
+  line.colorName === colorName &&
+  line.sizeName === sizeName;
 
 const cartSlice = createSlice({
   name: "cart",
@@ -19,97 +35,64 @@ const cartSlice = createSlice({
   reducers: {
     addToCart: {
       reducer(state, action) {
-        const {
-          id,
-          name,
-          price,
-          originalPrice,
-          newPrice,
-          img,
-          color,
-          size,
-          quantity,
-        } = action.payload;
+        const line = action.payload;
+        if (!line || line.quantity <= 0) return;
 
-        const existingIndex = state.items.findIndex(
-          (item) =>
-            String(item.id) === String(id) &&
-            (item.color?.nameEn || item.color?.name || item.color) ===
-              (color?.nameEn || color?.name || color) &&
-            (item.size?.name || item.size) === (size?.name || size),
-        );
+        const existing = state.items.find((item) => isSameLine(item, line));
+        const ceiling = Number.isFinite(line.maxStock)
+          ? line.maxStock
+          : Infinity;
 
-        if (existingIndex > -1) {
-          state.items[existingIndex].quantity += quantity;
+        if (existing) {
+          existing.quantity = Math.min(
+            existing.quantity + line.quantity,
+            ceiling,
+          );
+          if (Number.isFinite(line.maxStock)) {
+            existing.maxStock = line.maxStock;
+          }
         } else {
-          state.items.push({
-            id,
-            name,
-            price,
-            originalPrice,
-            newPrice,
-            img,
-            color,
-            size,
-            quantity,
-          });
+          state.items.push(line);
         }
       },
 
       prepare(product, selectedColor = null, selectedSize = null, qty = 1) {
-        const finalColor = selectedColor ||
-          (product.colors && product.colors[0]) || { name: "Default" };
-        const finalSize = selectedSize ||
-          (product.sizes && product.sizes[0]) || {
-            name: "Free Size",
-            priceAdjustment: 0,
-          };
-
-        let basePrice = product.numericPrice;
-        if (!basePrice && product.newPrice) {
-          basePrice = parseFloat(product.newPrice.replace(/[^0-9.]/g, "")) || 0;
-        }
-
-        const colorPrice = finalColor.price ?? basePrice;
-        const sizeAdj = finalSize.priceAdjustment || 0;
-        const finalPrice = colorPrice + sizeAdj;
-
-        let originalPrice = null;
-        if (product.oldPrice) {
-          originalPrice =
-            (parseFloat(product.oldPrice.replace(/[^0-9.]/g, "")) || 0) +
-            sizeAdj;
-        }
+        const color = resolveColor(product, selectedColor);
+        const size = resolveSize(product, selectedSize);
+        const maxStock = getVariantStock(product, color, size);
+        const requested = Math.max(1, Number(qty) || 1);
 
         return {
           payload: {
             id: product.id,
-            name: product.name,
-            nameEn: product.nameEn,
-            nameAr: product.nameAr,
-            price: finalPrice,
-            originalPrice,
-            newPrice: `EGP ${finalPrice}`,
-            img:
-              finalColor.image ||
-              product.img ||
-              (product.images && product.images[0]) ||
-              "",
-            color: finalColor,
-            size: finalSize,
-            quantity: qty,
+            productId: product.id,
+            nameEn: product.nameEn ?? "",
+            nameAr: product.nameAr ?? "",
+            colorName: color.nameEn || color.name || "",
+            colorNameAr: color.nameAr || color.nameEn || "",
+            colorHex: color.hex || "",
+            sizeName: size.name || "",
+            price: getVariantPrice(product, color, size),
+            originalPrice: getVariantOldPrice(product, size),
+            img: getVariantImage(product, color),
+            quantity: Math.min(requested, maxStock),
+            maxStock,
           },
         };
       },
     },
 
     changeQty(state, action) {
-      const { index, delta } = action.payload;
+      const { index, delta, maxStock } = action.payload;
       const item = state.items[index];
-      if (item) {
-        const newQty = item.quantity + delta;
-        item.quantity = newQty < 1 ? 1 : newQty;
-      }
+      if (!item) return;
+
+      const ceiling = Number.isFinite(maxStock)
+        ? maxStock
+        : Number.isFinite(item.maxStock)
+          ? item.maxStock
+          : Infinity;
+      item.quantity = Math.min(Math.max(1, item.quantity + delta), ceiling);
     },
 
     removeItem(state, action) {
@@ -125,7 +108,6 @@ const cartSlice = createSlice({
 export const { addToCart, changeQty, removeItem, clearCart } =
   cartSlice.actions;
 
-// Selectors
 export const selectCartItems = (state) => state.cart.items;
 
 export const selectCartTotal = createSelector([selectCartItems], (items) =>

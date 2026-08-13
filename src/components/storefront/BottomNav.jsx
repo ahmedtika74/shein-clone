@@ -17,7 +17,6 @@ export const BottomNav = ({ isMobileSearchOpen, setIsMobileSearchOpen }) => {
         "md:hidden fixed bottom-0 start-0 w-full h-[60px] bg-white border-t border-gray-100 z-50 flex items-center justify-around pb-safe shadow-[0_-4px_10px_rgba(0,0,0,0.03)]",
       )}
     >
-      {/* Home */}
       <Link
         to="/"
         className={cn(
@@ -31,7 +30,6 @@ export const BottomNav = ({ isMobileSearchOpen, setIsMobileSearchOpen }) => {
         <span className={cn("text-[10px] font-semibold")}>{t("home")}</span>
       </Link>
 
-      {/* Search */}
       <button
         onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
         className={cn(
@@ -45,7 +43,6 @@ export const BottomNav = ({ isMobileSearchOpen, setIsMobileSearchOpen }) => {
         <span className={cn("text-[10px] font-semibold")}>Search</span>
       </button>
 
-      {/* Wishlist */}
       <Link
         to="/wishlist"
         className={cn(
@@ -77,7 +74,6 @@ export const BottomNav = ({ isMobileSearchOpen, setIsMobileSearchOpen }) => {
         <span className={cn("text-[10px] font-semibold")}>Wishlist</span>
       </Link>
 
-      {/* Cart */}
       <Link
         to="/cart"
         className={cn(
@@ -102,7 +98,6 @@ export const BottomNav = ({ isMobileSearchOpen, setIsMobileSearchOpen }) => {
         <span className={cn("text-[10px] font-semibold")}>Bag</span>
       </Link>
 
-      {/* Profile */}
       <Link
         to="/user-dashboard"
         className={cn(

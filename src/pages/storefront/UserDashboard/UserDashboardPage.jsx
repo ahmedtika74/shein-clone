@@ -28,10 +28,10 @@ export const UserDashboardPage = () => {
             className={cn("fa-solid fa-user-lock text-5xl text-gray-400 mb-4")}
           ></i>
           <h2 className={cn("text-2xl font-bold text-gray-800")}>
-            Login Required
+            {t("loginRequired")}
           </h2>
           <p className={cn("text-gray-500 mt-2 mb-6")}>
-            Please log in to view your account dashboard and orders.
+            {t("loginRequiredMessage")}
           </p>
           <Link
             to="/login"
@@ -39,7 +39,7 @@ export const UserDashboardPage = () => {
               "inline-block bg-black text-white px-8 py-3 rounded-full font-bold hover:bg-gray-800 transition-colors",
             )}
           >
-            Go to Login
+            {t("goToLogin")}
           </Link>
         </div>
       </div>
@@ -57,7 +57,6 @@ export const UserDashboardPage = () => {
         navigate={navigate}
       />
 
-      {/* Main Content Area */}
       <main className={cn("content flex-1 p-6 md:p-10")}>
         <div className={cn("flex justify-between items-center gap-4 mb-8")}>
           <div className="min-w-0">
@@ -86,7 +85,6 @@ export const UserDashboardPage = () => {
           </button>
         </div>
 
-        {/* Tab Selection buttons for mobile */}
         <div className={cn("md:hidden flex gap-2 mb-6 border-b pb-3")}>
           <button
             onClick={() => logic.setActiveTab("orders")}

@@ -1,6 +1,8 @@
 import { cn } from "../../../utils/cn";
 import { useTranslation } from "react-i18next";
 import { Pagination } from "../../../components/common/Pagination";
+import { LoadingSpinner } from "../../../components/common/LoadingSpinner";
+import { ErrorState } from "../../../components/common/ErrorState";
 import { UserOrderCard } from "./UserOrderCard";
 import { ScrollToTop } from "../../../components/ScrollToTop";
 
@@ -13,6 +15,9 @@ export const OrdersTab = ({
   currentPage,
   setCurrentPage,
   totalPages,
+  ordersLoading,
+  ordersError,
+  refreshOrders,
 }) => {
   const { t } = useTranslation(["storefront", "common"]);
   return (
@@ -50,7 +55,11 @@ export const OrdersTab = ({
         </div>
       </div>
 
-      {filteredOrders.length === 0 ? (
+      {ordersLoading ? (
+        <LoadingSpinner />
+      ) : ordersError ? (
+        <ErrorState message={ordersError} onRetry={refreshOrders} />
+      ) : filteredOrders.length === 0 ? (
         <div
           className={cn(
             "empty bg-white p-10 text-center rounded-[15px] shadow-xs text-gray-500",
@@ -76,7 +85,7 @@ export const OrdersTab = ({
         </div>
       )}
 
-      {totalPages > 1 && (
+      {totalPages > 1 && !ordersLoading && !ordersError && (
         <div className={cn("mt-8")}>
           <Pagination
             currentPage={currentPage}

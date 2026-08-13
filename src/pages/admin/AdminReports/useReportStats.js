@@ -1,5 +1,29 @@
 import { useMemo, useState, useRef, useEffect } from "react";
 
+const itemProductId = (item) => item?.productId ?? item?.id ?? null;
+
+const itemUnitPrice = (item, catalogProduct) => {
+  const fromItem = Number(item?.unitPrice ?? item?.price);
+  if (Number.isFinite(fromItem) && fromItem > 0) return fromItem;
+  const fromCatalog = Number(catalogProduct?.price);
+  return Number.isFinite(fromCatalog) ? fromCatalog : 0;
+};
+
+const itemImage = (item, catalogProduct) =>
+  item?.imageUrl ||
+  item?.img ||
+  catalogProduct?.img ||
+  catalogProduct?.imageUrl ||
+  catalogProduct?.images?.[0] ||
+  "";
+
+const itemName = (item, catalogProduct) =>
+  item?.nameEn ||
+  item?.name ||
+  catalogProduct?.nameEn ||
+  catalogProduct?.name ||
+  "Unknown";
+
 export const useReportStats = (orders, products) => {
   const [filterMonth, setFilterMonth] = useState("all");
   const [filterYear, setFilterYear] = useState(
@@ -21,6 +45,12 @@ export const useReportStats = (orders, products) => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const productsById = useMemo(() => {
+    const map = new Map();
+    products.forEach((product) => map.set(String(product.id), product));
+    return map;
+  }, [products]);
+
   const filteredProductsForSearch = useMemo(() => {
     return products.filter((p) => {
       const pNameEn = (p.nameEn || p.name || "").toLowerCase();
@@ -31,7 +61,7 @@ export const useReportStats = (orders, products) => {
   }, [products, productSearch]);
 
   const selectedProduct = products.find(
-    (p) => p.id.toString() === filterProductId,
+    (p) => String(p.id) === String(filterProductId),
   );
 
   const stats = useMemo(() => {
@@ -55,8 +85,8 @@ export const useReportStats = (orders, products) => {
     const productSales = {};
 
     orders.forEach((order) => {
-      let orderDate = new Date(order.date);
-      if (isNaN(orderDate.getTime())) {
+      let orderDate = new Date(order.createdAt || order.date);
+      if (Number.isNaN(orderDate.getTime())) {
         orderDate = new Date();
       }
 
@@ -73,26 +103,35 @@ export const useReportStats = (orders, products) => {
 
       if (order.items && Array.isArray(order.items)) {
         order.items.forEach((item) => {
+          const productId = itemProductId(item);
+          if (productId == null) return;
+
           if (
             filterProductId !== "all" &&
-            item.id.toString() !== filterProductId
-          )
+            String(productId) !== String(filterProductId)
+          ) {
             return;
+          }
+
+          const catalogProduct = productsById.get(String(productId));
+          const unitPrice = itemUnitPrice(item, catalogProduct);
+          const quantity = Number(item.quantity) || 0;
 
           validForOrder = true;
-          const itemRev = item.price * item.quantity;
+          const itemRev = unitPrice * quantity;
           orderRevenue += itemRev;
-          orderItemsCount += item.quantity;
+          orderItemsCount += quantity;
 
-          if (productSales[item.id]) {
-            productSales[item.id].quantity += item.quantity;
-            productSales[item.id].revenue += itemRev;
+          const key = String(productId);
+          if (productSales[key]) {
+            productSales[key].quantity += quantity;
+            productSales[key].revenue += itemRev;
           } else {
-            productSales[item.id] = {
-              id: item.id,
-              name: item.nameEn || item.name || "Unknown",
-              img: item.img,
-              quantity: item.quantity,
+            productSales[key] = {
+              id: productId,
+              name: itemName(item, catalogProduct),
+              img: itemImage(item, catalogProduct),
+              quantity,
               revenue: itemRev,
             };
           }
@@ -103,7 +142,7 @@ export const useReportStats = (orders, products) => {
         const netOrderRevenue =
           order.subtotal !== undefined && order.discount !== undefined
             ? Math.max(0, order.subtotal - order.discount)
-            : Math.max(0, order.total - (order.shippingCost || 0));
+            : Math.max(0, (order.total || 0) - (order.shippingCost || 0));
 
         const finalRevenueToAdd =
           filterProductId === "all" ? netOrderRevenue : orderRevenue;
@@ -119,7 +158,8 @@ export const useReportStats = (orders, products) => {
           ordersWithDiscount += 1;
         }
 
-        if (order.date === todayStr) {
+        const orderDayStr = orderDate.toLocaleDateString();
+        if (orderDayStr === todayStr) {
           dailyRevenue += finalRevenueToAdd;
         }
         if (
@@ -161,7 +201,7 @@ export const useReportStats = (orders, products) => {
       maxTimeRevenue,
       maxProductQty,
     };
-  }, [orders, filterMonth, filterYear, filterProductId]);
+  }, [orders, productsById, filterMonth, filterYear, filterProductId]);
 
   return {
     filterMonth,

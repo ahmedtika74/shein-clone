@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { cn } from "../../../utils/cn";
 import { useTranslation } from "react-i18next";
 import { changeQty, removeItem } from "../../../store/cartSlice";
@@ -5,33 +6,53 @@ import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { selectProducts } from "../../../store/dataSlice";
 import { getLocalizedString } from "../../../utils/localization";
+import { getImageUrl } from "../../../utils/getImageUrl";
+import { getVariantKey, getVariantStock } from "../../../utils/variants";
+
+const lineStock = (product, item) =>
+  product
+    ? getVariantStock(
+        product,
+        { nameEn: item.colorName },
+        { name: item.sizeName },
+      )
+    : Number.isFinite(item.maxStock)
+      ? item.maxStock
+      : 0;
 
 export const CartItemList = ({ cart, dispatch }) => {
   const { t, i18n } = useTranslation(["storefront", "common"]);
   const products = useSelector(selectProducts);
+
+  // Clamp lines that were saved before stock limits were wired correctly.
+  useEffect(() => {
+    cart.forEach((item, index) => {
+      const product = products.find((p) => String(p.id) === String(item.id));
+      if (!product) return;
+      const maxStock = lineStock(product, item);
+      if (item.quantity > maxStock) {
+        dispatch(
+          changeQty({ index, delta: maxStock - item.quantity, maxStock }),
+        );
+      }
+    });
+  }, [cart, products, dispatch]);
+
   return (
     <div className={cn("flex-1")}>
       {cart.map((item, index) => {
         const product = products.find((p) => String(p.id) === String(item.id));
-        const cName =
-          item.color?.nameEn ||
-          item.color?.name ||
-          item.color ||
-          t("defaultColor");
-        const sName = item.size?.name || item.size || t("freeSize");
-        const variantKey = `${cName}-${sName}`;
-        const maxStock =
-          product?.variantsStock?.[variantKey] !== undefined
-            ? product.variantsStock[variantKey]
-            : Infinity;
+        const colorName = item.colorName || t("defaultColor");
+        const sizeName = item.sizeName || t("freeSize");
+        const maxStock = lineStock(product, item);
+        const atMax = item.quantity >= maxStock;
 
         return (
           <div
-            key={
-              item.id
-                ? `${item.id}-${item.color?.name || "def"}-${item.size?.name || "def"}`
-                : `cart-${index}`
-            }
+            key={`${item.id}-${getVariantKey(
+              { nameEn: item.colorName },
+              { name: item.sizeName },
+            )}-${index}`}
             className={cn(
               "cart-item bg-white p-5 mb-5 rounded-[10px] shadow-[0_2px_10px_#ddd] flex flex-col sm:flex-row items-center gap-6",
             )}
@@ -43,7 +64,7 @@ export const CartItemList = ({ cart, dispatch }) => {
               )}
             >
               <img
-                src={item.img}
+                src={getImageUrl(item.img)}
                 alt={
                   product
                     ? getLocalizedString(product, "name", i18n.language)
@@ -63,22 +84,19 @@ export const CartItemList = ({ cart, dispatch }) => {
                     : getLocalizedString(item, "name", i18n.language)}
                 </h3>
               </Link>
-              {(item.color || item.size) && (
+              {(item.colorName || item.sizeName) && (
                 <p className={cn("text-xs text-gray-500 mb-2")}>
-                  {item.color && (
+                  {item.colorName && (
                     <span>
                       {t("color")}{" "}
-                      {typeof item.color === "object"
-                        ? getLocalizedString(item.color, "name", i18n.language)
-                        : item.color}{" "}
+                      {i18n.language?.startsWith("ar")
+                        ? item.colorNameAr || colorName
+                        : colorName}{" "}
                     </span>
                   )}
-                  {item.size && (
+                  {item.sizeName && (
                     <span>
-                      | {t("size")}{" "}
-                      {typeof item.size === "object"
-                        ? item.size.name
-                        : item.size}
+                      | {t("size")} {sizeName}
                     </span>
                   )}
                 </p>
@@ -93,6 +111,14 @@ export const CartItemList = ({ cart, dispatch }) => {
                   </p>
                 )}
               </div>
+              {product && (
+                <p className={cn("text-xs text-gray-400 mb-2")}>
+                  {t("stockLeft", {
+                    defaultValue: "In stock: {{count}}",
+                    count: maxStock,
+                  })}
+                </p>
+              )}
               <div
                 className={cn(
                   "flex items-center justify-between flex-wrap gap-4 mt-4",
@@ -100,7 +126,10 @@ export const CartItemList = ({ cart, dispatch }) => {
               >
                 <div className={cn("quantity flex items-center gap-3")}>
                   <button
-                    onClick={() => dispatch(changeQty({ index, delta: -1 }))}
+                    type="button"
+                    onClick={() =>
+                      dispatch(changeQty({ index, delta: -1, maxStock }))
+                    }
                     className={cn(
                       "w-8.75 h-8.75 border border-gray-300 bg-white font-bold text-lg hover:bg-gray-100 rounded-md cursor-pointer flex items-center justify-center",
                     )}
@@ -111,11 +140,14 @@ export const CartItemList = ({ cart, dispatch }) => {
                     {item.quantity}
                   </span>
                   <button
-                    disabled={item.quantity >= maxStock}
-                    onClick={() => dispatch(changeQty({ index, delta: 1 }))}
+                    type="button"
+                    disabled={atMax}
+                    onClick={() =>
+                      dispatch(changeQty({ index, delta: 1, maxStock }))
+                    }
                     className={cn(
                       "w-8.75 h-8.75 border border-gray-300 font-bold text-lg rounded-md flex items-center justify-center",
-                      item.quantity >= maxStock
+                      atMax
                         ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                         : "bg-white hover:bg-gray-100 cursor-pointer",
                     )}
@@ -124,6 +156,7 @@ export const CartItemList = ({ cart, dispatch }) => {
                   </button>
                 </div>
                 <button
+                  type="button"
                   onClick={() => dispatch(removeItem(index))}
                   className={cn(
                     "remove bg-black text-white text-sm font-semibold px-5 py-2.5 rounded-md hover:bg-red-600 transition-colors cursor-pointer",

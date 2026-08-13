@@ -1,6 +1,7 @@
 import { cn } from "../../utils/cn";
 import { useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Topbar } from "./Topbar";
 import { Header } from "./Header";
 import { Navbar } from "./Navbar";
@@ -9,6 +10,7 @@ import { MobileDrawer } from "./MobileDrawer";
 import { BottomNav } from "./BottomNav";
 
 export const Layout = () => {
+  const { t } = useTranslation("storefront");
   const [searchQuery, setSearchQuery] = useState("");
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
@@ -28,7 +30,6 @@ export const Layout = () => {
     >
       <MobileDrawer isOpen={isDrawerOpen} setIsOpen={setIsDrawerOpen} />
 
-      {/* Mobile Search Overlay */}
       {isMobileSearchOpen && (
         <div className={cn("md:hidden fixed inset-0 z-[60] bg-white")}>
           <div className={cn("flex items-center p-4 border-b border-gray-100")}>
@@ -50,7 +51,7 @@ export const Layout = () => {
               <input
                 type="text"
                 autoFocus
-                placeholder="Search products..."
+                placeholder={t("searchProducts")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className={cn(
@@ -62,7 +63,6 @@ export const Layout = () => {
         </div>
       )}
 
-      {/* Sticky Header Navigation Bar */}
       <div
         className={cn(
           "sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-100 shadow-sm",
@@ -77,12 +77,10 @@ export const Layout = () => {
         <Navbar />
       </div>
 
-      {/* Main Page Outlet */}
       <main className={cn("flex-grow flex flex-col")}>
         <Outlet context={{ searchQuery, setSearchQuery }} />
       </main>
 
-      {/* Footer */}
       <Footer />
 
       <BottomNav

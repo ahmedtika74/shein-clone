@@ -1,11 +1,10 @@
+/**
+ * Prices are numbers everywhere in state; the currency is only attached at
+ * render time so it follows the active language.
+ */
 export const formatPrice = (price, t) => {
-  if (price === undefined || price === null) return "";
+  const amount = Number(price);
+  if (!Number.isFinite(amount)) return "";
 
-  // If price is a number, we can format it nicely and add the currency from translation
-  if (typeof price === "number") {
-    return `${t("egp")} ${price.toFixed(2)}`;
-  }
-
-  // If price is a string, replace "EGP" with the translation
-  return String(price).replace(/EGP/g, t("egp"));
+  return `${t("egp")} ${amount.toFixed(2)}`;
 };

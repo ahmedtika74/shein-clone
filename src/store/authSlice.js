@@ -1,81 +1,140 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { apiClient } from "../services/apiClient";
+import { apiClient, getApiErrorMessage, toList } from "../services/apiClient";
+import {
+  toAddress,
+  toAddressPayload,
+  toProfile,
+  toProfilePayload,
+} from "../services/mappers";
+import { loadJson } from "../utils/storage";
 
-const loadFromStorage = (key, fallback) => {
-  try {
-    const saved = localStorage.getItem(key);
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      if (parsed && typeof parsed === "object") {
-        if (parsed.address && !parsed.addresses) {
-          parsed.addresses = [
-            {
-              id: Date.now().toString(),
-              label: "Home",
-              isDefault: true,
-              ...parsed.address,
-            },
-          ];
-        } else if (!parsed.addresses) {
-          parsed.addresses = [];
-        }
-      }
-      return parsed;
-    }
-    return fallback;
-  } catch {
-    return fallback;
-  }
+export const STORAGE_KEYS = {
+  user: "currentUser",
+  adminToken: "adminToken",
 };
 
-// --- THUNKS ---
+/**
+ * The API may answer with the user, `{ user, token }`, or a bare token, so
+ * flatten it into one object that always carries the bearer token.
+ */
+const normalizeSession = (payload) => {
+  if (!payload) return null;
+  if (typeof payload === "string") return { token: payload };
 
-export const loginUserThunk = createAsyncThunk(
-  "auth/loginUser",
-  async ({ email, password }, { rejectWithValue }) => {
+  const { user, token, ...rest } = payload;
+  const account = user ?? rest;
+
+  return {
+    ...account,
+    name: account.fullName ?? account.name ?? "",
+    fullName: account.fullName ?? account.name ?? "",
+    phoneNumber: account.phoneNumber ?? account.phone ?? "",
+    token: token ?? account.token ?? null,
+    addresses: Array.isArray(account.addresses)
+      ? account.addresses.map(toAddress)
+      : [],
+  };
+};
+
+const asThunk = (name, work) =>
+  createAsyncThunk(name, async (arg, { rejectWithValue }) => {
     try {
-      const response = await apiClient.post("/auth/login", { email, password });
-      return response; // { user, message }
+      return await work(arg);
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || error.message);
+      return rejectWithValue(getApiErrorMessage(error));
     }
-  },
+  });
+
+export const loginUserThunk = asThunk("auth/loginUser", ({ email, password }) =>
+  apiClient.post("/auth/login", { email, password }, { authScope: "none" }),
 );
 
-export const registerUserThunk = createAsyncThunk(
+export const registerUserThunk = asThunk(
   "auth/registerUser",
-  async (userData, { rejectWithValue }) => {
-    try {
-      const response = await apiClient.post("/auth/register", userData);
-      return response; // { user, message }
-    } catch (error) {
-      return rejectWithValue(error.response?.data?.message || error.message);
-    }
+  ({ fullName, email, password }) =>
+    apiClient.post(
+      "/auth/register",
+      { fullName, email, password },
+      { authScope: "none" },
+    ),
+);
+
+export const loginAdminThunk = asThunk(
+  "auth/loginAdmin",
+  ({ username, password }) =>
+    apiClient.post(
+      "/auth/admin-login",
+      { username, password },
+      { authScope: "none" },
+    ),
+);
+
+export const fetchProfileThunk = asThunk("auth/fetchProfile", async () =>
+  toProfile(await apiClient.get("/profile")),
+);
+
+export const updateProfileThunk = asThunk("auth/updateProfile", async (form) =>
+  toProfile(await apiClient.put("/profile", toProfilePayload(form))),
+);
+
+export const changePasswordThunk = asThunk(
+  "auth/changePassword",
+  ({ currentPassword, newPassword }) =>
+    apiClient.post("/auth/change-password", { currentPassword, newPassword }),
+);
+
+export const fetchAddressesThunk = asThunk("auth/fetchAddresses", async () =>
+  toList(await apiClient.get("/addresses")).map(toAddress),
+);
+
+export const createAddressThunk = asThunk(
+  "auth/createAddress",
+  async (form) => {
+    await apiClient.post("/addresses", toAddressPayload(form));
+    return toList(await apiClient.get("/addresses")).map(toAddress);
   },
 );
 
-export const loginAdminThunk = createAsyncThunk(
-  "auth/loginAdmin",
-  async ({ username, password }, { rejectWithValue }) => {
-    try {
-      const response = await apiClient.post("/auth/admin-login", {
-        username,
-        password,
-      });
-      return response; // { token, message }
-    } catch (error) {
-      return rejectWithValue(error.response?.data?.message || error.message);
-    }
+export const updateAddressThunk = asThunk(
+  "auth/updateAddress",
+  async ({ id, ...form }) => {
+    await apiClient.put(`/addresses/${id}`, toAddressPayload(form));
+    return toList(await apiClient.get("/addresses")).map(toAddress);
+  },
+);
+
+export const deleteAddressThunk = asThunk("auth/deleteAddress", async (id) => {
+  await apiClient.delete(`/addresses/${id}`);
+  return toList(await apiClient.get("/addresses")).map(toAddress);
+});
+
+export const setDefaultAddressThunk = asThunk(
+  "auth/setDefaultAddress",
+  async (id) => {
+    await apiClient.put(`/addresses/${id}/default`);
+    return toList(await apiClient.get("/addresses")).map(toAddress);
   },
 );
 
 const initialState = {
-  registeredUser: loadFromStorage("user", null),
-  user: loadFromStorage("currentUser", null),
-  isLoggedIn: localStorage.getItem("loggedIn") === "true",
-  isAdminLoggedIn: localStorage.getItem("adminLoggedIn") === "true",
-  _lastResult: null,
-  status: "idle", // idle | loading | succeeded | failed
+  user: loadJson(STORAGE_KEYS.user, null),
+  adminToken: localStorage.getItem(STORAGE_KEYS.adminToken),
+  status: "idle",
+  profileStatus: "idle",
+  addressStatus: "idle",
+  passwordStatus: "idle",
+  error: null,
+};
+
+const mergeProfileIntoUser = (user, profile) => {
+  if (!user) return user;
+  return {
+    ...user,
+    name: profile.name ?? user.name,
+    fullName: profile.fullName ?? profile.name ?? user.fullName,
+    email: profile.email || user.email,
+    phoneNumber: profile.phoneNumber ?? user.phoneNumber,
+  };
 };
 
 const authSlice = createSlice({
@@ -84,194 +143,139 @@ const authSlice = createSlice({
   reducers: {
     logoutUser(state) {
       state.user = null;
-      state.isLoggedIn = false;
+      state.error = null;
     },
     logoutAdmin(state) {
-      state.isAdminLoggedIn = false;
-    },
-    clearAuthResult(state) {
-      state._lastResult = null;
-      state.status = "idle";
-    },
-    updateProfile(state, action) {
-      if (state.user) {
-        state.user = { ...state.user, ...action.payload };
-        if (state.registeredUser) {
-          state.registeredUser = { ...state.registeredUser, ...action.payload };
-        }
-        localStorage.setItem("currentUser", JSON.stringify(state.user));
-        if (state.registeredUser)
-          localStorage.setItem("user", JSON.stringify(state.registeredUser));
-      }
-    },
-    addAddress(state, action) {
-      if (state.user) {
-        if (!state.user.addresses) state.user.addresses = [];
-        if (state.user.addresses.length >= 3) return; // Max 3 addresses
-
-        const newAddress = {
-          id: Date.now().toString(),
-          isDefault: state.user.addresses.length === 0,
-          ...action.payload,
-        };
-        state.user.addresses.push(newAddress);
-
-        if (state.registeredUser) {
-          state.registeredUser.addresses = state.user.addresses;
-        }
-        localStorage.setItem("currentUser", JSON.stringify(state.user));
-        if (state.registeredUser)
-          localStorage.setItem("user", JSON.stringify(state.registeredUser));
-      }
-    },
-    editAddress(state, action) {
-      if (state.user && state.user.addresses) {
-        const { id, ...updates } = action.payload;
-        const index = state.user.addresses.findIndex((a) => a.id === id);
-        if (index !== -1) {
-          state.user.addresses[index] = {
-            ...state.user.addresses[index],
-            ...updates,
-          };
-          if (state.registeredUser) {
-            state.registeredUser.addresses = state.user.addresses;
-          }
-          localStorage.setItem("currentUser", JSON.stringify(state.user));
-          if (state.registeredUser)
-            localStorage.setItem("user", JSON.stringify(state.registeredUser));
-        }
-      }
-    },
-    deleteAddress(state, action) {
-      if (state.user && state.user.addresses) {
-        const id = action.payload;
-        const index = state.user.addresses.findIndex((a) => a.id === id);
-        if (index !== -1) {
-          const wasDefault = state.user.addresses[index].isDefault;
-          state.user.addresses.splice(index, 1);
-
-          if (wasDefault && state.user.addresses.length > 0) {
-            state.user.addresses[0].isDefault = true;
-          }
-
-          if (state.registeredUser) {
-            state.registeredUser.addresses = state.user.addresses;
-          }
-          localStorage.setItem("currentUser", JSON.stringify(state.user));
-          if (state.registeredUser)
-            localStorage.setItem("user", JSON.stringify(state.registeredUser));
-        }
-      }
-    },
-    setDefaultAddress(state, action) {
-      if (state.user && state.user.addresses) {
-        const id = action.payload;
-        state.user.addresses.forEach((a) => {
-          a.isDefault = a.id === id;
-        });
-        if (state.registeredUser) {
-          state.registeredUser.addresses = state.user.addresses;
-        }
-        localStorage.setItem("currentUser", JSON.stringify(state.user));
-        if (state.registeredUser)
-          localStorage.setItem("user", JSON.stringify(state.registeredUser));
-      }
+      state.adminToken = null;
     },
   },
   extraReducers: (builder) => {
     builder
-      // loginUser
-      .addCase(loginUserThunk.pending, (state) => {
-        state.status = "loading";
-        state._lastResult = null;
-      })
-      .addCase(loginUserThunk.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        const user = action.payload.user;
-        if (user && user.address && !user.addresses) {
-          user.addresses = [
-            {
-              id: Date.now().toString(),
-              label: "Home",
-              isDefault: true,
-              ...user.address,
-            },
-          ];
-        } else if (user && !user.addresses) {
-          user.addresses = [];
-        }
-        state.user = user;
-        state.isLoggedIn = true;
-        state._lastResult = { success: true, message: action.payload.message };
-      })
-      .addCase(loginUserThunk.rejected, (state, action) => {
-        state.status = "failed";
-        state._lastResult = { success: false, message: action.payload };
-      })
-
-      // registerUser
-      .addCase(registerUserThunk.pending, (state) => {
-        state.status = "loading";
-        state._lastResult = null;
-      })
-      .addCase(registerUserThunk.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        const user = action.payload.user;
-        if (user && user.address && !user.addresses) {
-          user.addresses = [
-            {
-              id: Date.now().toString(),
-              label: "Home",
-              isDefault: true,
-              ...user.address,
-            },
-          ];
-        } else if (user && !user.addresses) {
-          user.addresses = [];
-        }
-        state.registeredUser = user;
-        state.user = user;
-        state.isLoggedIn = true;
-        state._lastResult = { success: true, message: action.payload.message };
-      })
-      .addCase(registerUserThunk.rejected, (state, action) => {
-        state.status = "failed";
-        state._lastResult = { success: false, message: action.payload };
-      })
-
-      // loginAdmin
-      .addCase(loginAdminThunk.pending, (state) => {
-        state.status = "loading";
-        state._lastResult = null;
-      })
       .addCase(loginAdminThunk.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.isAdminLoggedIn = true;
-        state._lastResult = { success: true, message: action.payload.message };
+        const session = normalizeSession(action.payload);
+        state.adminToken = session?.token ?? null;
       })
-      .addCase(loginAdminThunk.rejected, (state, action) => {
-        state.status = "failed";
-        state._lastResult = { success: false, message: action.payload };
-      });
+      .addCase(fetchProfileThunk.pending, (state) => {
+        state.profileStatus = "loading";
+      })
+      .addCase(fetchProfileThunk.fulfilled, (state, action) => {
+        state.profileStatus = "succeeded";
+        state.user = mergeProfileIntoUser(state.user, action.payload);
+      })
+      .addCase(fetchProfileThunk.rejected, (state, action) => {
+        state.profileStatus = "failed";
+        state.error = action.payload;
+      })
+      .addCase(updateProfileThunk.pending, (state) => {
+        state.profileStatus = "loading";
+      })
+      .addCase(updateProfileThunk.fulfilled, (state, action) => {
+        state.profileStatus = "succeeded";
+        state.user = mergeProfileIntoUser(state.user, action.payload);
+      })
+      .addCase(updateProfileThunk.rejected, (state, action) => {
+        state.profileStatus = "failed";
+        state.error = action.payload;
+      })
+      .addCase(changePasswordThunk.pending, (state) => {
+        state.passwordStatus = "loading";
+      })
+      .addCase(changePasswordThunk.fulfilled, (state) => {
+        state.passwordStatus = "succeeded";
+      })
+      .addCase(changePasswordThunk.rejected, (state, action) => {
+        state.passwordStatus = "failed";
+        state.error = action.payload;
+      })
+      .addCase(fetchAddressesThunk.pending, (state) => {
+        state.addressStatus = "loading";
+      })
+      .addCase(createAddressThunk.pending, (state) => {
+        state.addressStatus = "loading";
+      })
+      .addCase(updateAddressThunk.pending, (state) => {
+        state.addressStatus = "loading";
+      })
+      .addCase(deleteAddressThunk.pending, (state) => {
+        state.addressStatus = "loading";
+      })
+      .addCase(setDefaultAddressThunk.pending, (state) => {
+        state.addressStatus = "loading";
+      })
+      .addMatcher(
+        (action) =>
+          [
+            fetchAddressesThunk.fulfilled.type,
+            createAddressThunk.fulfilled.type,
+            updateAddressThunk.fulfilled.type,
+            deleteAddressThunk.fulfilled.type,
+            setDefaultAddressThunk.fulfilled.type,
+          ].includes(action.type),
+        (state, action) => {
+          state.addressStatus = "succeeded";
+          if (state.user) state.user.addresses = action.payload;
+        },
+      )
+      .addMatcher(
+        (action) =>
+          [
+            fetchAddressesThunk.rejected.type,
+            createAddressThunk.rejected.type,
+            updateAddressThunk.rejected.type,
+            deleteAddressThunk.rejected.type,
+            setDefaultAddressThunk.rejected.type,
+          ].includes(action.type),
+        (state, action) => {
+          state.addressStatus = "failed";
+          state.error = action.payload;
+        },
+      )
+      .addMatcher(
+        (action) =>
+          [
+            loginUserThunk.fulfilled.type,
+            registerUserThunk.fulfilled.type,
+          ].includes(action.type),
+        (state, action) => {
+          state.status = "succeeded";
+          state.user = normalizeSession(action.payload);
+        },
+      )
+      .addMatcher(
+        (action) =>
+          [
+            loginUserThunk.pending.type,
+            registerUserThunk.pending.type,
+            loginAdminThunk.pending.type,
+          ].includes(action.type),
+        (state) => {
+          state.status = "loading";
+        },
+      )
+      .addMatcher(
+        (action) =>
+          [
+            loginUserThunk.rejected.type,
+            registerUserThunk.rejected.type,
+            loginAdminThunk.rejected.type,
+          ].includes(action.type),
+        (state) => {
+          state.status = "failed";
+        },
+      );
   },
 });
 
-export const {
-  logoutUser,
-  logoutAdmin,
-  clearAuthResult,
-  updateProfile,
-  addAddress,
-  editAddress,
-  deleteAddress,
-  setDefaultAddress,
-} = authSlice.actions;
+export const { logoutUser, logoutAdmin } = authSlice.actions;
 
-// Selectors
 export const selectUser = (state) => state.auth.user;
-export const selectIsLoggedIn = (state) => state.auth.isLoggedIn;
-export const selectIsAdminLoggedIn = (state) => state.auth.isAdminLoggedIn;
-export const selectAuthResult = (state) => state.auth._lastResult;
+export const selectIsLoggedIn = (state) => Boolean(state.auth.user);
+export const selectIsAdminLoggedIn = (state) => Boolean(state.auth.adminToken);
 export const selectAuthStatus = (state) => state.auth.status;
+export const selectProfileStatus = (state) => state.auth.profileStatus;
+export const selectAddressStatus = (state) => state.auth.addressStatus;
+export const selectPasswordStatus = (state) => state.auth.passwordStatus;
+export const selectAuthError = (state) => state.auth.error;
 
 export const authReducer = authSlice.reducer;

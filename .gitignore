@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.antigravity/
+
+.env
+.env.local
+.env.*.local
+
+notes.txt
+restore.cjs
+*.rar
+swag.json
+swagger.json

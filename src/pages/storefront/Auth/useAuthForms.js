@@ -1,102 +1,79 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   loginUserThunk,
   registerUserThunk,
-  selectAuthResult,
-  clearAuthResult,
+  fetchAddressesThunk,
+  fetchProfileThunk,
   selectAuthStatus,
 } from "../../../store/authSlice";
+import { fetchWishlistThunk } from "../../../store/wishlistSlice";
+import { features } from "../../../config/features";
+
+const emptyMessage = { text: "", isError: false };
 
 export const useAuthForms = () => {
-  const [mode, setMode] = useState("login");
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const authStatus = useSelector(selectAuthStatus);
-  const isLoading = authStatus === "loading";
+  const location = useLocation();
+  const { t } = useTranslation("storefront");
+  const isLoading = useSelector(selectAuthStatus) === "loading";
+  const redirectTo = location.state?.from || "/";
 
-  // Login
+  const [mode, setMode] = useState("login");
+
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
-  const [loginMsg, setLoginMsg] = useState({ text: "", isError: false });
+  const [loginMsg, setLoginMsg] = useState(emptyMessage);
 
-  // Register
   const [regName, setRegName] = useState("");
   const [regEmail, setRegEmail] = useState("");
   const [regPassword, setRegPassword] = useState("");
-  const [regMsg, setRegMsg] = useState({ text: "", isError: false });
+  const [regMsg, setRegMsg] = useState(emptyMessage);
 
-  // Forget
-  const [forgetEmail, setForgetEmail] = useState("");
-  const [resetMethod, setResetMethod] = useState("email");
-  const [forgetMsg, setForgetMsg] = useState({ text: "", isError: false });
-
-  const authResult = useSelector(selectAuthResult);
-
-  useEffect(() => {
-    if (authResult) {
-      if (mode === "login") {
-        setLoginMsg({ text: authResult.message, isError: !authResult.success });
-        if (authResult.success) {
-          setTimeout(() => navigate("/"), 1000);
-        }
-      } else if (mode === "register") {
-        setRegMsg({ text: authResult.message, isError: !authResult.success });
-        if (authResult.success) {
-          setTimeout(() => {
-            setLoginEmail(regEmail);
-            setMode("login");
-            setRegMsg({ text: "", isError: false });
-          }, 1000);
-        }
-      }
-      dispatch(clearAuthResult());
-    }
-  }, [authResult, mode, navigate, dispatch, regEmail]);
-
-  const handleLoginSubmit = (e) => {
-    e.preventDefault();
-    if (!loginEmail) {
-      setLoginMsg({ text: "Please enter your email", isError: true });
-      return;
-    }
-    if (!loginPassword) {
-      setLoginMsg({ text: "Please enter email and password.", isError: true });
-      return;
-    }
-    dispatch(loginUserThunk({ email: loginEmail, password: loginPassword }));
+  const syncAccountData = () => {
+    dispatch(fetchWishlistThunk());
+    if (features.savedAddresses) dispatch(fetchAddressesThunk());
+    if (features.profileEdit) dispatch(fetchProfileThunk());
   };
 
-  const handleRegisterSubmit = (e) => {
-    e.preventDefault();
-    if (!regName || !regEmail || !regPassword) {
-      setRegMsg({ text: "Please fill all fields correctly.", isError: true });
+  const submit = async (thunkArgs, thunk, setMessage) => {
+    setMessage(emptyMessage);
+    try {
+      await dispatch(thunk(thunkArgs)).unwrap();
+      syncAccountData();
+      navigate(redirectTo, { replace: true });
+    } catch (error) {
+      setMessage({ text: error || t("authFailed"), isError: true });
+    }
+  };
+
+  const handleLoginSubmit = (event) => {
+    event.preventDefault();
+    if (!loginEmail || !loginPassword) {
+      setLoginMsg({ text: t("enterEmailAndPassword"), isError: true });
       return;
     }
-
-    dispatch(
-      registerUserThunk({
-        name: regName,
-        email: regEmail,
-        password: regPassword,
-      }),
+    submit(
+      { email: loginEmail, password: loginPassword },
+      loginUserThunk,
+      setLoginMsg,
     );
   };
 
-  const handleForgetSubmit = (e) => {
-    e.preventDefault();
-    if (!forgetEmail) {
-      setForgetMsg({ text: "Please enter email", isError: true });
+  const handleRegisterSubmit = (event) => {
+    event.preventDefault();
+    if (!regName || !regEmail || !regPassword) {
+      setRegMsg({ text: t("fillAllFields"), isError: true });
       return;
     }
-    setForgetMsg({
-      text:
-        resetMethod === "email"
-          ? "Reset link sent to your Email 📧"
-          : "Code sent to your Phone 📱",
-      isError: false,
-    });
+    submit(
+      { fullName: regName, email: regEmail, password: regPassword },
+      registerUserThunk,
+      setRegMsg,
+    );
   };
 
   return {
@@ -117,11 +94,5 @@ export const useAuthForms = () => {
     setRegPassword,
     regMsg,
     handleRegisterSubmit,
-    forgetEmail,
-    setForgetEmail,
-    resetMethod,
-    setResetMethod,
-    forgetMsg,
-    handleForgetSubmit,
   };
 };

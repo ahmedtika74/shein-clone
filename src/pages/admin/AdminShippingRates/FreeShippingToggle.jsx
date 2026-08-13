@@ -10,6 +10,7 @@ export const FreeShippingToggle = ({
   isSaved,
   handleToggleFreeShipping,
   handleSaveFsThreshold,
+  isLoading,
 }) => {
   const { t } = useTranslation("admin");
   return (
@@ -29,9 +30,11 @@ export const FreeShippingToggle = ({
             </p>
           </div>
           <button
+            type="button"
             onClick={handleToggleFreeShipping}
+            disabled={isLoading}
             className={cn(
-              "relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer",
+              "relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer disabled:opacity-50",
               freeShipping.enabled ? "bg-black" : "bg-gray-300",
             )}
             title={
@@ -77,8 +80,12 @@ export const FreeShippingToggle = ({
                   {t("saved")}
                 </span>
               )}
-              <Button onClick={handleSaveFsThreshold} className={cn("h-full")}>
-                {t("saveThreshold")}
+              <Button
+                onClick={handleSaveFsThreshold}
+                disabled={isLoading}
+                className={cn("h-full")}
+              >
+                {isLoading ? t("saving") : t("saveThreshold")}
               </Button>
             </div>
           </div>

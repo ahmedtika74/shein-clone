@@ -118,7 +118,6 @@ export const OrdersTable = ({
 
             {expandedOrders[order.id] && <OrderExpandedDetails order={order} />}
 
-            {/* Order Items Table */}
             <OrderItemsList order={order} />
           </CardContent>
         </Card>

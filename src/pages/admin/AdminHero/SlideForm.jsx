@@ -8,8 +8,10 @@ import {
   CardTitle,
 } from "../../../components/ui";
 import { useTranslation } from "react-i18next";
+import { getImageUrl } from "../../../utils/getImageUrl";
 
 export const SlideForm = ({
+  editId,
   newSlideUrl,
   setNewSlideUrl,
   newSlideLink,
@@ -18,26 +20,34 @@ export const SlideForm = ({
   setImageInputUrl,
   inputMode,
   setInputMode,
+  formError,
+  isLoading,
+  isUploading,
   handleFileUpload,
   handleAddUrl,
   handleAddSlide,
+  resetSlideForm,
 }) => {
   const { t } = useTranslation("admin");
   return (
     <Card className={cn("max-w-xl")}>
       <CardHeader>
         <CardTitle className={cn("text-base")}>
-          {t("addNewSlideBanner")}
+          {editId
+            ? t("editSlideBanner", {
+                defaultValue: `Edit Slide #${editId}`,
+                id: editId,
+              })
+            : t("addNewSlideBanner")}
         </CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleAddSlide} className={cn("space-y-4")}>
           <div className={cn("flex flex-col gap-4")}>
-            {/* Image Preview */}
             {newSlideUrl && (
               <div className={cn("relative w-full h-40 group")}>
                 <img
-                  src={newSlideUrl}
+                  src={getImageUrl(newSlideUrl)}
                   alt={t("bannerPreview")}
                   className={cn(
                     "w-full h-40 object-cover rounded-xl border border-gray-200",
@@ -55,7 +65,6 @@ export const SlideForm = ({
               </div>
             )}
 
-            {/* Upload or Link */}
             {!newSlideUrl && (
               <div className={cn("flex flex-col gap-3")}>
                 <div className={cn("flex bg-gray-100 p-1 rounded-lg w-fit")}>
@@ -98,10 +107,13 @@ export const SlideForm = ({
                       htmlFor="banner-image-upload"
                       className={cn(
                         "inline-flex items-center justify-center bg-black text-white px-4 py-2 rounded-lg text-sm font-bold cursor-pointer hover:bg-gray-800 transition-colors whitespace-nowrap h-[42px]",
+                        isUploading && "opacity-60 pointer-events-none",
                       )}
                     >
                       <i className={cn("fa-solid fa-upload me-2")}></i>
-                      {t("chooseFile")}
+                      {isUploading
+                        ? t("uploading", { defaultValue: "Uploading..." })
+                        : t("chooseFile")}
                     </label>
                   </div>
                 ) : (
@@ -109,7 +121,7 @@ export const SlideForm = ({
                     <Input
                       value={imageInputUrl}
                       onChange={(e) => setImageInputUrl(e.target.value)}
-                      placeholder={t("imageUrlPlaceholder")}
+                      placeholder="/products/CasualJeans.jpg"
                       className={cn("flex-1 min-w-0")}
                     />
                     <Button
@@ -124,7 +136,6 @@ export const SlideForm = ({
               </div>
             )}
 
-            {/* Redirect Link */}
             <Input
               label={t("redirectLinkOptional")}
               value={newSlideLink}
@@ -133,13 +144,31 @@ export const SlideForm = ({
             />
           </div>
 
-          <div className={cn("flex justify-end pt-2")}>
+          {formError && (
+            <p className={cn("text-sm text-red-600 font-medium")}>{formError}</p>
+          )}
+
+          <div className={cn("flex justify-end gap-3 pt-2")}>
+            {editId && (
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={resetSlideForm}
+                className={cn("px-6 h-11")}
+              >
+                {t("cancelEdit")}
+              </Button>
+            )}
             <Button
               type="submit"
-              disabled={!newSlideUrl}
+              disabled={!newSlideUrl || isLoading || isUploading}
               className={cn("px-6 h-11 bg-[#111] hover:bg-[#e60023]")}
             >
-              {t("saveSlide")}
+              {isLoading
+                ? t("saving")
+                : editId
+                  ? t("updateSlide", { defaultValue: "Update Slide" })
+                  : t("saveSlide")}
             </Button>
           </div>
         </form>

@@ -1,6 +1,7 @@
 import { cn } from "../../../utils/cn";
 import { Button, Input } from "../../../components/ui";
 import { useTranslation } from "react-i18next";
+import { getImageUrl } from "../../../utils/getImageUrl";
 
 export const LogoUploader = ({
   settings,
@@ -11,6 +12,8 @@ export const LogoUploader = ({
   imageInputUrl,
   setImageInputUrl,
   handleAddUrl,
+  isUploading,
+  uploadError,
 }) => {
   const { t } = useTranslation("admin");
   if (settings.type === "text") {
@@ -39,7 +42,6 @@ export const LogoUploader = ({
       </label>
 
       <div className={cn("flex flex-col gap-4")}>
-        {/* Image Preview */}
         {settings.logoUrl && (
           <div className={cn("relative w-fit group")}>
             <div
@@ -48,7 +50,7 @@ export const LogoUploader = ({
               )}
             >
               <img
-                src={settings.logoUrl}
+                src={getImageUrl(settings.logoUrl)}
                 alt={t("logoPreview")}
                 className={cn("h-12 object-contain")}
                 onError={(e) => {
@@ -69,7 +71,6 @@ export const LogoUploader = ({
           </div>
         )}
 
-        {/* Upload or Link */}
         {!settings.logoUrl && (
           <div className={cn("flex flex-col gap-3")}>
             <div className={cn("flex bg-gray-100 p-1 rounded-lg w-fit")}>
@@ -112,10 +113,13 @@ export const LogoUploader = ({
                   htmlFor="logo-image-upload"
                   className={cn(
                     "inline-flex items-center justify-center bg-black text-white px-4 py-2 rounded-lg text-sm font-bold cursor-pointer hover:bg-gray-800 transition-colors whitespace-nowrap h-[42px]",
+                    isUploading && "opacity-60 pointer-events-none",
                   )}
                 >
                   <i className={cn("fa-solid fa-upload me-2")}></i>
-                  {t("chooseFile", { defaultValue: "Choose File..." })}
+                  {isUploading
+                    ? t("uploading", { defaultValue: "Uploading..." })
+                    : t("chooseFile", { defaultValue: "Choose File..." })}
                 </label>
               </div>
             ) : (
@@ -138,6 +142,9 @@ export const LogoUploader = ({
               </div>
             )}
           </div>
+        )}
+        {uploadError && (
+          <p className={cn("text-xs text-red-600 font-medium")}>{uploadError}</p>
         )}
       </div>
     </div>

@@ -2,6 +2,9 @@ import { cn } from "../../../utils/cn";
 import { useTranslation } from "react-i18next";
 import { Badge } from "../../../components/ui/Badge";
 import { Button } from "../../../components/ui/Button";
+import { features } from "../../../config/features";
+import { getImageUrl } from "../../../utils/getImageUrl";
+import { getLocalizedString } from "../../../utils/localization";
 
 export const UserOrderCard = ({
   order,
@@ -10,6 +13,9 @@ export const UserOrderCard = ({
 }) => {
   const { t, i18n } = useTranslation(["storefront", "common"]);
   const currentLang = i18n.language === "ar" ? "ar-EG" : "en-US";
+  const canCancel =
+    order.status === "Pending" || order.status === "Processing";
+  const canRefund = features.refunds && order.status === "Completed";
 
   const translateStatus = (status) => {
     if (!status) return t("pending");
@@ -73,41 +79,45 @@ export const UserOrderCard = ({
         </Badge>
       </div>
 
-      {/* Items inside order */}
       <div className={cn("divide-y divide-gray-100")}>
         {order.items &&
-          order.items.map((item, idx) => (
-            <div
-              key={item.id || `item-${idx}`}
-              className={cn("product-item flex items-center gap-4 py-3")}
-            >
-              <img
-                src={item.img}
-                alt={item.name}
-                className={cn("w-17.5 h-17.5 object-cover rounded-[10px]")}
-              />
-              <div className={cn("flex-1 min-w-0")}>
-                <h4 className={cn("font-bold text-gray-800 text-sm truncate")}>
-                  {item.name}
-                </h4>
-                <p className={cn("text-xs text-gray-500")}>
-                  {t("qty")} {item.quantity}{" "}
-                  {item.color
-                    ? `| ${t("color")} ${typeof item.color === "object" ? item.color.name : item.color}`
-                    : ""}{" "}
-                  {item.size
-                    ? `| ${t("size")} ${typeof item.size === "object" ? item.size.name : item.size}`
-                    : ""}
-                </p>
+          order.items.map((item, idx) => {
+            const name =
+              getLocalizedString(item, "name", i18n.language) ||
+              item.nameEn ||
+              item.name ||
+              "";
+            const unitPrice = Number(item.unitPrice ?? item.price ?? 0);
+            const color = item.colorName || item.color || "";
+            const size = item.sizeName || item.size || "";
+            return (
+              <div
+                key={item.productId || `item-${idx}`}
+                className={cn("product-item flex items-center gap-4 py-3")}
+              >
+                <img
+                  src={getImageUrl(item.imageUrl || item.img)}
+                  alt={name}
+                  className={cn("w-17.5 h-17.5 object-cover rounded-[10px]")}
+                />
+                <div className={cn("flex-1 min-w-0")}>
+                  <h4 className={cn("font-bold text-gray-800 text-sm truncate")}>
+                    {name}
+                  </h4>
+                  <p className={cn("text-xs text-gray-500")}>
+                    {t("qty")} {item.quantity}{" "}
+                    {color ? `| ${t("color")} ${color}` : ""}{" "}
+                    {size ? `| ${t("size")} ${size}` : ""}
+                  </p>
+                </div>
+                <span className={cn("font-bold text-black text-sm")}>
+                  {t("egp")} {(unitPrice * item.quantity).toFixed(2)}
+                </span>
               </div>
-              <span className={cn("font-bold text-black text-sm")}>
-                {t("egp")} {(item.price * item.quantity).toFixed(2)}
-              </span>
-            </div>
-          ))}
+            );
+          })}
       </div>
 
-      {/* Order Tracking Progress Bar */}
       <div className={cn("tracking flex justify-between mt-6 gap-2")}>
         <div
           className={cn(
@@ -151,8 +161,8 @@ export const UserOrderCard = ({
           "mt-4 pt-3 border-t flex flex-col sm:flex-row sm:justify-between sm:items-center text-sm gap-3 sm:gap-0",
         )}
       >
-        <div className="flex justify-between items-center sm:block">
-          {(order.status === "Pending" || order.status === "Processing") && (
+        <div className="flex justify-between items-center sm:block gap-2">
+          {canCancel && (
             <Button
               variant="danger"
               onClick={() => setCancelOrderId(order.id)}
@@ -161,7 +171,7 @@ export const UserOrderCard = ({
               {t("cancelOrder")}
             </Button>
           )}
-          {order.status === "Completed" && (
+          {canRefund && (
             <Button
               onClick={() => setRefundOrderId(order.id)}
               className="py-1 px-3 text-xs bg-orange-50 hover:bg-orange-100 text-orange-600 border border-orange-200"
@@ -170,11 +180,24 @@ export const UserOrderCard = ({
             </Button>
           )}
           {order.status === "Refund Requested" && (
-            <span
-              className={cn("text-orange-600 font-bold text-xs sm:text-sm")}
+            <div
+              className={cn(
+                "text-orange-600 font-bold text-xs sm:text-sm flex flex-col",
+              )}
             >
-              {t("refundPending")}
-            </span>
+              <span>{t("refundPending")}</span>
+              {order.refundRequestedAt && (
+                <span className="text-[10px] sm:text-xs text-gray-500 font-normal mt-1">
+                  {t("requestedOn")}{" "}
+                  {new Date(order.refundRequestedAt).toLocaleString(currentLang)}
+                </span>
+              )}
+              {order.refundReason && (
+                <span className="text-[10px] sm:text-xs text-gray-500 font-normal mt-1">
+                  {t("reason")} {order.refundReason}
+                </span>
+              )}
+            </div>
           )}
           {order.status === "Refund Refused" && (
             <div
@@ -183,14 +206,21 @@ export const UserOrderCard = ({
               )}
             >
               <span>{t("refundRefused")}</span>
-              {order.refusalReason && (
+              {order.refundRequestedAt && (
                 <span className="text-[10px] sm:text-xs text-gray-500 font-normal mt-1">
-                  {t("reason")} {order.refusalReason}
+                  {t("requestedOn")}{" "}
+                  {new Date(order.refundRequestedAt).toLocaleString(currentLang)}
                 </span>
               )}
               {order.refusedAt && (
                 <span className="text-[10px] sm:text-xs text-gray-500 font-normal mt-1">
-                  {t("refusedOn")} {new Date(order.refusedAt).toLocaleString()}
+                  {t("refusedOn")}{" "}
+                  {new Date(order.refusedAt).toLocaleString(currentLang)}
+                </span>
+              )}
+              {order.refusalReason && (
+                <span className="text-[10px] sm:text-xs text-gray-500 font-normal mt-1">
+                  {t("reason")} {order.refusalReason}
                 </span>
               )}
             </div>
@@ -202,10 +232,16 @@ export const UserOrderCard = ({
               )}
             >
               <span>{t("returned")}</span>
+              {order.refundRequestedAt && (
+                <span className="text-[10px] sm:text-xs text-gray-500 font-normal mt-1">
+                  {t("requestedOn")}{" "}
+                  {new Date(order.refundRequestedAt).toLocaleString(currentLang)}
+                </span>
+              )}
               {order.refundedAt && (
                 <span className="text-[10px] sm:text-xs text-gray-500 font-normal mt-1">
                   {t("acceptedOn")}{" "}
-                  {new Date(order.refundedAt).toLocaleString()}
+                  {new Date(order.refundedAt).toLocaleString(currentLang)}
                 </span>
               )}
             </div>
@@ -225,7 +261,7 @@ export const UserOrderCard = ({
             {t("total")}
           </span>
           <span className={cn("font-bold text-[#e60023] text-lg")}>
-            {t("egp")} {order.total?.toFixed(2)}
+            {t("egp")} {Number(order.total || 0).toFixed(2)}
           </span>
         </div>
       </div>

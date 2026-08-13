@@ -12,6 +12,7 @@ export const ShippingRateForm = ({
   setPrice,
   deliveryDays,
   setDeliveryDays,
+  isLoading,
 }) => {
   const { t } = useTranslation("admin");
   return (
@@ -53,8 +54,12 @@ export const ShippingRateForm = ({
           className={cn("flex-2")}
           required
         />
-        <Button type="submit" className={cn("h-[46px] w-full sm:w-auto")}>
-          {t("addRate")}
+        <Button
+          type="submit"
+          disabled={isLoading}
+          className={cn("h-[46px] w-full sm:w-auto")}
+        >
+          {isLoading ? t("saving") : t("addRate")}
         </Button>
       </div>
     </form>

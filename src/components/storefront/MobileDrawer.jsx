@@ -1,31 +1,18 @@
 import { cn } from "../../utils/cn";
 import { useTranslation } from "react-i18next";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { selectUser } from "../../store/authSlice";
-import { selectCategories } from "../../store/dataSlice";
 import { LanguageSwitcher } from "../common/LanguageSwitcher";
-import { getLocalizedString } from "../../utils/localization";
+import { useCategoryNav, categoryHref } from "./useCategoryNav";
 
 export const MobileDrawer = ({ isOpen, setIsOpen }) => {
-  const { t, i18n } = useTranslation(["storefront", "common"]);
+  const { t } = useTranslation("storefront");
   const user = useSelector(selectUser);
-  const [searchParams] = useSearchParams();
-  const currentCategory = searchParams.get("category");
-
-  const categories = useSelector(selectCategories);
-
-  const navItems = [
-    ...categories.map((c) => ({
-      label: getLocalizedString(c, "name", i18n.language).toUpperCase(),
-      category: c.name || c.nameEn,
-    })),
-    { label: t("sale"), category: "SALE", isSale: true },
-  ];
+  const { items, activeKey } = useCategoryNav();
 
   return (
     <>
-      {/* Backdrop */}
       {isOpen && (
         <div
           className={cn(
@@ -35,7 +22,6 @@ export const MobileDrawer = ({ isOpen, setIsOpen }) => {
         />
       )}
 
-      {/* Drawer */}
       <div
         className={cn(
           "fixed top-0 start-0 h-full w-[80%] max-w-sm bg-white z-[70] shadow-2xl transition-transform duration-300 ease-in-out md:hidden flex flex-col",
@@ -68,7 +54,7 @@ export const MobileDrawer = ({ isOpen, setIsOpen }) => {
           </div>
           <button
             onClick={() => setIsOpen(false)}
-            aria-label="Close Menu"
+            aria-label={t("close")}
             className={cn(
               "w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-gray-200 transition-colors",
             )}
@@ -84,25 +70,27 @@ export const MobileDrawer = ({ isOpen, setIsOpen }) => {
                 to="/"
                 onClick={() => setIsOpen(false)}
                 className={cn(
-                  `block px-6 py-4 font-semibold border-s-4 transition-colors uppercase ${!currentCategory ? "border-black text-black bg-gray-50" : "border-transparent text-gray-600"}`,
+                  "block px-6 py-4 font-semibold border-s-4 transition-colors uppercase",
+                  activeKey
+                    ? "border-transparent text-gray-600"
+                    : "border-black text-black bg-gray-50",
                 )}
               >
-                ALL
+                {t("all")}
               </Link>
             </li>
-            {navItems.map((item) => (
-              <li key={item.label}>
+            {items.map((item) => (
+              <li key={item.key}>
                 <Link
-                  to={`/?category=${encodeURIComponent(item.category)}`}
+                  to={categoryHref(item.key)}
                   onClick={() => setIsOpen(false)}
                   className={cn(
-                    `block px-6 py-4 font-semibold border-s-4 transition-colors uppercase ${
-                      currentCategory === item.category
-                        ? "border-black text-black bg-gray-50"
-                        : item.isSale
-                          ? "border-transparent text-red-500"
-                          : "border-transparent text-gray-600"
-                    }`,
+                    "block px-6 py-4 font-semibold border-s-4 transition-colors uppercase",
+                    activeKey === item.key
+                      ? "border-black text-black bg-gray-50"
+                      : item.isSale
+                        ? "border-transparent text-red-500"
+                        : "border-transparent text-gray-600",
                   )}
                 >
                   {item.label}

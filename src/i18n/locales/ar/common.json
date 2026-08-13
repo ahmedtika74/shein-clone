@@ -9,5 +9,10 @@
   "error": "حدث خطأ",
   "yes": "نعم",
   "no": "لا",
-  "confirm": "تأكيد"
+  "confirm": "تأكيد",
+  "retry": "إعادة المحاولة",
+  "genericErrorMessage": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
+  "connectionFailedTitle": "تعذر الوصول إلى المتجر",
+  "connectionFailedMessage": "لم نتمكن من تحميل بيانات المتجر. تحقق من اتصالك وحاول مرة أخرى.",
+  "uploadFailed": "فشل الرفع"
 }

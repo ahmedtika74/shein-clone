@@ -1,13 +1,12 @@
-import { cn } from "../../../utils/cn";
 import { useTranslation } from "react-i18next";
+import { cn } from "../../../utils/cn";
 
-export const SizePicker = ({
-  selectedSizes,
-  handleAddSize,
-  handleRemoveSize,
-  handleSizeChange,
-}) => {
-  const { t } = useTranslation(["admin"]);
+const fieldClasses =
+  "flex-1 min-w-[150px] h-10 px-3 border border-gray-300 rounded outline-none focus:border-[#e60023] text-sm";
+
+export const SizePicker = ({ sizes, onAdd, onRemove, onChange }) => {
+  const { t } = useTranslation("admin");
+
   return (
     <div
       className={cn(
@@ -20,17 +19,18 @@ export const SizePicker = ({
         </label>
         <button
           type="button"
-          onClick={handleAddSize}
+          onClick={onAdd}
           className={cn(
-            "text-xs bg-black text-white px-3 py-1.5 rounded-md hover:bg-gray-800",
+            "text-xs bg-black text-white px-3 py-1.5 rounded-md hover:bg-gray-800 cursor-pointer",
           )}
         >
           {t("addSize")}
         </button>
       </div>
-      {selectedSizes.map((size, idx) => (
+
+      {sizes.map((size, index) => (
         <div
-          key={idx}
+          key={index}
           className={cn(
             "flex flex-wrap md:flex-nowrap gap-3 items-center bg-white p-3 rounded-lg border border-gray-200 shadow-sm",
           )}
@@ -38,38 +38,34 @@ export const SizePicker = ({
           <input
             type="text"
             placeholder={t("sizeName")}
-            value={size.name || ""}
-            onChange={(e) => handleSizeChange(idx, "name", e.target.value)}
-            className={cn(
-              "flex-1 min-w-[150px] h-10 px-3 border border-gray-300 rounded outline-none focus:border-[#e60023] text-sm",
-            )}
+            value={size.name}
+            onChange={(event) => onChange(index, "name", event.target.value)}
+            className={cn(fieldClasses)}
           />
           <input
             type="number"
+            step="0.01"
             placeholder={t("priceAdj")}
-            value={size.priceAdjustment || ""}
-            onChange={(e) =>
-              handleSizeChange(idx, "priceAdjustment", e.target.value)
+            value={size.priceAdjustment}
+            onChange={(event) =>
+              onChange(index, "priceAdjustment", event.target.value)
             }
-            className={cn(
-              "flex-1 min-w-[150px] h-10 px-3 border border-gray-300 rounded outline-none focus:border-[#e60023] text-sm",
-            )}
+            className={cn(fieldClasses)}
           />
           <button
             type="button"
-            onClick={() => handleRemoveSize(idx)}
+            onClick={() => onRemove(index)}
             className={cn(
-              "text-red-500 hover:text-red-700 font-bold text-sm px-2",
+              "text-red-500 hover:text-red-700 font-bold text-sm px-2 cursor-pointer",
             )}
           >
             {t("remove")}
           </button>
         </div>
       ))}
-      {selectedSizes.length === 0 && (
-        <p className={cn("text-sm text-gray-500")}>
-          {t("noSizesAdded")}
-        </p>
+
+      {sizes.length === 0 && (
+        <p className={cn("text-sm text-gray-500")}>{t("noSizesAdded")}</p>
       )}
     </div>
   );

@@ -24,7 +24,9 @@ export const AdminHeroPage = () => {
 
         <HeroSlidesList
           heroSlides={logic.heroSlides}
+          handleEditSlide={logic.handleEditSlide}
           handleDeleteSlide={logic.handleDeleteSlide}
+          isLoading={logic.isLoading}
         />
 
         <SlideForm {...logic} />

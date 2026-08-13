@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   selectCartItems,
   selectCartTotal,
@@ -7,17 +9,23 @@ import {
 } from "../../../store/cartSlice";
 import {
   createOrderThunk,
+  fetchMyOrdersThunk,
   selectShippingRates,
   selectPaymentMethods,
   selectOffers,
-  selectOrders,
+  selectMyOrders,
   selectFreeShipping,
   selectSiteSettings,
 } from "../../../store/dataSlice";
-import { selectUser } from "../../../store/authSlice";
+import { fetchAddressesThunk, selectUser } from "../../../store/authSlice";
+import { toOrderPayload } from "../../../services/mappers";
+import { findShippingRate } from "../../../utils/shipping";
+import { features } from "../../../config/features";
 
 export const useCartLogic = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { t } = useTranslation("storefront");
   const user = useSelector(selectUser);
   const cart = useSelector(selectCartItems);
   const cartTotal = useSelector(selectCartTotal);
@@ -29,7 +37,7 @@ export const useCartLogic = () => {
   };
   const paymentMethods = useSelector(selectPaymentMethods);
   const offers = useSelector(selectOffers);
-  const orders = useSelector(selectOrders);
+  const orders = useSelector(selectMyOrders);
 
   const [checkoutMessage, setCheckoutMessage] = useState("");
   const [checkoutError, setCheckoutError] = useState("");
@@ -42,18 +50,23 @@ export const useCartLogic = () => {
   const [selectedAddressId, setSelectedAddressId] = useState(
     defaultAddress?.id || null,
   );
-  const [guestAddress, setGuestAddress] = useState({
-    street: "",
-    city: "",
-    government: "",
-    phone: "",
-  });
   const [showAddressModal, setShowAddressModal] = useState(false);
 
-  const selectedAddress = user
+  useEffect(() => {
+    if (user && features.savedAddresses) {
+      dispatch(fetchAddressesThunk());
+    }
+  }, [dispatch, user]);
+
+  useEffect(() => {
+    if (!selectedAddressId && defaultAddress?.id) {
+      setSelectedAddressId(defaultAddress.id);
+    }
+  }, [defaultAddress?.id, selectedAddressId]);
+
+  const address = user
     ? userAddresses.find((a) => a.id === selectedAddressId) || null
-    : guestAddress;
-  const address = selectedAddress || guestAddress;
+    : null;
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("");
   const [transactionNumber, setTransactionNumber] = useState("");
   const [transactionScreenshot, setTransactionScreenshot] = useState("");
@@ -62,10 +75,8 @@ export const useCartLogic = () => {
   const [appliedPromo, setAppliedPromo] = useState(null);
   const [promoError, setPromoError] = useState("");
 
-  const selectedRate = shippingRates.find(
-    (rate) => rate.government === address.government,
-  );
-  const baseShippingCost = selectedRate ? selectedRate.price : 0;
+  const selectedRate = findShippingRate(shippingRates, address?.government);
+  const baseShippingCost = selectedRate ? Number(selectedRate.price) || 0 : 0;
 
   let discountAmount = 0;
   if (appliedPromo) {
@@ -108,15 +119,15 @@ export const useCartLogic = () => {
     );
 
     if (!offer) {
-      setPromoError("Invalid promo code.");
+      setPromoError(t("invalidPromoCode"));
       return;
     }
 
     if (
-      offer.expDate &&
-      new Date(offer.expDate) < new Date(new Date().setHours(0, 0, 0, 0))
+      offer.expiryDate &&
+      new Date(offer.expiryDate) < new Date(new Date().setHours(0, 0, 0, 0))
     ) {
-      setPromoError("This promo code has expired.");
+      setPromoError(t("promoExpired"));
       return;
     }
 
@@ -126,7 +137,7 @@ export const useCartLogic = () => {
     );
 
     if (hasUsed) {
-      setPromoError("You have already used this promo code.");
+      setPromoError(t("promoAlreadyUsed"));
       return;
     }
 
@@ -136,8 +147,15 @@ export const useCartLogic = () => {
 
   const handleCheckout = () => {
     setCheckoutError("");
+
+    if (!user) {
+      setCheckoutError(t("loginToCheckout"));
+      navigate("/login", { state: { from: "/cart" } });
+      return;
+    }
+
     if (cart.length === 0) {
-      setCheckoutError("Cart is empty");
+      setCheckoutError(t("cartEmpty", { defaultValue: "Cart is empty" }));
       return;
     }
     if (
@@ -147,11 +165,11 @@ export const useCartLogic = () => {
       !address.government ||
       !address.phone
     ) {
-      setCheckoutError("Please provide a valid shipping address.");
+      setCheckoutError(t("provideShippingAddress"));
       return;
     }
     if (!selectedPaymentMethod) {
-      setCheckoutError("Please select a payment method.");
+      setCheckoutError(t("selectPaymentMethodError"));
       return;
     }
 
@@ -164,39 +182,45 @@ export const useCartLogic = () => {
       !transactionScreenshot
     ) {
       setCheckoutError(
-        `Please enter the transaction number or upload a screenshot for ${selectedPaymentMethod}.`,
+        t("transactionProofRequired", { method: selectedPaymentMethod }),
       );
       return;
     }
 
-    const newOrder = {
-      id: Date.now(),
-      userEmail: user?.email,
-      items: cart,
-      total: finalTotal,
+    const orderPayload = toOrderPayload({
+      customerName:
+        user.name || user.fullName || address.label || "Customer",
+      userEmail: user.email || "",
+      cartItems: cart,
       subtotal: cartTotal,
       discount: discountAmount,
       productDiscount: productDiscountAmount,
       promoCode: appliedPromo ? appliedPromo.code : null,
       shippingCost,
+      total: finalTotal,
       address,
       paymentMethod: selectedPaymentMethod,
       transactionNumber: isDigitalWallet ? transactionNumber.trim() : null,
-      transactionScreenshot: isDigitalWallet ? transactionScreenshot : null,
-      status: "Pending",
-      date: new Date().toLocaleDateString(),
-      createdAt: new Date().toISOString(),
-    };
+      transactionScreenshotUrl: isDigitalWallet
+        ? transactionScreenshot || null
+        : null,
+    });
+
+    if (orderPayload.items.some((item) => !item.productId)) {
+      setCheckoutError(t("invalidCartProducts"));
+      return;
+    }
 
     setIsCheckoutLoading(true);
-    dispatch(createOrderThunk(newOrder))
+    dispatch(createOrderThunk(orderPayload))
       .unwrap()
       .then(() => {
         dispatch(clearCart());
-        setCheckoutMessage("Order placed successfully!");
+        dispatch(fetchMyOrdersThunk());
+        setCheckoutMessage(t("orderPlacedSuccess"));
       })
       .catch((err) => {
-        setCheckoutError(err || "Checkout failed");
+        setCheckoutError(err || t("checkoutFailed"));
       })
       .finally(() => {
         setIsCheckoutLoading(false);
@@ -217,8 +241,6 @@ export const useCartLogic = () => {
     userAddresses,
     selectedAddressId,
     setSelectedAddressId,
-    guestAddress,
-    setGuestAddress,
     showAddressModal,
     setShowAddressModal,
     user,
