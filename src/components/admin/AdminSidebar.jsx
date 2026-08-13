@@ -51,33 +51,34 @@ export const AdminSidebar = ({ isOpen, onClose }) => {
   return (
     <aside
       className={cn(
-        "sidebar w-[250px] bg-[#111] text-white p-6 h-screen overflow-y-auto flex flex-col justify-between flex-shrink-0 z-50",
+        "sidebar w-[250px] bg-[#111] text-white h-screen flex flex-col flex-shrink-0 z-50 overflow-hidden",
         "fixed md:sticky top-0 start-0 transition-transform duration-300 ease-in-out",
         isOpen
           ? "translate-x-0"
           : "-translate-x-full rtl:translate-x-full md:translate-x-0 rtl:md:translate-x-0",
       )}
     >
-      <div>
-        <div className={cn("flex justify-between items-center mb-8")}>
-          <h2
-            className={cn(
-              "text-xl font-bold flex items-center gap-3 text-white uppercase",
-            )}
-          >
-            <i className={cn("fa-solid fa-shop text-[#e60023] text-2xl")}></i>
-            {siteSettings.siteName}
-          </h2>
-          <button
-            onClick={onClose}
-            className={cn(
-              "md:hidden text-gray-400 hover:text-white cursor-pointer",
-            )}
-            aria-label="Close Menu"
-          >
-            <i className={cn("fa-solid fa-xmark text-xl")}></i>
-          </button>
-        </div>
+      <div className={cn("flex justify-between items-center p-6 pb-4 shrink-0")}>
+        <h2
+          className={cn(
+            "text-xl font-bold flex items-center gap-3 text-white uppercase",
+          )}
+        >
+          <i className={cn("fa-solid fa-shop text-[#e60023] text-2xl")}></i>
+          {siteSettings.siteName}
+        </h2>
+        <button
+          onClick={onClose}
+          className={cn(
+            "md:hidden text-gray-400 hover:text-white cursor-pointer",
+          )}
+          aria-label="Close Menu"
+        >
+          <i className={cn("fa-solid fa-xmark text-xl")}></i>
+        </button>
+      </div>
+
+      <nav className={cn("flex-1 min-h-0 overflow-y-auto px-6 pb-4")}>
         <ul className={cn("space-y-2")}>
           {menuItems.map((item) => (
             <li key={item.path}>
@@ -102,8 +103,13 @@ export const AdminSidebar = ({ isOpen, onClose }) => {
             </li>
           ))}
         </ul>
-      </div>
-      <div className="mt-8 pt-6 border-t border-gray-800 flex flex-col gap-2">
+      </nav>
+
+      <div
+        className={cn(
+          "shrink-0 px-6 py-4 border-t border-gray-800 flex flex-col gap-2 bg-[#111]",
+        )}
+      >
         <LanguageSwitcher variant="admin" />
         <button
           onClick={handleLogout}
