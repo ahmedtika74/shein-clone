@@ -84,6 +84,8 @@
   "qty": "Qty:",
   "saveChanges": "Save Changes",
   "shippingAddresses": "Shipping Addresses",
+  "noSavedAddresses": "You have no saved addresses yet. Add one to continue checkout.",
+  "addressesUnavailable": "Saved addresses are currently unavailable.",
   "setAsDefault": "Set as Default",
   "maxAddresses": "You have reached the maximum of 3 addresses.",
   "filter": "Filter:",

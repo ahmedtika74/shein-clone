@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { cn } from "../../../utils/cn";
 import { useTranslation } from "react-i18next";
 import { AddressFormModal } from "../../../components/common/AddressFormModal";
@@ -36,117 +37,168 @@ export const ProfileTab = ({
   const { t } = useTranslation(["storefront", "common"]);
   const addresses = user?.addresses || [];
 
+  const sections = [
+    { id: "info", label: t("personalInfo") },
+    ...(features.profileEdit
+      ? [{ id: "password", label: t("changePassword") }]
+      : []),
+    ...(features.savedAddresses
+      ? [{ id: "addresses", label: t("shippingAddresses") }]
+      : []),
+  ];
+
+  const [section, setSection] = useState("info");
+
   return (
     <>
       <ScrollToTop />
+
+      {sections.length > 1 && (
+        <div
+          className={cn(
+            "flex gap-2 mb-4 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-none",
+          )}
+        >
+          {sections.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => setSection(item.id)}
+              className={cn(
+                "shrink-0 px-4 py-2 text-sm rounded-full font-bold transition-colors",
+                section === item.id
+                  ? "bg-black text-white"
+                  : "bg-white text-gray-700 border border-gray-200",
+              )}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+      )}
+
       <div
         className={cn(
-          "bg-white p-8 rounded-2xl shadow-xs border border-gray-200 max-w-2xl",
+          "bg-white p-4 sm:p-6 md:p-8 rounded-2xl shadow-xs border border-gray-200 max-w-2xl w-full",
         )}
       >
-        <h2
-          className={cn("text-xl font-bold mb-6 text-gray-900 border-b pb-3")}
-        >
-          {t("personalInfo")}
-        </h2>
-        <form
-          onSubmit={handleUpdateProfile}
-          className={cn("space-y-4 text-sm")}
-        >
-          <div>
-            <label
-              className={cn("block text-gray-500 font-medium text-xs mb-1")}
-            >
-              {t("fullName")}
-            </label>
-            <input
-              type="text"
-              value={profileName}
-              onChange={(e) => setProfileName(e.target.value)}
-              disabled={!features.profileEdit}
+        {section === "info" && (
+          <>
+            <h2
               className={cn(
-                "w-full bg-white border border-gray-300 rounded-lg p-3 outline-none text-gray-800 font-medium focus:border-black disabled:bg-gray-50",
+                "text-lg sm:text-xl font-bold mb-6 text-gray-900 border-b pb-3",
               )}
-              required
-            />
-          </div>
-
-          <div>
-            <label
-              className={cn("block text-gray-500 font-medium text-xs mb-1")}
             >
-              {t("email")}
-            </label>
-            <input
-              type="email"
-              value={profileEmail}
-              readOnly
-              className={cn(
-                "w-full bg-gray-50 border border-gray-300 rounded-lg p-3 outline-none text-gray-800 font-medium cursor-not-allowed",
-              )}
-            />
-          </div>
-
-          <div>
-            <label
-              className={cn("block text-gray-500 font-medium text-xs mb-1")}
+              {t("personalInfo")}
+            </h2>
+            <form
+              onSubmit={handleUpdateProfile}
+              className={cn("space-y-4 text-sm")}
             >
-              {t("phone")}
-            </label>
-            <input
-              type="tel"
-              value={profilePhone}
-              onChange={(e) => setProfilePhone(e.target.value)}
-              disabled={!features.profileEdit}
-              className={cn(
-                "w-full bg-white border border-gray-300 rounded-lg p-3 outline-none text-gray-800 font-medium focus:border-black disabled:bg-gray-50",
-              )}
-            />
-          </div>
-
-          {features.profileEdit && (
-            <div className={cn("pt-4 flex flex-col gap-2")}>
-              <div className={cn("flex items-center gap-4")}>
-                <button
-                  type="submit"
+              <div>
+                <label
                   className={cn(
-                    "bg-black text-white px-6 py-3 rounded-lg font-bold hover:bg-gray-800 transition-colors",
+                    "block text-gray-500 font-medium text-xs mb-1",
                   )}
                 >
-                  {t("saveChanges")}
-                </button>
-                {saveMessage && (
-                  <span className={cn("text-green-600 font-bold text-sm")}>
-                    <i className={cn("fa-solid fa-check me-1")}></i>{" "}
-                    {saveMessage}
-                  </span>
-                )}
+                  {t("fullName")}
+                </label>
+                <input
+                  type="text"
+                  value={profileName}
+                  onChange={(e) => setProfileName(e.target.value)}
+                  disabled={!features.profileEdit}
+                  className={cn(
+                    "w-full bg-white border border-gray-300 rounded-lg p-3 outline-none text-gray-800 font-medium focus:border-black disabled:bg-gray-50",
+                  )}
+                  required
+                />
               </div>
-              {saveError && (
-                <p className={cn("text-red-600 text-sm font-medium")}>
-                  {saveError}
-                </p>
-              )}
-            </div>
-          )}
-        </form>
 
-        {features.profileEdit && (
+              <div>
+                <label
+                  className={cn(
+                    "block text-gray-500 font-medium text-xs mb-1",
+                  )}
+                >
+                  {t("email")}
+                </label>
+                <input
+                  type="email"
+                  value={profileEmail}
+                  readOnly
+                  className={cn(
+                    "w-full bg-gray-50 border border-gray-300 rounded-lg p-3 outline-none text-gray-800 font-medium cursor-not-allowed",
+                  )}
+                />
+              </div>
+
+              <div>
+                <label
+                  className={cn(
+                    "block text-gray-500 font-medium text-xs mb-1",
+                  )}
+                >
+                  {t("phone")}
+                </label>
+                <input
+                  type="tel"
+                  value={profilePhone}
+                  onChange={(e) => setProfilePhone(e.target.value)}
+                  disabled={!features.profileEdit}
+                  className={cn(
+                    "w-full bg-white border border-gray-300 rounded-lg p-3 outline-none text-gray-800 font-medium focus:border-black disabled:bg-gray-50",
+                  )}
+                />
+              </div>
+
+              {features.profileEdit && (
+                <div className={cn("pt-4 flex flex-col gap-2")}>
+                  <div className={cn("flex flex-wrap items-center gap-3")}>
+                    <button
+                      type="submit"
+                      className={cn(
+                        "bg-black text-white px-6 py-3 rounded-lg font-bold hover:bg-gray-800 transition-colors",
+                      )}
+                    >
+                      {t("saveChanges")}
+                    </button>
+                    {saveMessage && (
+                      <span className={cn("text-green-600 font-bold text-sm")}>
+                        <i className={cn("fa-solid fa-check me-1")}></i>{" "}
+                        {saveMessage}
+                      </span>
+                    )}
+                  </div>
+                  {saveError && (
+                    <p className={cn("text-red-600 text-sm font-medium")}>
+                      {saveError}
+                    </p>
+                  )}
+                </div>
+              )}
+            </form>
+          </>
+        )}
+
+        {section === "password" && features.profileEdit && (
           <>
-            <h3
+            <h2
               className={cn(
-                "text-xl font-bold mb-6 text-gray-900 border-b pb-3 mt-10",
+                "text-lg sm:text-xl font-bold mb-6 text-gray-900 border-b pb-3",
               )}
             >
               {t("changePassword")}
-            </h3>
+            </h2>
             <form
               onSubmit={handleChangePassword}
               className={cn("space-y-4 text-sm")}
             >
               <div>
                 <label
-                  className={cn("block text-gray-500 font-medium text-xs mb-1")}
+                  className={cn(
+                    "block text-gray-500 font-medium text-xs mb-1",
+                  )}
                 >
                   {t("currentPassword")}
                 </label>
@@ -163,7 +215,9 @@ export const ProfileTab = ({
               </div>
               <div>
                 <label
-                  className={cn("block text-gray-500 font-medium text-xs mb-1")}
+                  className={cn(
+                    "block text-gray-500 font-medium text-xs mb-1",
+                  )}
                 >
                   {t("newPassword")}
                 </label>
@@ -184,7 +238,7 @@ export const ProfileTab = ({
                   type="submit"
                   disabled={passwordStatus === "loading"}
                   className={cn(
-                    "bg-black text-white px-6 py-3 rounded-lg font-bold hover:bg-gray-800 transition-colors disabled:opacity-50 w-fit",
+                    "bg-black text-white px-6 py-3 rounded-lg font-bold hover:bg-gray-800 transition-colors disabled:opacity-50 w-full sm:w-fit",
                   )}
                 >
                   {t("changePassword")}
@@ -204,17 +258,23 @@ export const ProfileTab = ({
           </>
         )}
 
-        {features.savedAddresses && (
+        {section === "addresses" && features.savedAddresses && (
           <>
-            <h3
+            <h2
               className={cn(
-                "text-xl font-bold mb-6 text-gray-900 border-b pb-3 mt-10",
+                "text-lg sm:text-xl font-bold mb-6 text-gray-900 border-b pb-3",
               )}
             >
               {t("shippingAddresses")}
-            </h3>
+            </h2>
 
             <div className={cn("space-y-4")}>
+              {addresses.length === 0 && (
+                <p className={cn("text-sm text-gray-500")}>
+                  {t("noSavedAddresses")}
+                </p>
+              )}
+
               {addresses.map((addr) => (
                 <div
                   key={addr.id}
@@ -225,9 +285,13 @@ export const ProfileTab = ({
                       : "border-gray-200",
                   )}
                 >
-                  <div className={cn("flex justify-between items-start")}>
-                    <div>
-                      <div className={cn("flex items-center gap-2 mb-1")}>
+                  <div
+                    className={cn(
+                      "flex justify-between items-start gap-3",
+                    )}
+                  >
+                    <div className={cn("min-w-0")}>
+                      <div className={cn("flex flex-wrap items-center gap-2 mb-1")}>
                         <span className={cn("font-bold text-gray-900")}>
                           {addr.label}
                         </span>
@@ -241,7 +305,7 @@ export const ProfileTab = ({
                           </span>
                         )}
                       </div>
-                      <p className={cn("text-sm text-gray-600")}>
+                      <p className={cn("text-sm text-gray-600 break-words")}>
                         {addr.street}, {addr.city}
                       </p>
                       <p className={cn("text-sm text-gray-600")}>
@@ -254,8 +318,9 @@ export const ProfileTab = ({
                         {addr.phone}
                       </p>
                     </div>
-                    <div className={cn("flex flex-col gap-2")}>
+                    <div className={cn("flex flex-col gap-2 shrink-0")}>
                       <button
+                        type="button"
                         onClick={() => handleEditAddressClick(addr)}
                         className={cn(
                           "text-sm text-blue-600 font-bold hover:underline text-end",
@@ -264,6 +329,7 @@ export const ProfileTab = ({
                         {t("edit")}
                       </button>
                       <button
+                        type="button"
                         onClick={() => handleDeleteAddress(addr.id)}
                         className={cn(
                           "text-sm text-red-600 font-bold hover:underline text-end",
@@ -275,6 +341,7 @@ export const ProfileTab = ({
                   </div>
                   {!addr.isDefault && (
                     <button
+                      type="button"
                       onClick={() => handleSetDefault(addr.id)}
                       className={cn(
                         "text-sm text-gray-600 hover:text-black font-bold text-start",

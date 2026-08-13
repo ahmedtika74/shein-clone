@@ -126,12 +126,18 @@ export const CheckoutPanel = ({
         </h2>
         {user ? (
           <div className={cn("space-y-3")}>
+            {userAddresses.length === 0 && (
+              <p className={cn("text-sm text-gray-500")}>
+                {t("noSavedAddresses")}
+              </p>
+            )}
+
             {userAddresses.map((addr) => (
               <label
                 key={addr.id}
                 className={cn(
                   "flex items-start gap-3 p-3 border rounded-lg cursor-pointer transition-colors",
-                  selectedAddressId === addr.id
+                  String(selectedAddressId) === String(addr.id)
                     ? "border-black bg-gray-50 shadow-sm"
                     : "border-gray-200 hover:border-gray-300",
                 )}
@@ -139,12 +145,12 @@ export const CheckoutPanel = ({
                 <input
                   type="radio"
                   name="shippingAddress"
-                  checked={selectedAddressId === addr.id}
+                  checked={String(selectedAddressId) === String(addr.id)}
                   onChange={() => setSelectedAddressId(addr.id)}
                   className={cn("mt-1 accent-black")}
                 />
-                <div className={cn("flex-1 text-sm")}>
-                  <div className={cn("font-bold text-gray-900")}>
+                <div className={cn("flex-1 text-sm min-w-0")}>
+                  <div className={cn("font-bold text-gray-900 break-words")}>
                     {addr.label}
                     {addr.isDefault && (
                       <span
@@ -156,7 +162,7 @@ export const CheckoutPanel = ({
                       </span>
                     )}
                   </div>
-                  <div className={cn("text-gray-600 mt-1")}>
+                  <div className={cn("text-gray-600 mt-1 break-words")}>
                     {addr.street}, {addr.city}
                   </div>
                   <div className={cn("text-gray-600")}>
@@ -186,6 +192,12 @@ export const CheckoutPanel = ({
               >
                 {t("addNewAddress")}
               </Button>
+            )}
+
+            {!features.savedAddresses && userAddresses.length === 0 && (
+              <p className={cn("text-sm text-amber-700")}>
+                {t("addressesUnavailable")}
+              </p>
             )}
 
             {features.savedAddresses && (

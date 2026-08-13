@@ -47,7 +47,11 @@ export const UserDashboardPage = () => {
   }
 
   return (
-    <div className={cn("dashboard flex flex-1 bg-[#f7f7f7]")}>
+    <div
+      className={cn(
+        "dashboard flex flex-col md:flex-row flex-1 w-full min-w-0 bg-[#f7f7f7]",
+      )}
+    >
       <SEO title="User Dashboard" noindex={true} />
 
       <DashboardSidebar
@@ -57,58 +61,67 @@ export const UserDashboardPage = () => {
         navigate={navigate}
       />
 
-      <main className={cn("content flex-1 p-6 md:p-10")}>
-        <div className={cn("flex justify-between items-center gap-4 mb-8")}>
-          <div className="min-w-0">
+      <main
+        className={cn(
+          "content flex-1 min-w-0 w-full px-4 py-6 sm:p-6 md:p-10 pb-28 md:pb-10",
+        )}
+      >
+        <div className={cn("flex justify-between items-start gap-3 mb-6")}>
+          <div className="min-w-0 flex-1">
             <h1
               className={cn(
-                "text-2xl md:text-3xl font-bold text-gray-900 capitalize truncate",
+                "text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 capitalize break-words",
               )}
             >
-              {t("hello")} {logic.user?.name || "Customer"}!
+              {t("hello")} {logic.user?.name || t("customer")}!
             </h1>
-            <p className={cn("text-gray-500 text-sm mt-1 truncate")}>
+            <p className={cn("text-gray-500 text-sm mt-1 break-all")}>
               {logic.user?.email}
             </p>
           </div>
 
           <button
+            type="button"
             onClick={() => {
               logic.dispatch(logoutUser());
               navigate("/");
             }}
             className={cn(
-              "md:hidden shrink-0 bg-black text-white text-xs px-4 py-2 rounded-lg font-bold",
+              "md:hidden shrink-0 bg-black text-white text-xs px-3 py-2 rounded-lg font-bold",
             )}
           >
             {t("logout")}
           </button>
         </div>
 
-        <div className={cn("md:hidden flex gap-2 mb-6 border-b pb-3")}>
+        <div
+          className={cn(
+            "md:hidden flex gap-2 mb-6 border-b pb-3 overflow-x-auto",
+          )}
+        >
           <button
+            type="button"
             onClick={() => logic.setActiveTab("orders")}
             className={cn(
-              `px-4 py-2 text-sm rounded-lg font-bold ${
-                logic.activeTab === "orders"
-                  ? "bg-black text-white"
-                  : "bg-gray-200 text-gray-700"
-              }`,
+              "shrink-0 px-4 py-2 text-sm rounded-lg font-bold",
+              logic.activeTab === "orders"
+                ? "bg-black text-white"
+                : "bg-gray-200 text-gray-700",
             )}
           >
             {t("myOrders")}
           </button>
           <button
+            type="button"
             onClick={() => logic.setActiveTab("profile")}
             className={cn(
-              `px-4 py-2 text-sm rounded-lg font-bold ${
-                logic.activeTab === "profile"
-                  ? "bg-black text-white"
-                  : "bg-gray-200 text-gray-700"
-              }`,
+              "shrink-0 px-4 py-2 text-sm rounded-lg font-bold",
+              logic.activeTab === "profile"
+                ? "bg-black text-white"
+                : "bg-gray-200 text-gray-700",
             )}
           >
-            {t("personalInfo")}
+            {t("myProfile")}
           </button>
         </div>
 

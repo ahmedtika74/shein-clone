@@ -11,7 +11,11 @@ export const CartPage = () => {
   const logic = useCartLogic();
 
   return (
-    <div className={cn("cart-container w-[90%] max-w-275 mx-auto py-10")}>
+    <div
+      className={cn(
+        "cart-container w-[92%] max-w-275 mx-auto py-6 sm:py-10 pb-28 md:pb-10",
+      )}
+    >
       <SEO title="Shopping Cart" noindex={true} />
       <h1 className={cn("text-3xl font-bold mb-8 text-gray-900")}>
         {t("shoppingCart")} ({logic.cart.length})

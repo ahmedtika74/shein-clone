@@ -43,7 +43,7 @@ export const useCartLogic = () => {
   const [checkoutError, setCheckoutError] = useState("");
   const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
 
-  const userAddresses = user?.addresses || [];
+  const userAddresses = user?.addresses ?? [];
   const defaultAddress =
     userAddresses.find((a) => a.isDefault) || userAddresses[0] || null;
 
@@ -53,16 +53,23 @@ export const useCartLogic = () => {
   const [showAddressModal, setShowAddressModal] = useState(false);
 
   useEffect(() => {
-    if (user && features.savedAddresses) {
+    if (user?.token && features.savedAddresses) {
       dispatch(fetchAddressesThunk());
     }
-  }, [dispatch, user]);
+  }, [dispatch, user?.token]);
 
   useEffect(() => {
-    if (!selectedAddressId && defaultAddress?.id) {
-      setSelectedAddressId(defaultAddress.id);
+    if (!userAddresses.length) {
+      setSelectedAddressId(null);
+      return;
     }
-  }, [defaultAddress?.id, selectedAddressId]);
+    const stillValid = userAddresses.some(
+      (a) => String(a.id) === String(selectedAddressId),
+    );
+    if (!stillValid) {
+      setSelectedAddressId(defaultAddress?.id ?? userAddresses[0].id);
+    }
+  }, [user?.addresses, defaultAddress?.id, selectedAddressId]);
 
   const address = user
     ? userAddresses.find((a) => a.id === selectedAddressId) || null

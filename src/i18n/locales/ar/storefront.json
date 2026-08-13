@@ -86,6 +86,8 @@
   "qty": "الكمية:",
   "saveChanges": "حفظ التغييرات",
   "shippingAddresses": "عناوين الشحن",
+  "noSavedAddresses": "لا توجد عناوين محفوظة بعد. أضف عنواناً لمتابعة الدفع.",
+  "addressesUnavailable": "العناوين المحفوظة غير متاحة حالياً.",
   "default": "الافتراضي",
   "setAsDefault": "تعيين كافتراضي",
   "maxAddresses": "لقد وصلت للحد الأقصى وهو 3 عناوين.",
