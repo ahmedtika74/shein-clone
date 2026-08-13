@@ -13,6 +13,9 @@ import {
 } from "../services/apiClient";
 import {
   toAnnouncementPayload,
+  toAboutPage,
+  toAboutPagePayload,
+  emptyAboutPage,
   toCategory,
   toCategoryPayload,
   toFreeShippingPayload,
@@ -407,6 +410,22 @@ export const deleteContactMessageThunk = createAsyncThunk(
   }),
 );
 
+export const fetchAboutPageThunk = createAsyncThunk(
+  "data/fetchAboutPage",
+  withErrorMessage(async () =>
+    toAboutPage(await apiClient.get("/about", { authScope: "none" })),
+  ),
+);
+
+export const updateAboutPageThunk = createAsyncThunk(
+  "data/updateAboutPage",
+  withErrorMessage(async (form) => {
+    const payload = toAboutPagePayload(form);
+    await apiClient.put("/about", payload, { authScope: "admin" });
+    return payload;
+  }),
+);
+
 const emptySiteSettings = {
   logoUrl: "",
   siteName: "",
@@ -433,6 +452,7 @@ const initialState = {
   dashboardSummary: null,
   freeShipping: { enabled: false, threshold: 0 },
   siteSettings: emptySiteSettings,
+  aboutPage: emptyAboutPage,
 };
 
 /** Collections that only need `state[key] = payload` on fulfilment. */
@@ -581,6 +601,12 @@ const dataSlice = createSlice({
           (item) => String(item.id) !== String(action.payload),
         );
       })
+      .addCase(fetchAboutPageThunk.fulfilled, (state, action) => {
+        state.aboutPage = action.payload;
+      })
+      .addCase(updateAboutPageThunk.fulfilled, (state, action) => {
+        state.aboutPage = { ...emptyAboutPage, ...action.payload };
+      })
       .addMatcher(isPending, (state) => {
         state.status = "loading";
         state.error = null;
@@ -618,6 +644,7 @@ export const selectContactMessages = (state) => state.data.contactMessages;
 export const selectDashboardSummary = (state) => state.data.dashboardSummary;
 export const selectFreeShipping = (state) => state.data.freeShipping;
 export const selectSiteSettings = (state) => state.data.siteSettings;
+export const selectAboutPage = (state) => state.data.aboutPage;
 
 export const selectTopSellingProducts = createSelector(
   [selectOrders, selectProducts],

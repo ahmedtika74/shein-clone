@@ -109,55 +109,57 @@ export const ImageUrlField = ({
             <i className={cn("fa-solid fa-times")}></i>
           </button>
         </div>
-      ) : (
-        <div className={cn("flex flex-col gap-2")}>
-          <ModeToggle mode={mode} setMode={setMode} />
+      ) : null}
 
-          {mode === "upload" ? (
-            <div>
-              <input
-                id={inputId}
-                type="file"
-                accept="image/*"
-                onChange={handleFile}
-                disabled={uploading}
-                className={cn("hidden")}
-              />
-              <label
-                htmlFor={inputId}
-                className={cn(
-                  "inline-flex items-center justify-center bg-black text-white px-4 py-2 rounded-lg text-sm font-bold cursor-pointer hover:bg-gray-800 transition-colors whitespace-nowrap h-[42px]",
-                  uploading && "opacity-60 pointer-events-none",
-                )}
-              >
-                <i className={cn("fa-solid fa-upload me-2")}></i>
-                {uploading
-                  ? t("uploading", { defaultValue: "Uploading..." })
+      <div className={cn("flex flex-col gap-2")}>
+        <ModeToggle mode={mode} setMode={setMode} />
+
+        {mode === "upload" ? (
+          <div>
+            <input
+              id={inputId}
+              type="file"
+              accept="image/*"
+              onChange={handleFile}
+              disabled={uploading}
+              className={cn("hidden")}
+            />
+            <label
+              htmlFor={inputId}
+              className={cn(
+                "inline-flex items-center justify-center bg-black text-white px-4 py-2 rounded-lg text-sm font-bold cursor-pointer hover:bg-gray-800 transition-colors whitespace-nowrap h-[42px]",
+                uploading && "opacity-60 pointer-events-none",
+              )}
+            >
+              <i className={cn("fa-solid fa-upload me-2")}></i>
+              {uploading
+                ? t("uploading", { defaultValue: "Uploading..." })
+                : value
+                  ? t("replaceImage")
                   : t("chooseFile")}
-              </label>
-            </div>
-          ) : (
-            <div className={cn("flex w-full gap-2 items-start")}>
-              <input
-                type="text"
-                value={draftUrl}
-                onChange={(event) => setDraftUrl(event.target.value)}
-                placeholder="/products/example.jpg"
-                className={cn(inputClasses)}
-              />
-              <button
-                type="button"
-                onClick={handleAddUrl}
-                className={cn(
-                  "h-10 px-4 bg-black text-white text-sm font-bold rounded-lg hover:bg-gray-800 transition-colors whitespace-nowrap cursor-pointer",
-                )}
-              >
-                {t("addUrl")}
-              </button>
-            </div>
-          )}
-        </div>
-      )}
+            </label>
+          </div>
+        ) : (
+          <div className={cn("flex w-full gap-2 items-start")}>
+            <input
+              type="text"
+              value={draftUrl}
+              onChange={(event) => setDraftUrl(event.target.value)}
+              placeholder="https://… or /products/example.jpg"
+              className={cn(inputClasses)}
+            />
+            <button
+              type="button"
+              onClick={handleAddUrl}
+              className={cn(
+                "h-10 px-4 bg-black text-white text-sm font-bold rounded-lg hover:bg-gray-800 transition-colors whitespace-nowrap cursor-pointer",
+              )}
+            >
+              {value ? t("replaceUrl") : t("addUrl")}
+            </button>
+          </div>
+        )}
+      </div>
 
       {error && (
         <p className={cn("text-xs text-red-600 font-medium")}>{error}</p>

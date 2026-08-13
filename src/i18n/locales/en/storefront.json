@@ -260,5 +260,10 @@
   "sendMessage": "Send Message",
   "sending": "Sending...",
   "contactSendSuccess": "Your message was sent successfully. Thank you!",
-  "contactSendFailed": "Could not send your message. Please try again."
+  "contactSendFailed": "Could not send your message. Please try again.",
+  "aboutEmpty": "About content will appear here once it is published.",
+  "aboutLoadFailed": "Could not load the About page. Please try again later.",
+  "aboutPlaceholderBadge": "Preview content",
+  "aboutPlaceholderTitle": "Our Story",
+  "aboutPlaceholderContent": "We believe fashion should feel personal, confident, and easy.\n\nFrom everyday essentials to statement pieces, we curate collections that help you express your style with quality you can trust.\n\nOur mission is simple: bring you modern looks, fair prices, and a shopping experience that feels smooth from discovery to delivery.\n\nThank you for being part of our journey — we’re just getting started."
 }

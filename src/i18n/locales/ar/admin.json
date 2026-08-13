@@ -329,5 +329,22 @@
   "confirmDeleteMessage": "هل أنت متأكد من حذف هذه الرسالة؟ لا يمكن التراجع عن هذا الإجراء.",
   "failedToLoadMessages": "فشل تحميل الرسائل",
   "failedToUpdateMessageStatus": "فشل تحديث حالة الرسالة",
-  "failedToDeleteMessage": "فشل حذف الرسالة"
+  "failedToDeleteMessage": "فشل حذف الرسالة",
+  "aboutUs": "من نحن",
+  "aboutPageHint": "المحتوى المعروض في صفحة من نحن للزوار.",
+  "titleEn": "العنوان (بالإنجليزية)",
+  "titleAr": "العنوان (بالعربية)",
+  "contentEn": "المحتوى (بالإنجليزية)",
+  "contentAr": "المحتوى (بالعربية)",
+  "aboutTitlePlaceholderEn": "About our store",
+  "aboutTitlePlaceholderAr": "عن متجرنا",
+  "aboutContentPlaceholderEn": "Write the About Us story in English...",
+  "aboutContentPlaceholderAr": "اكتب قصة من نحن بالعربية...",
+  "aboutImageOptional": "صورة الغلاف (اختياري) — رفع أو رابط",
+  "replaceImage": "استبدال الصورة",
+  "replaceUrl": "استبدال الرابط",
+  "saveAbout": "حفظ صفحة من نحن",
+  "aboutSaved": "تم حفظ صفحة من نحن بنجاح!",
+  "failedToLoadAbout": "فشل تحميل صفحة من نحن",
+  "failedToSaveAbout": "فشل حفظ صفحة من نحن"
 }

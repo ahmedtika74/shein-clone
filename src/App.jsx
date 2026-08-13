@@ -42,6 +42,7 @@ import { WishlistPage } from "./pages/storefront/WishlistPage";
 import { LoginPage } from "./pages/storefront/LoginPage";
 import { UserDashboardPage } from "./pages/storefront/UserDashboard";
 import { ContactPage } from "./pages/storefront/ContactPage";
+import { AboutPage } from "./pages/storefront/AboutPage";
 
 import { AdminLayout } from "./components/admin/AdminLayout";
 import { AdminLoginPage } from "./pages/admin/AdminLoginPage";
@@ -57,6 +58,7 @@ import { AdminShippingRatesPage } from "./pages/admin/AdminShippingRatesPage";
 import { AdminSettingsPage } from "./pages/admin/AdminSettingsPage";
 import { AdminReportsPage } from "./pages/admin/AdminReports";
 import { AdminContactMessagesPage } from "./pages/admin/AdminContactMessagesPage";
+import { AdminAboutPage } from "./pages/admin/AdminAboutPage";
 
 /** Public data every visitor needs before the shell can render. */
 const bootstrapThunks = [
@@ -154,6 +156,7 @@ export function App() {
               <Route path="wishlist" element={<WishlistPage />} />
               <Route path="login" element={<LoginPage />} />
               <Route path="contact" element={<ContactPage />} />
+              <Route path="about" element={<AboutPage />} />
               <Route
                 path="user-dashboard"
                 element={
@@ -192,6 +195,7 @@ export function App() {
                 path="contact-messages"
                 element={<AdminContactMessagesPage />}
               />
+              <Route path="about" element={<AdminAboutPage />} />
             </Route>
 
             <Route path="*" element={<Navigate to="/" replace />} />

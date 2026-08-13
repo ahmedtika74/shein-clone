@@ -36,7 +36,7 @@ export const Footer = () => {
         <div className={cn("footer-box flex flex-col gap-[12px]")}>
           <h3 className={cn("text-lg font-bold mb-[15px]")}>{t("company")}</h3>
           <Link
-            to="#"
+            to="/about"
             className={cn("text-gray-300 hover:text-white transition-colors")}
           >
             {t("aboutUs")}

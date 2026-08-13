@@ -329,5 +329,22 @@
   "confirmDeleteMessage": "Are you sure you want to delete this message? This cannot be undone.",
   "failedToLoadMessages": "Failed to load messages",
   "failedToUpdateMessageStatus": "Failed to update message status",
-  "failedToDeleteMessage": "Failed to delete message"
+  "failedToDeleteMessage": "Failed to delete message",
+  "aboutUs": "About Us",
+  "aboutPageHint": "Content shown on the public About Us page.",
+  "titleEn": "Title (English)",
+  "titleAr": "Title (Arabic)",
+  "contentEn": "Content (English)",
+  "contentAr": "Content (Arabic)",
+  "aboutTitlePlaceholderEn": "About our store",
+  "aboutTitlePlaceholderAr": "عن متجرنا",
+  "aboutContentPlaceholderEn": "Write the About Us story in English...",
+  "aboutContentPlaceholderAr": "اكتب قصة من نحن بالعربية...",
+  "aboutImageOptional": "Cover image (optional) — upload or paste a URL",
+  "replaceImage": "Replace image",
+  "replaceUrl": "Replace URL",
+  "saveAbout": "Save About Page",
+  "aboutSaved": "About page saved successfully!",
+  "failedToLoadAbout": "Failed to load about page",
+  "failedToSaveAbout": "Failed to save about page"
 }

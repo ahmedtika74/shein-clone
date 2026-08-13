@@ -220,6 +220,30 @@ export const toSiteSettingsPayload = (form) => ({
   },
 });
 
+export const emptyAboutPage = {
+  titleEn: "",
+  titleAr: "",
+  contentEn: "",
+  contentAr: "",
+  imageUrl: "",
+};
+
+export const toAboutPage = (dto) => ({
+  titleEn: dto?.titleEn ?? "",
+  titleAr: dto?.titleAr ?? "",
+  contentEn: dto?.contentEn ?? "",
+  contentAr: dto?.contentAr ?? "",
+  imageUrl: dto?.imageUrl ?? "",
+});
+
+export const toAboutPagePayload = (form) => ({
+  titleEn: form.titleEn ?? "",
+  titleAr: form.titleAr ?? "",
+  contentEn: form.contentEn ?? "",
+  contentAr: form.contentAr ?? "",
+  imageUrl: form.imageUrl ?? "",
+});
+
 /** Map API status variants (RefundRequested, refund_requested, …) to UI labels. */
 export const normalizeOrderStatus = (status) => {
   if (status == null || status === "") return "Pending";

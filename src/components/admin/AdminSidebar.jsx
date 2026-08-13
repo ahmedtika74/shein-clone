@@ -40,6 +40,7 @@ export const AdminSidebar = ({ isOpen, onClose }) => {
       path: "/admin/contact-messages",
       icon: "fa-envelope",
     },
+    { label: t("aboutUs"), path: "/admin/about", icon: "fa-circle-info" },
     { label: t("siteSettings"), path: "/admin/settings", icon: "fa-gear" },
   ];
 
