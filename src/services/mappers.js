@@ -208,17 +208,38 @@ export const toSideCardPayload = (form) => ({
   link: form.link ?? "",
 });
 
-/** Matches SiteSettingsDto. */
-export const toSiteSettingsPayload = (form) => ({
-  logoUrl: form.logoUrl ?? "",
-  siteName: form.siteName ?? "",
-  socialLinks: {
-    facebook: form.socialLinks?.facebook ?? "",
-    instagram: form.socialLinks?.instagram ?? "",
-    tiktok: form.socialLinks?.tiktok ?? "",
-    youtube: form.socialLinks?.youtube ?? "",
-  },
-});
+/** Matches SiteSettingsDto. UI keeps `type` (logo|text); API uses `displayMode`. */
+export const toSiteSettings = (dto) => {
+  const displayMode = dto?.displayMode || dto?.type || "logo";
+  const mode = displayMode === "text" ? "text" : "logo";
+  return {
+    logoUrl: dto?.logoUrl ?? "",
+    siteName: dto?.siteName ?? "",
+    type: mode,
+    displayMode: mode,
+    socialLinks: {
+      facebook: dto?.socialLinks?.facebook ?? "",
+      instagram: dto?.socialLinks?.instagram ?? "",
+      tiktok: dto?.socialLinks?.tiktok ?? "",
+      youtube: dto?.socialLinks?.youtube ?? "",
+    },
+  };
+};
+
+export const toSiteSettingsPayload = (form) => {
+  const mode = (form.type || form.displayMode) === "text" ? "text" : "logo";
+  return {
+    logoUrl: mode === "text" ? "" : (form.logoUrl ?? ""),
+    siteName: form.siteName ?? "",
+    displayMode: mode,
+    socialLinks: {
+      facebook: form.socialLinks?.facebook ?? "",
+      instagram: form.socialLinks?.instagram ?? "",
+      tiktok: form.socialLinks?.tiktok ?? "",
+      youtube: form.socialLinks?.youtube ?? "",
+    },
+  };
+};
 
 export const emptyAboutPage = {
   titleEn: "",

@@ -62,12 +62,14 @@ export const useSettingsLogic = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const payload = {
-      siteName: settings.siteName,
-      logoUrl: settings.type === "text" ? "" : settings.logoUrl,
-      socialLinks: settings.socialLinks,
-    };
-    dispatch(updateSiteSettingsThunk(payload));
+    dispatch(
+      updateSiteSettingsThunk({
+        siteName: settings.siteName,
+        type: settings.type,
+        logoUrl: settings.logoUrl,
+        socialLinks: settings.socialLinks,
+      }),
+    );
 
     setSaveMessage(t("settingsSaved"));
     setTimeout(() => setSaveMessage(""), 3000);

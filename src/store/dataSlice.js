@@ -35,6 +35,7 @@ import {
   toReviewPayload,
   toShippingRatePayload,
   toSideCardPayload,
+  toSiteSettings,
   toSiteSettingsPayload,
 } from "../services/mappers";
 
@@ -345,7 +346,7 @@ export const updateSideCardThunk = createAsyncThunk(
 
 export const fetchSiteSettingsThunk = createAsyncThunk(
   "data/fetchSiteSettings",
-  withErrorMessage(async () => apiClient.get("/settings")),
+  withErrorMessage(async () => toSiteSettings(await apiClient.get("/settings"))),
 );
 
 export const updateSiteSettingsThunk = createAsyncThunk(
@@ -353,7 +354,7 @@ export const updateSiteSettingsThunk = createAsyncThunk(
   withErrorMessage(async (settings) => {
     const payload = toSiteSettingsPayload(settings);
     await apiClient.put("/settings", payload);
-    return payload;
+    return toSiteSettings(payload);
   }),
 );
 
@@ -448,6 +449,8 @@ export const updateReturnsPageThunk = createAsyncThunk(
 const emptySiteSettings = {
   logoUrl: "",
   siteName: "",
+  type: "logo",
+  displayMode: "logo",
   socialLinks: { facebook: "", instagram: "", tiktok: "", youtube: "" },
 };
 
