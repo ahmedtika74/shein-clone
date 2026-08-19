@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { ErrorBoundary } from "./components/storefront/ErrorBoundary";
 import { ScrollToTop } from "./components/ScrollToTop";
+import { MetaPixelPageView } from "./components/MetaPixelPageView";
 import { LoadingSpinner } from "./components/common/LoadingSpinner";
 import { ErrorState } from "./components/common/ErrorState";
 import {
@@ -151,6 +152,7 @@ export function App() {
       <ErrorBoundary>
         <Router>
           <ScrollToTop />
+          <MetaPixelPageView />
           <Routes>
             <Route path="/" element={<Layout />}>
               <Route index element={<HomePage />} />
