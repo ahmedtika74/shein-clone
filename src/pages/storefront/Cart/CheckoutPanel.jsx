@@ -17,10 +17,7 @@ import {
   getPaymentMethodKind,
   openPaymentLink,
 } from "../../../utils/paymentMethodActions";
-import {
-  uploadMedia,
-  MediaUsageCategory,
-} from "../../../services/mediaUpload";
+import { uploadOrderScreenshot } from "../../../services/mediaUpload";
 
 export const CheckoutPanel = ({
   dispatch,
@@ -74,7 +71,7 @@ export const CheckoutPanel = ({
     setIsUploadingScreenshot(true);
     setScreenshotError("");
     try {
-      const url = await uploadMedia(file, MediaUsageCategory.Transaction);
+      const url = await uploadOrderScreenshot(file);
       if (!url) throw new Error(t("uploadFailed", { ns: "common" }));
       setTransactionScreenshot(url);
     } catch (err) {

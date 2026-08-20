@@ -33,15 +33,40 @@ export const uploadMedia = async (
       headers: { "Content-Type": undefined },
     });
 
-    if (typeof data === "string") return data;
-    return (
-      data?.url ||
-      data?.secureUrl ||
-      data?.publicUrl ||
-      data?.imageUrl ||
-      data?.path ||
-      ""
-    );
+    return extractMediaUrl(data);
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error));
+  }
+};
+
+const extractMediaUrl = (data) => {
+  if (typeof data === "string") return data;
+  return (
+    data?.url ||
+    data?.secureUrl ||
+    data?.publicUrl ||
+    data?.imageUrl ||
+    data?.path ||
+    ""
+  );
+};
+
+/**
+ * Customer checkout: upload payment proof via POST /orders/Screenshot.
+ * Uses Transaction category; requires a logged-in user bearer token.
+ */
+export const uploadOrderScreenshot = async (file, folder = "") => {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("usageCategory", String(MediaUsageCategory.Transaction));
+  if (folder) formData.append("folder", folder);
+
+  try {
+    const data = await apiClient.post("/orders/Screenshot", formData, {
+      headers: { "Content-Type": undefined },
+      authScope: "user",
+    });
+    return extractMediaUrl(data);
   } catch (error) {
     throw new Error(getApiErrorMessage(error));
   }
