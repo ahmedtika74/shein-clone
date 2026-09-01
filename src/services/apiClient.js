@@ -6,7 +6,7 @@ const ADMIN_TOKEN_KEY = "adminToken";
 const CURRENT_USER_KEY = "currentUser";
 
 const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || "/api",
+  baseURL: import.meta.env.VITE_API_BASE_URL || "https://woodencorner-001-site2.gtempurl.com/api",
   headers: {
     "Content-Type": "application/json",
   },
