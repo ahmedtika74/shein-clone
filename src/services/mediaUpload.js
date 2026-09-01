@@ -55,7 +55,11 @@ const extractMediaUrl = (data) => {
  * Customer checkout: upload payment proof via POST /orders/Screenshot.
  * Uses Transaction category; requires a logged-in user bearer token.
  */
-export const uploadOrderScreenshot = async (file, folder = "") => {
+export const uploadOrderScreenshot = async (
+  file,
+  folder = "",
+  { guest = false } = {},
+) => {
   const formData = new FormData();
   formData.append("file", file);
   formData.append("usageCategory", String(MediaUsageCategory.Transaction));
@@ -64,7 +68,7 @@ export const uploadOrderScreenshot = async (file, folder = "") => {
   try {
     const data = await apiClient.post("/orders/Screenshot", formData, {
       headers: { "Content-Type": undefined },
-      authScope: "user",
+      authScope: guest ? "none" : "user",
     });
     return extractMediaUrl(data);
   } catch (error) {

@@ -7,7 +7,7 @@ import { Button, Input } from "../../../components/ui";
 import { createAddressThunk } from "../../../store/authSlice";
 import { getLocalizedString } from "../../../utils/localization";
 import { getImageUrl } from "../../../utils/getImageUrl";
-import { findShippingRate } from "../../../utils/shipping";
+import { findShippingRate, shippingRateValue } from "../../../utils/shipping";
 import { features } from "../../../config/features";
 import {
   copyPaymentNumber,
@@ -27,6 +27,9 @@ export const CheckoutPanel = ({
   showAddressModal,
   setShowAddressModal,
   user,
+  guestDetails,
+  setGuestDetails,
+  canGuestCheckout,
   shippingRates,
   paymentMethods,
   selectedPaymentMethod,
@@ -71,7 +74,7 @@ export const CheckoutPanel = ({
     setIsUploadingScreenshot(true);
     setScreenshotError("");
     try {
-      const url = await uploadOrderScreenshot(file);
+      const url = await uploadOrderScreenshot(file, "", { guest: !user });
       if (!url) throw new Error(t("uploadFailed", { ns: "common" }));
       setTransactionScreenshot(url);
     } catch (err) {
@@ -206,6 +209,98 @@ export const CheckoutPanel = ({
                 initialAddress={null}
               />
             )}
+          </div>
+        ) : canGuestCheckout ? (
+          <div className={cn("space-y-3")}>
+            <p className={cn("text-xs text-gray-500")}>
+              {t("guestCheckoutHint")}
+            </p>
+            <Input
+              label={t("fullName")}
+              value={guestDetails.fullName}
+              onChange={(e) =>
+                setGuestDetails((prev) => ({
+                  ...prev,
+                  fullName: e.target.value,
+                }))
+              }
+              required
+            />
+            <Input
+              type="email"
+              label={t("email")}
+              value={guestDetails.email}
+              onChange={(e) =>
+                setGuestDetails((prev) => ({ ...prev, email: e.target.value }))
+              }
+              required
+            />
+            <div>
+              <label
+                className={cn(
+                  "block text-xs font-bold text-gray-700 uppercase mb-1",
+                )}
+              >
+                {t("government")}
+              </label>
+              <select
+                required
+                value={guestDetails.government}
+                onChange={(e) =>
+                  setGuestDetails((prev) => ({
+                    ...prev,
+                    government: e.target.value,
+                  }))
+                }
+                className={cn(
+                  "w-full p-3 border border-gray-300 rounded-lg text-sm outline-none focus:border-black bg-white",
+                )}
+              >
+                <option value="">{t("selectGovernment")}</option>
+                {shippingRates.map((rate) => (
+                  <option key={rate.id} value={shippingRateValue(rate)}>
+                    {getLocalizedString(rate, "government", i18n.language)}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <Input
+              label={t("city")}
+              value={guestDetails.city}
+              onChange={(e) =>
+                setGuestDetails((prev) => ({ ...prev, city: e.target.value }))
+              }
+              required
+            />
+            <Input
+              label={t("streetAddress")}
+              value={guestDetails.street}
+              onChange={(e) =>
+                setGuestDetails((prev) => ({
+                  ...prev,
+                  street: e.target.value,
+                }))
+              }
+              required
+            />
+            <Input
+              label={t("phone")}
+              value={guestDetails.phone}
+              onChange={(e) =>
+                setGuestDetails((prev) => ({ ...prev, phone: e.target.value }))
+              }
+              required
+            />
+            <p className={cn("text-xs text-gray-500")}>
+              {t("orLoginToUseSavedAddress")}{" "}
+              <Link
+                to="/login"
+                state={{ from: "/cart" }}
+                className={cn("font-bold text-black hover:underline")}
+              >
+                {t("signIn")}
+              </Link>
+            </p>
           </div>
         ) : (
           <div
@@ -568,7 +663,7 @@ export const CheckoutPanel = ({
             {checkoutError}
           </div>
         )}
-        {user ? (
+        {user || canGuestCheckout ? (
           <button
             type="button"
             onClick={handleCheckout}

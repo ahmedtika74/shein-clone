@@ -216,7 +216,12 @@ export const fetchMyOrdersThunk = createAsyncThunk(
 
 export const createOrderThunk = createAsyncThunk(
   "data/createOrder",
-  withErrorMessage(async (payload) => apiClient.post("/orders", payload)),
+  withErrorMessage(async (arg) => {
+    const { guest, ...payload } = arg ?? {};
+    return apiClient.post("/orders", payload, {
+      authScope: guest ? "none" : "user",
+    });
+  }),
 );
 
 export const requestRefundThunk = createAsyncThunk(

@@ -39,12 +39,12 @@ export const CartPage = () => {
             {t("orderPlaced")}
           </p>
           <Link
-            to="/user-dashboard"
+            to={logic.user ? "/user-dashboard" : "/"}
             className={cn(
               "inline-block mt-6 bg-black text-white px-8 py-3 rounded-full font-bold hover:bg-gray-800 transition-colors",
             )}
           >
-            {t("viewOrders")}
+            {logic.user ? t("viewOrders") : t("startShopping")}
           </Link>
         </div>
       ) : logic.cart.length === 0 ? (

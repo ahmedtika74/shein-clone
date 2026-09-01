@@ -71,12 +71,32 @@ export const useCartLogic = () => {
     }
   }, [user?.addresses, defaultAddress?.id, selectedAddressId]);
 
-  const address = user
-    ? userAddresses.find((a) => a.id === selectedAddressId) || null
-    : null;
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("");
   const [transactionNumber, setTransactionNumber] = useState("");
   const [transactionScreenshot, setTransactionScreenshot] = useState("");
+  const [guestDetails, setGuestDetails] = useState({
+    fullName: "",
+    email: "",
+    government: "",
+    city: "",
+    street: "",
+    phone: "",
+  });
+
+  const requireLoginToBuy = features.requireLoginToBuy;
+  const canGuestCheckout = !user && !requireLoginToBuy;
+
+  const address = user
+    ? userAddresses.find((a) => a.id === selectedAddressId) || null
+    : canGuestCheckout
+      ? {
+          label: "Home",
+          government: guestDetails.government,
+          city: guestDetails.city,
+          street: guestDetails.street,
+          phone: guestDetails.phone,
+        }
+      : null;
 
   const [promoInput, setPromoInput] = useState("");
   const [appliedPromo, setAppliedPromo] = useState(null);
@@ -155,7 +175,7 @@ export const useCartLogic = () => {
   const handleCheckout = () => {
     setCheckoutError("");
 
-    if (!user) {
+    if (!user && requireLoginToBuy) {
       setCheckoutError(t("loginToCheckout"));
       navigate("/login", { state: { from: "/cart" } });
       return;
@@ -165,6 +185,14 @@ export const useCartLogic = () => {
       setCheckoutError(t("cartEmpty", { defaultValue: "Cart is empty" }));
       return;
     }
+
+    if (canGuestCheckout) {
+      if (!guestDetails.fullName.trim() || !guestDetails.email.trim()) {
+        setCheckoutError(t("guestCheckoutDetailsRequired"));
+        return;
+      }
+    }
+
     if (
       !address ||
       !address.street ||
@@ -196,8 +224,12 @@ export const useCartLogic = () => {
 
     const orderPayload = toOrderPayload({
       customerName:
-        user.name || user.fullName || address.label || "Customer",
-      userEmail: user.email || "",
+        user?.name ||
+        user?.fullName ||
+        guestDetails.fullName.trim() ||
+        address.label ||
+        "Customer",
+      userEmail: user?.email || guestDetails.email.trim() || "",
       cartItems: cart,
       subtotal: cartTotal,
       discount: discountAmount,
@@ -219,11 +251,11 @@ export const useCartLogic = () => {
     }
 
     setIsCheckoutLoading(true);
-    dispatch(createOrderThunk(orderPayload))
+    dispatch(createOrderThunk({ ...orderPayload, guest: !user }))
       .unwrap()
       .then(() => {
         dispatch(clearCart());
-        dispatch(fetchMyOrdersThunk());
+        if (user) dispatch(fetchMyOrdersThunk());
         setCheckoutMessage(t("orderPlacedSuccess"));
       })
       .catch((err) => {
@@ -251,6 +283,10 @@ export const useCartLogic = () => {
     showAddressModal,
     setShowAddressModal,
     user,
+    guestDetails,
+    setGuestDetails,
+    requireLoginToBuy,
+    canGuestCheckout,
     selectedPaymentMethod,
     setSelectedPaymentMethod,
     transactionNumber,
