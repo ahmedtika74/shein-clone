@@ -45,8 +45,11 @@ const SideCardEditor = ({ card, index, side }) => {
   const handleSave = async () => {
     setError("");
     setIsSaving(true);
-    // API slots are 1-based; fall back to list index + 1 when slot is missing.
-    const slot = Number(card.slot) > 0 ? Number(card.slot) : index + 1;
+    // API returns 0-based slotIndex; the URL parameter also uses 0-based indexing.
+    const slot =
+      Number.isFinite(card.slotIndex) && card.slotIndex >= 0
+        ? card.slotIndex
+        : index;
     try {
       await dispatch(
         updateSideCardThunk({

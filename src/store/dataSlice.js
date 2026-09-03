@@ -582,7 +582,7 @@ const dataSlice = createSlice({
       })
       .addCase(fetchSideCardsThunk.fulfilled, (state, action) => {
         const bySlot = (a, b) =>
-          (Number(a.slot) || 0) - (Number(b.slot) || 0);
+          (Number(a.slotIndex) || 0) - (Number(b.slotIndex) || 0);
         state.leftSideCards = action.payload
           .filter((card) => card.position === "left")
           .sort(bySlot);
@@ -592,7 +592,7 @@ const dataSlice = createSlice({
       })
       .addCase(updateSideCardThunk.fulfilled, (state, action) => {
         const bySlot = (a, b) =>
-          (Number(a.slot) || 0) - (Number(b.slot) || 0);
+          (Number(a.slotIndex) || 0) - (Number(b.slotIndex) || 0);
         state.leftSideCards = action.payload
           .filter((card) => card.position === "left")
           .sort(bySlot);
